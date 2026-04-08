@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Egyetemi Karrierszolgáltatások – Prohuman Elemzés 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #000073;
+    --blue: #0345EB;
+    --mid-blue: #2e9cff;
+    --bg: #f5f6fa;
+    --white: #ffffff;
+    --dark: #1a1a2e;
+    --text: #2d2d4e;
+    --muted: #6b7280;
+    --light-border: #e5e7f0;
+    --orange: #ff5c00;
+    --teal: #00a89e;
+    --yellow: #ebc230;
+    --red: #ed1c2e;
+    --purple: #754dba;
+    --green: #27ae60;
+    --card-bg: #ffffff;
+    --grad: linear-gradient(135deg, #000073, #0345EB);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== DECORATIVE SVG PATTERNS ===== */
+  .deco-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--blue);
+    opacity: 0.08;
+    pointer-events: none;
+  }
+  .deco-arc {
+    position: absolute;
+    border-radius: 0 0 0 100%;
+    background: var(--blue);
+    opacity: 0.06;
+    pointer-events: none;
+  }
+
+  /* ===== TOP NAV ===== */
+  .topbar {
+    background: var(--white);
+    border-bottom: 3px solid var(--blue);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 2px 16px rgba(3,69,235,0.08);
+  }
+  .topbar-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    gap: 0;
+  }
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 0;
+    margin-right: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  /* Prohuman logo SVG inline */
+  .logo-svg { width: 36px; height: 36px; }
+
+  .logo-text {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: 0.04em;
+  }
+  .logo-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--light-border);
+    margin-right: 2.5rem;
+    flex-shrink: 0;
+  }
+  nav { display: flex; gap: 0; overflow-x: auto; }
+  nav button {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 1.1rem 1.2rem;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: all 0.2s;
+  }
+  nav button:hover { color: var(--blue); }
+  nav button.active { color: var(--navy); border-bottom-color: var(--blue); }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: var(--white);
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 3rem 3.5rem;
+    border-bottom: 1px solid var(--light-border);
+  }
+  .hero-inner { max-width: 1280px; margin: 0 auto; position: relative; z-index: 2; }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(3,69,235,0.07);
+    color: var(--blue);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.9rem;
+    border-radius: 3px;
+    margin-bottom: 1.4rem;
+  }
+  .hero h1 {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.15;
+    max-width: 620px;
+    margin-bottom: 0.9rem;
+  }
+  .hero h1 .blue { color: var(--blue); }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.65;
+    max-width: 580px;
+    margin-bottom: 2rem;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .hero-stat .num {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .hero-stat .lbl {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 0.2rem;
+  }
+
+  /* Hero decorative circles (right side) */
+  .hero-deco {
+    position: absolute;
+    right: -60px;
+    bottom: -80px;
+    width: 380px;
+    height: 380px;
+    border-radius: 0 0 0 100%;
+    background: var(--blue);
+    opacity: 0.06;
+    z-index: 1;
+  }
+  .hero-deco2 {
+    position: absolute;
+    right: 80px;
+    top: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: var(--navy);
+    opacity: 0.05;
+    z-index: 1;
+  }
+
+  /* ===== CONTENT WRAPPER ===== */
+  .content { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+  section { display: none; }
+  section.active { display: block; }
+
+  /* ===== SECTION HEAD ===== */
+  .sec-head { margin-bottom: 2rem; }
+  .sec-head h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 0.3rem;
+    position: relative;
+    padding-left: 1rem;
+  }
+  .sec-head h2::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0.2rem;
+    width: 4px; height: 1.2rem;
+    background: var(--grad);
+    border-radius: 2px;
+  }
+  .sec-head p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; padding-left: 1rem; }
+
+  /* ===== UNI CARDS ===== */
+  .uni-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; }
+
+  .uni-card {
+    background: var(--white);
+    border: 1px solid var(--light-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,115,0.04);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .uni-card:hover { box-shadow: 0 6px 24px rgba(3,69,235,0.1); transform: translateY(-2px); }
+
+  .uni-card-header {
+    padding: 1.4rem 1.5rem 1.1rem;
+    border-bottom: 1px solid var(--light-border);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .uni-card-header::after {
+    content: '';
+    position: absolute;
+    right: -20px; bottom: -20px;
+    width: 80px; height: 80px;
+    border-radius: 0 0 0 100%;
+    background: var(--blue);
+    opacity: 0.04;
+  }
+
+  /* University logo container */
+  .uni-logo-wrap {
+    width: 52px; height: 52px;
+    border-radius: 10px;
+    border: 1.5px solid var(--light-border);
+    display: flex; align-items: center; justify-content: center;
+    background: #f8f9ff;
+    flex-shrink: 0;
+    overflow: hidden;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -0.02em;
+  }
+  .uni-logo-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+
+  .uni-header-info { flex: 1; min-width: 0; }
+  .uni-name {
+    font-size: 0.97rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.25;
+    margin-bottom: 0.25rem;
+  }
+  .uni-meta { font-size: 0.75rem; color: var(--muted); display: flex; gap: 0.8rem; flex-wrap: wrap; }
+  .uni-meta span { display: flex; align-items: center; gap: 0.25rem; }
+
+  .level-chip {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  .l4 { background: #e8f8f0; color: #15803d; border: 1px solid #bbf7d0; }
+  .l3 { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .l2 { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  .l1 { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+
+  /* Radar metrics row */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-bottom: 1px solid var(--light-border);
+  }
+  .metric-cell {
+    padding: 0.8rem 0.6rem;
+    text-align: center;
+    border-right: 1px solid var(--light-border);
+    position: relative;
+  }
+  .metric-cell:last-child { border-right: none; }
+  .metric-icon { font-size: 1rem; margin-bottom: 0.2rem; }
+  .metric-val {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+  .metric-lbl { font-size: 0.62rem; color: var(--muted); margin-top: 0.15rem; line-height: 1.3; }
+
+  .dot-rating { display: flex; justify-content: center; gap: 2px; margin-top: 0.2rem; }
+  .dot-r { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-filled { background: var(--blue); }
+  .dot-empty { background: #e5e7eb; }
+
+  /* Services list */
+  .card-body { padding: 1.2rem 1.5rem; }
+  .services-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.7rem;
+  }
+  .svc-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+  .svc-tag {
+    font-size: 0.73rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .svc-career { background: #eff6ff; color: #1d4ed8; }
+  .svc-mental { background: #fdf4ff; color: #7e22ce; }
+  .svc-corporate { background: #f0fdf4; color: #166534; }
+  .svc-digital { background: #fff7ed; color: #c2410c; }
+  .svc-missing { background: #fef2f2; color: #b91c1c; text-decoration: line-through; opacity: 0.7; }
+
+  /* Staff info */
+  .staff-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    background: #f8f9ff;
+    border-radius: 8px;
+    padding: 0.8rem;
+  }
+  .staff-cell { text-align: center; }
+  .staff-num {
+    font-size: 1.2rem;
+    font-weight: 800;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .staff-lbl { font-size: 0.65rem; color: var(--muted); margin-top: 0.1rem; line-height: 1.3; }
+
+  /* Access bar */
+  .access-wrap { margin-bottom: 0.6rem; }
+  .access-top { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.3rem; }
+  .bar { height: 5px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; background: var(--grad); }
+
+  /* Gap note */
+  .gap-note {
+    background: #fffbeb;
+    border-left: 3px solid var(--yellow);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.78rem;
+    color: #78350f;
+    line-height: 1.45;
+    margin-top: 0.8rem;
+  }
+  .gap-note.positive {
+    background: #f0fdf4;
+    border-left-color: var(--green);
+    color: #14532d;
+  }
+
+  /* ===== SERVICE MAP ===== */
+  .map-scroll { overflow-x: auto; }
+  table.svc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    min-width: 960px;
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,115,0.04);
+  }
+  .svc-table thead tr {
+    background: var(--navy);
+    color: white;
+  }
+  .svc-table th {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.9rem 0.5rem;
+    text-align: center;
+  }
+  .svc-table th:first-child { text-align: left; width: 180px; padding-left: 1.2rem; }
+  .svc-table td {
+    padding: 0.65rem 0.5rem;
+    border-bottom: 1px solid var(--light-border);
+    text-align: center;
+    vertical-align: middle;
+  }
+  .svc-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--navy);
+    padding-left: 1.2rem;
+  }
+  .svc-table tr:last-child td { border-bottom: none; }
+  .svc-table tr:hover td { background: #f8f9ff; }
+  .svc-table .cat-row td {
+    background: #f0f4ff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.4rem 0.5rem;
+  }
+  .svc-table .cat-row td:first-child { padding-left: 1.2rem; }
+
+  .c-yes { color: var(--blue); font-size: 1.1rem; font-weight: 700; }
+  .c-part { color: var(--orange); font-size: 0.73rem; font-weight: 700; }
+  .c-no { color: #d1d5db; font-size: 0.9rem; }
+
+  .util-bar { width: 64px; display: inline-flex; align-items: center; gap: 0.4rem; }
+  .u-track { flex: 1; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden; }
+  .u-f { height: 100%; background: var(--grad); border-radius: 2px; }
+
+  /* ===== MATURITY MODEL ===== */
+  .mat-levels {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--light-border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,115,0.04);
+  }
+  .mat-col {
+    background: var(--white);
+    padding: 1.5rem 1.2rem;
+  }
+  .mat-col.l4-col { border-top: 4px solid #15803d; }
+  .mat-col.l3-col { border-top: 4px solid var(--blue); }
+  .mat-col.l2-col { border-top: 4px solid var(--orange); }
+  .mat-col.l1-col { border-top: 4px solid #94a3b8; }
+
+  .mat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .mat-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.7rem;
+  }
+  .mat-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.8rem; }
+  .mat-crit { font-size: 0.73rem; color: var(--muted); }
+  .mat-crit div { padding: 0.2rem 0; border-bottom: 1px solid var(--light-border); }
+  .mat-crit div:last-child { border: none; }
+
+  /* Maturity cards grid */
+  .mat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+
+  .mat-card {
+    background: var(--white);
+    border: 1px solid var(--light-border);
+    border-radius: 10px;
+    padding: 1.3rem;
+    box-shadow: 0 2px 6px rgba(0,0,115,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .mat-card::before {
+    content: '';
+    position: absolute;
+    bottom: -16px; right: -16px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    opacity: 0.06;
+  }
+  .mat-card.level4::before { background: #15803d; }
+  .mat-card.level3::before { background: var(--blue); }
+  .mat-card.level2::before { background: var(--orange); }
+  .mat-card.level1::before { background: #94a3b8; }
+
+  .mat-card-top {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  .mat-uni-logo {
+    width: 48px; height: 48px;
+    border-radius: 8px;
+    border: 1.5px solid var(--light-border);
+    background: #f8f9ff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--navy);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .mat-uni-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+
+  .mat-card-info {}
+  .mat-card-name { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.3rem; }
+
+  .mat-reason { font-size: 0.79rem; color: var(--muted); line-height: 1.55; }
+
+  /* Score pills on mat card */
+  .mat-scores { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.8rem 0; }
+  .mat-score-pill {
+    font-size: 0.67rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 3px;
+    display: flex; align-items: center; gap: 0.25rem;
+  }
+
+  /* ===== QUICK WINS ===== */
+  .qw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+  .qw-card {
+    background: var(--white);
+    border: 1px solid var(--light-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,115,0.04);
+  }
+  .qw-header {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--light-border);
+    position: relative;
+    overflow: hidden;
+  }
+  .qw-header::after {
+    content: '';
+    position: absolute;
+    right: -20px; bottom: -20px;
+    width: 90px; height: 90px;
+    border-radius: 0 0 0 100%;
+    opacity: 0.05;
+  }
+  .qw-priority {
+    background: var(--grad);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .qw-uni-name { font-size: 1rem; font-weight: 800; color: var(--navy); line-height: 1.2; }
+  .qw-uni-type { font-size: 0.75rem; color: var(--blue); font-weight: 600; margin-top: 0.15rem; }
+  .qw-body { padding: 1.2rem 1.5rem; }
+  .qw-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.5rem;
+    margin-top: 0.9rem;
+  }
+  .qw-section-title:first-child { margin-top: 0; }
+  .qw-step {
+    font-size: 0.82rem;
+    color: var(--text);
+    padding: 0.3rem 0;
+    display: flex;
+    gap: 0.6rem;
+    line-height: 1.45;
+    border-bottom: 1px solid var(--light-border);
+  }
+  .qw-step:last-child { border-bottom: none; }
+  .qw-arrow { color: var(--blue); font-weight: 700; flex-shrink: 0; }
+  .impact-wrap { margin-top: 1rem; }
+  .impact-top { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.3rem; }
+  .impact-track { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+  .impact-fill { height: 100%; border-radius: 3px; background: var(--grad); }
+
+  /* ===== SUMMARY CARDS ===== */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+  .sum-card {
+    background: var(--white);
+    border: 1px solid var(--light-border);
+    border-radius: 10px;
+    padding: 1.3rem;
+    box-shadow: 0 2px 6px rgba(0,0,115,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .sum-card::after {
+    content: '';
+    position: absolute;
+    right: -12px; bottom: -12px;
+    width: 50px; height: 50px;
+    border-radius: 0 0 0 100%;
+    background: var(--blue);
+    opacity: 0.04;
+  }
+  .sum-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .sum-lbl { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+
+  /* Alert boxes */
+  .alert {
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  .alert-blue { background: #eff6ff; border-left: 4px solid var(--blue); color: #1e3a8a; }
+  .alert-orange { background: #fff7ed; border-left: 4px solid var(--orange); color: #7c2d12; }
+  .alert-green { background: #f0fdf4; border-left: 4px solid var(--green); color: #14532d; }
+
+  /* Prohuman footer bar */
+  .footer-bar {
+    background: var(--navy);
+    color: white;
+    padding: 1.2rem 3rem;
+    font-size: 0.78rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0.9;
+  }
+
+  @media (max-width: 768px) {
+    .hero { padding: 2.5rem 1.5rem; }
+    .content { padding: 1.5rem 1rem 3rem; }
+    .mat-levels { grid-template-columns: repeat(2, 1fr); }
+    .metrics-row { grid-template-columns: repeat(3, 1fr); }
+  }
+
+/* ===== PROFILES SECTION ===== */
+.uni-tabs-wrap {
+  background:var(--white);border-bottom:1px solid var(--light-border);
+  padding:0 1.5rem;overflow-x:auto;white-space:nowrap;
+  display:flex;gap:0;position:sticky;top:63px;z-index:99;
+  box-shadow:0 2px 8px rgba(0,0,115,.04);margin:-2rem -2rem 0 -2rem;
+}
+.uni-tab {
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.85rem 1.1rem;font-size:.78rem;font-weight:600;
+  color:var(--muted);background:none;border:none;cursor:pointer;
+  border-bottom:3px solid transparent;margin-bottom:-1px;
+  white-space:nowrap;letter-spacing:.02em;
+  font-family:'Open Sans',sans-serif;transition:all .18s;
+}
+.uni-tab:hover{color:var(--navy);}
+.uni-tab.active{color:var(--navy);border-bottom-color:var(--blue);}
+.uni-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.uni-section{display:none;padding-top:1.5rem;}
+.uni-section.active{display:block;}
+.profile-header{
+  background:var(--white);border:1px solid var(--light-border);
+  border-radius:14px;padding:2rem;margin-bottom:1.5rem;
+  display:flex;gap:1.5rem;align-items:flex-start;
+  box-shadow:0 2px 10px rgba(0,0,115,.04);
+  position:relative;overflow:hidden;
+}
+.profile-header::before{
+  content:'';position:absolute;right:-40px;bottom:-40px;
+  width:140px;height:140px;border-radius:50%;opacity:.05;background:var(--blue);
+}
+.profile-logo{
+  width:72px;height:72px;border-radius:12px;
+  border:2px solid var(--light-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;font-weight:800;color:var(--navy);
+  background:#f0f4ff;flex-shrink:0;
+}
+.profile-meta{flex:1;min-width:0;}
+.profile-name{font-size:1.4rem;font-weight:800;color:var(--navy);margin-bottom:.25rem;}
+.profile-sub{font-size:.85rem;color:var(--muted);margin-bottom:.8rem;}
+.profile-tags{display:flex;flex-wrap:wrap;gap:.5rem;}
+.ptag{font-size:.72rem;font-weight:700;padding:.22rem .65rem;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;}
+.ptag-level4{background:#e8f8f0;color:#15803d;border:1px solid #bbf7d0;}
+.ptag-level3{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+.ptag-level2{background:#fffbeb;color:#b45309;border:1px solid #fde68a;}
+.ptag-level1{background:#f8fafc;color:#475569;border:1px solid #e2e8f0;}
+.ptag-neutral{background:#f0f4ff;color:var(--navy);border:1px solid var(--light-border);}
+.quick-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.qs-card{background:var(--white);border:1px solid var(--light-border);border-radius:10px;padding:1rem 1.2rem;box-shadow:0 2px 6px rgba(0,0,115,.03);}
+.qs-val{font-size:1.5rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+.qs-lbl{font-size:.72rem;color:var(--muted);margin-top:.25rem;line-height:1.4;}
+.p-two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+@media(max-width:768px){.p-two-col{grid-template-columns:1fr;}}
+.info-block{background:var(--white);border:1px solid var(--light-border);border-radius:12px;padding:1.4rem;box-shadow:0 2px 8px rgba(0,0,115,.04);}
+.info-block.pfull{grid-column:1/-1;}
+.block-title{font-size:.75rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+.block-title-icon{font-size:1rem;}
+.svc-list{list-style:none;}
+.svc-item{display:flex;gap:.7rem;padding:.5rem 0;border-bottom:1px solid var(--light-border);font-size:.84rem;line-height:1.5;align-items:flex-start;}
+.svc-item:last-child{border:none;}
+.svc-icon{flex-shrink:0;font-size:.9rem;margin-top:1px;}
+.svc-name{font-weight:600;color:var(--text);}
+.svc-desc{font-size:.78rem;color:var(--muted);margin-top:.1rem;}
+.svc-link{display:inline-block;font-size:.73rem;color:var(--blue);font-weight:600;margin-top:.15rem;text-decoration:none;border-bottom:1px solid rgba(3,69,235,.3);}
+.svc-link:hover{border-bottom-color:var(--blue);}
+.contact-table{width:100%;font-size:.83rem;border-collapse:collapse;}
+.contact-table tr{border-bottom:1px solid var(--light-border);}
+.contact-table tr:last-child{border:none;}
+.contact-table td{padding:.45rem .3rem;vertical-align:top;}
+.contact-table td:first-child{color:var(--muted);font-weight:600;width:38%;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;padding-top:.55rem;}
+.contact-table a{color:var(--blue);text-decoration:none;border-bottom:1px solid rgba(3,69,235,.25);}
+.contact-table a:hover{border-bottom-color:var(--blue);}
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;}
+.staff-card{background:#f8f9ff;border:1px solid var(--light-border);border-radius:8px;padding:.85rem;}
+.staff-name{font-weight:700;font-size:.86rem;color:var(--navy);margin-bottom:.15rem;}
+.staff-role{font-size:.75rem;color:var(--muted);margin-bottom:.3rem;}
+.staff-email{font-size:.73rem;color:var(--blue);}
+.p-gap-box{border-radius:10px;padding:1rem 1.2rem;margin-top:1rem;font-size:.83rem;line-height:1.6;}
+.p-gap-warn{background:#fffbeb;border-left:4px solid var(--yellow);color:#78350f;}
+.p-gap-good{background:#f0fdf4;border-left:4px solid var(--green);color:#14532d;}
+.p-gap-danger{background:#fff1f2;border-left:4px solid var(--red);color:#881337;}
+.p-gap-info{background:#eff6ff;border-left:4px solid var(--blue);color:#1e3a8a;}
+.pbar-row{margin:.6rem 0;}
+.pbar-top{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-bottom:.3rem;}
+.pbar{height:6px;background:#e2e5f4;border-radius:3px;overflow:hidden;}
+.pbar-fill{height:100%;background:var(--grad);border-radius:3px;}
+.link-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem;}
+.link-item{display:flex;align-items:center;gap:.5rem;background:#f8f9ff;border:1px solid var(--light-border);border-radius:8px;padding:.65rem .9rem;text-decoration:none;color:var(--text);font-size:.8rem;font-weight:600;transition:all .15s;}
+.link-item:hover{background:#eff6ff;border-color:var(--blue);color:var(--navy);}
+.link-arrow{color:var(--blue);flex-shrink:0;font-size:.9rem;}
+
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo-area">
+      <!-- Prohuman logo reproduced as SVG -->
+      <svg class="logo-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="10" r="6" fill="#0345EB"/>
+        <path d="M6 32 Q6 22 18 22 Q30 22 30 32" fill="#0345EB"/>
+        <circle cx="18" cy="10" r="3.5" fill="#000073"/>
+      </svg>
+      <span class="logo-text">PROHUMAN</span>
+    </div>
+    <div class="logo-divider"></div>
+    <nav id="main-nav">
+      <button class="active" onclick="showSection('intro')">Összefoglaló</button>
+      <button onclick="showSection('institutions')">1. Intézményi elemzés</button>
+      <button onclick="showSection('servicemap')">2. Szolgáltatástérkép</button>
+      <button onclick="showSection('maturity')">3. Érettségi modell</button>
+      <button onclick="showSection('quickwins')">4. Quick wins</button>
+      <button onclick="showSection('profiles')">5. Intézményi profilok</button>
+    </nav>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-deco"></div>
+  <div class="hero-deco2"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">
+      <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#0345EB"/></svg>
+      Prohuman · Felsőoktatási Radar 2026
+    </div>
+    <h1>Egyetemi <span class="blue">Karrierszolgáltatások</span><br>Magyarország & BBU</h1>
+    <p class="hero-sub">10 felsőoktatási intézmény karrier-, pályaorientációs és mentálhigiénés szolgáltatásainak átfogó elemzése — hallgatói élmény, vállalati együttműködések, infrastruktúra és stratégiai fejlesztési lehetőségek.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">10</div><div class="lbl">vizsgált intézmény</div></div>
+      <div class="hero-stat"><div class="num">7</div><div class="lbl">értékelési szempont</div></div>
+      <div class="hero-stat"><div class="num">0</div><div class="lbl">AI-kompetencia platformot alkalmaz</div></div>
+      <div class="hero-stat"><div class="num">8/10</div><div class="lbl">nyújt valamilyen mentálhigiénés szolgáltatást</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ===== INTRO ===== -->
+<section id="intro" class="active">
+  <div class="sec-head">
+    <h2>Főbb megállapítások</h2>
+    <p>Rendszerszintű kép a magyarországi felsőoktatás karrierszolgáltatási érettségéről.</p>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sum-card"><div class="sum-num">1</div><div class="sum-lbl">L4 „Vezető" szintű intézmény (BCE)</div></div>
+    <div class="sum-card"><div class="sum-num">3</div><div class="sum-lbl">L3 „Haladó" szint (BME, ELTE, SZTE)</div></div>
+    <div class="sum-card"><div class="sum-num">4</div><div class="sum-lbl">L2 „Fejlődő" szint (DE, PTE, SZE, BBU)</div></div>
+    <div class="sum-card"><div class="sum-num">2</div><div class="sum-lbl">L1 „Alapszintű" (ME, ÓE)</div></div>
+    <div class="sum-card"><div class="sum-num">0</div><div class="sum-lbl">Kompetencia-alapú AI platform valahol</div></div>
+    <div class="sum-card"><div class="sum-num">8/10</div><div class="sum-lbl">Nyújt mentálhigiénés/pszichológiai tanácsadást</div></div>
+  </div>
+
+  <div class="alert alert-orange">
+    <strong>Rendszerszintű fehér folt:</strong> Egyetlen intézménynél sem azonosítottunk kompetenciatérkép-alapú, AI-vezérelt karrierszolgáltatást. A mentálhigiénés szolgáltatások meglepően elterjedtek (8/10), de jellemzően elkülönülnek a karrierirodától — ez az integrált „belső megküzdés + külső elhelyezkedés" modell hiányát jelzi.
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;">
+    <div class="alert alert-blue"><strong>Vállalati integráció:</strong> Az állásbörzéken túl nincs strukturált, folyamatos corporate együttműködés. A kapcsolatok sporadikusak, nem monetizáltak — kivétel a BCE és részben az SZTE.</div>
+    <div class="alert alert-blue"><strong>Hallgatói élmény:</strong> Az információk döntően kari szinten rejtőznek, a hallgatók nehezen navigálnak. Csak a BCE és ELTE rendelkezik egységes, hallgató-barát karrier-portállal.</div>
+    <div class="alert alert-blue"><strong>Staffing valóság:</strong> A legtöbb iroda 2–6 fővel dolgozik, jellemzően 1 pszichológussal. A BCE és SZTE kiemelkedik 8–12 fős csapattal. Online konzultáció szinte mindenhol elérhető.</div>
+    <div class="alert alert-blue"><strong>Mentálhigiéné:</strong> Szinte minden intézményen van pszichológiai tanácsadás, de ezek jellemzően külön szervezeti egységben működnek, nem integráltan a karrierirodával.</div>
+  </div>
+</section>
+
+<!-- ===== INSTITUTIONS ===== -->
+<section id="institutions">
+  <div class="sec-head">
+    <h2>Intézményenkénti elemzés</h2>
+    <p>Minden intézménynél: elérhető szolgáltatások, staffing adatok, hallgatói barátság, mentálhigiénés ellátás és főbb fejlesztési lehetőségek. Megjegyzés: a staff adatok becsültek/nyilvánosságból összegyűjtöttek.</p>
+  </div>
+
+  <div class="uni-grid">
+
+    <!-- BCE -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#f0f4ff"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="13" fill="#000073">BCE</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Budapesti Corvinus Egyetem</div>
+          <div class="uni-meta">
+            <span>📍 Budapest</span>
+            <span>👥 ~14 000 hallgató</span>
+          </div>
+        </div>
+        <div class="level-chip l4">L4 Vezető</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating" title="Hallgató-barátság"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">3</div>
+          <div class="metric-lbl">fizikai iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~10–12</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Career & Business Festival (2× év)</span>
+          <span class="svc-tag svc-career">Egyéni coaching + mock interjú</span>
+          <span class="svc-tag svc-career">CV-tanácsadás</span>
+          <span class="svc-tag svc-career">Pannonia külföldi intern program</span>
+          <span class="svc-tag svc-career">Highered globális platform</span>
+          <span class="svc-tag svc-corporate">Alumni Café mentoring</span>
+          <span class="svc-tag svc-corporate">Fizetős EB-csomagok cégeknek</span>
+          <span class="svc-tag svc-corporate">Duális képzés – cégpartner lista</span>
+          <span class="svc-tag svc-digital">Dedikált karrierportál</span>
+          <span class="svc-tag svc-mental">Pszichológiai tanácsadás (különálló)</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~12</div><div class="staff-lbl">karrierközpont<br>munkatárs</div></div>
+          <div class="staff-cell"><div class="staff-num">1+</div><div class="staff-lbl">pszichológus<br>(hallg. jólét)</div></div>
+          <div class="staff-cell"><div class="staff-num">3 000+</div><div class="staff-lbl">hallgató/fő<br>CCBF-en</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">92%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:92%"></div></div>
+        </div>
+        <div class="gap-note">⚠ Hiányzik: AI-kompetencia profil, gamifikált fejlesztés. A mentálhigiénés és karrierszolgáltatás szervezetileg elkülönül.</div>
+      </div>
+    </div>
+
+    <!-- ELTE -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#f0fff4"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#15803d">ELTE</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Eötvös Loránd Tudományegyetem</div>
+          <div class="uni-meta"><span>📍 Budapest</span><span>👥 ~28 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l3">L3 Haladó</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">4–5</div>
+          <div class="metric-lbl">kari + central iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~6–8</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Állásbörze platform (allasborze.elte.hu)</span>
+          <span class="svc-tag svc-career">Karriernap évi 2× – 700+ résztvevő (2025)</span>
+          <span class="svc-tag svc-career">CV fotó, CV-tanácsadás, mock interjú</span>
+          <span class="svc-tag svc-corporate">Fizetős EB-csomagok, PR cikkek, landing page</span>
+          <span class="svc-tag svc-corporate">Vállalati tréningek, workshopok</span>
+          <span class="svc-tag svc-mental">PPK pszichológiai tanácsadó (10 alk. ingyenes)</span>
+          <span class="svc-tag svc-mental">Online pszichológiai konzultáció is elérhető</span>
+          <span class="svc-tag svc-digital">Karrierközpont webportál</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~7</div><div class="staff-lbl">karrierközpont<br>munkatárs</div></div>
+          <div class="staff-cell"><div class="staff-num">3–4</div><div class="staff-lbl">pszichológus<br>(PPK + kari)</div></div>
+          <div class="staff-cell"><div class="staff-num">42</div><div class="staff-lbl">céges kiállító<br>2025-ös karnap</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">74%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:74%"></div></div>
+        </div>
+        <div class="gap-note">⚠ Kari szintű széttagoltság: informatikusok számára kizárólagossági korlát. Nincs alumni integráció, nincs kompetencia-alapú megközelítés.</div>
+      </div>
+    </div>
+
+    <!-- BME -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#fffbeb"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#b45309">BME</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Budapesti Műszaki és Gazdaságtudományi Egy.</div>
+          <div class="uni-meta"><span>📍 Budapest</span><span>👥 ~23 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l3">L3 Haladó</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">2–3</div>
+          <div class="metric-lbl">karrier-iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~5–7</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Műegyetemi Állásbörze – Magyarország legelismertebb rendezvénye (évi 2×)</span>
+          <span class="svc-tag svc-career">Karriertanácsadás (hallgatói szervezetek bevonásával)</span>
+          <span class="svc-tag svc-career">Ipari projektek – vállalatok a képzésben</span>
+          <span class="svc-tag svc-corporate">Vállalati kapcsolatok a kari szinteken</span>
+          <span class="svc-tag svc-mental">Pszichológiai tanácsadás (Hallgatói Szolgáltatások)</span>
+          <span class="svc-tag svc-missing">Nincs dedikált digitális karrier-platform</span>
+          <span class="svc-tag svc-missing">Nincs alumni program</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~6</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">1–2</div><div class="staff-lbl">pszichológus<br>(HSZO)</div></div>
+          <div class="staff-cell"><div class="staff-num">1°</div><div class="staff-lbl">bérigény-<br>rangsor Hu</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">60%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:60%"></div></div>
+        </div>
+        <div class="gap-note">⚠ A weboldalon a karrier-info szétszórt és nehézkesen navigálható. Presztízshez képest az online felület elmaradott. Nincs kompetencia-mérés, nincs alumniprogram.</div>
+      </div>
+    </div>
+
+    <!-- SZTE -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#f0fdfa"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#0f766e">SZTE</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Szegedi Tudományegyetem</div>
+          <div class="uni-meta"><span>📍 Szeged</span><span>👥 ~21 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l3">L3 Haladó</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">2–3</div>
+          <div class="metric-lbl">kari + GTK iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~8–10</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-corporate">800+ céges partnerkapcsolat – legnagyobb hálózat HU-ban</span>
+          <span class="svc-tag svc-career">GTK Karrier Iroda – személyes tanácsadás</span>
+          <span class="svc-tag svc-career">Szakmai gyakorlat koordináció (dokumentált folyamat)</span>
+          <span class="svc-tag svc-digital">Highered globális karrier-platform</span>
+          <span class="svc-tag svc-career">Évi karriernap (október)</span>
+          <span class="svc-tag svc-mental">Pszichológiai tanácsadás hallgatóknak</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~9</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">2–3</div><div class="staff-lbl">pszichológus<br>(HSZO)</div></div>
+          <div class="staff-cell"><div class="staff-num">800+</div><div class="staff-lbl">vállalati<br>partner</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">70%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+        </div>
+        <div class="gap-note">⚠ A 800 partner elsősorban adminisztratív – nem mélyül valódi employer brandinggé. Kari szintű széttagoltság. Nincs AI-eszköz.</div>
+      </div>
+    </div>
+
+    <!-- DE -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#faf5ff"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="14" fill="#6d28d9">DE</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Debreceni Egyetem</div>
+          <div class="uni-meta"><span>📍 Debrecen</span><span>👥 ~26 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l2">L2 Fejlődő</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">2–3</div>
+          <div class="metric-lbl">kari iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~4–6</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Állásbörze és Karriernap évi 2× (ápr. + nov.)</span>
+          <span class="svc-tag svc-career">GTK Karrier Iroda – tanácsadás</span>
+          <span class="svc-tag svc-corporate">Regionális vállalati kapcsolatok (Hajdú-Bihar megye)</span>
+          <span class="svc-tag svc-career">Diákmunka és szakmai gyakorlat közvetítés</span>
+          <span class="svc-tag svc-mental">Pszichológiai tanácsadás (Pszichológiai Intézet)</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~5</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">2+</div><div class="staff-lbl">pszichológus<br>(HSZO)</div></div>
+          <div class="staff-cell"><div class="staff-num">BMW</div><div class="staff-lbl">Samsung SDI<br>friss befektetők</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">48%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:48%"></div></div>
+        </div>
+        <div class="gap-note">⚠ Nincs egységes, egyetemi szintű karrier platform. Kari szétaprózottság. Hatalmas lehetőség: BMW + Samsung SDI befektetések kihasználatlanok karrierszolgáltatásban.</div>
+      </div>
+    </div>
+
+    <!-- PTE -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#fff1f2"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#be123c">PTE</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Pécsi Tudományegyetem</div>
+          <div class="uni-meta"><span>📍 Pécs</span><span>👥 ~20 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l2">L2 Fejlődő</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">2–3</div>
+          <div class="metric-lbl">kari iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~3–5</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások (jelenlegi)</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Állásbörzék kari szinten</span>
+          <span class="svc-tag svc-career">Karrier-konzultáció (néhány karon)</span>
+          <span class="svc-tag svc-career">Szakmai gyakorlat közvetítés</span>
+          <span class="svc-tag svc-mental">Pszichológiai tanácsadás – BTK, ÁOK karokon</span>
+          <span class="svc-tag svc-corporate">Regionális vállalati kapcsolatok (Baranya megye)</span>
+          <span class="svc-tag svc-missing">Nincs egységes karrierplatform</span>
+          <span class="svc-tag svc-missing">Nincs employer branding csomag</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~4</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">2+</div><div class="staff-lbl">pszichológus<br>(kari szinten)</div></div>
+          <div class="staff-cell"><div class="staff-num">20K+</div><div class="staff-lbl">hallgató –<br>kihasználatlan</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">35%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:35%"></div></div>
+        </div>
+        <div class="gap-note">⚠ Nincs egységes karrierstratégia. Kari szétaprózottság minden területen. A hallgató-barátság alacsony: a karrier-info elrejtett, nehezen elérhető. Nagy fejlesztési potenciál.</div>
+      </div>
+    </div>
+
+    <!-- SZE -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#fff7ed"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#c2410c">SZE</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Széchenyi István Egyetem</div>
+          <div class="uni-meta"><span>📍 Győr</span><span>👥 ~11 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l2">L2 Fejlődő</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">1–2</div>
+          <div class="metric-lbl">karrier-iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~3–4</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Széchenyi Karrierbörze (évi 1×)</span>
+          <span class="svc-tag svc-corporate">Erős ipari háttér: Audi Hungaria, ZF, Rába, Bosch</span>
+          <span class="svc-tag svc-career">Duális képzési lehetőségek (műszaki területek)</span>
+          <span class="svc-tag svc-career">Alapszintű karrier-weboldal</span>
+          <span class="svc-tag svc-mental">Pszichológiai tanácsadás (Hallgatói Iroda)</span>
+          <span class="svc-tag svc-missing">Nincs strukturált employer branding csomag</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~3</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">1</div><div class="staff-lbl">pszichológus<br>(hallg. iroda)</div></div>
+          <div class="staff-cell"><div class="staff-num">Audi</div><div class="staff-lbl">ZF, Rába –<br>informális</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">42%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:42%"></div></div>
+        </div>
+        <div class="gap-note">⚠ A győri ipari ökoszisztéma (Audi, ZF, stb.) nem szervesül a karrierszolgáltatásokba. Nincs EB-csomag, nincs digitális platform. Hatalmas kihasználatlan ipari potenciál.</div>
+      </div>
+    </div>
+
+    <!-- ME -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#f8fafc"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="14" fill="#475569">ME</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Miskolci Egyetem</div>
+          <div class="uni-meta"><span>📍 Miskolc</span><span>👥 ~8 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l1">L1 Alapszintű</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">1</div>
+          <div class="metric-lbl">karrier-iroda</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~2–3</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Miskolci Egyetem Karrierfeszt (évi 1×)</span>
+          <span class="svc-tag svc-career">Alapszintű karrierweboldal</span>
+          <span class="svc-tag svc-corporate">Régióspecifikus ipari kapcsolatok (acél, bányászat)</span>
+          <span class="svc-tag svc-mental">Limitált mentálhigiénés tanácsadás</span>
+          <span class="svc-tag svc-missing">Nincs dedikált karrierközpont</span>
+          <span class="svc-tag svc-missing">Nincs EB-csomag, nincs platform</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~2</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">0–1</div><div class="staff-lbl">pszichológus</div></div>
+          <div class="staff-cell"><div class="staff-num">8K</div><div class="staff-lbl">hallgató –<br>csökkenő trend</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">28%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:28%"></div></div>
+        </div>
+        <div class="gap-note">⚠ Minimális strukturált karrierszolgáltatás. Csökkenő hallgatólétszám egzisztenciális fenyegetés – a karrier-innováció az egyik eszköz a megtartáshoz.</div>
+      </div>
+    </div>
+
+    <!-- ÓE -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#fdf4ff"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="14" fill="#7e22ce">ÓE</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Óbudai Egyetem</div>
+          <div class="uni-meta"><span>📍 Budapest</span><span>👥 ~11 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l1">L1 Alapszintű</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">2</div>
+          <div class="metric-lbl">Bp + Szfv.</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~2–4</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">Állásbörze évi 2× (Budapest és Székesfehérvár)</span>
+          <span class="svc-tag svc-career">Alapszintű álláshirdetés-platform</span>
+          <span class="svc-tag svc-mental">Mentálhigiénés tanácsadás – 12 alk. INGYENES (kiemelkedő!)</span>
+          <span class="svc-tag svc-mental">Online Teams-konzultáció pszichológussal</span>
+          <span class="svc-tag svc-mental">Csoportos tréningek: stresszkezelés, asszertivitás</span>
+          <span class="svc-tag svc-missing">Nincs egységes karrierstratégia</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~3</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">2–3</div><div class="staff-lbl">pszichológus<br>★★★★ szint</div></div>
+          <div class="staff-cell"><div class="staff-num">12</div><div class="staff-lbl">ingyenes<br>pszicho-alk.</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség hallgatóknak</span><span style="color:var(--blue);font-weight:700;">35%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:35%"></div></div>
+        </div>
+        <div class="gap-note positive">✓ Meglepő kiemelkedés: Az ÓE mentálhigiénés programja az ország egyik legfejlettebb hallgatói pszichológiai szolgáltatása (12 ingyenes alk., online, csoportos tréning). A karrierszolgáltatás ehhez képest messze elmarad.</div>
+      </div>
+    </div>
+
+    <!-- BBU -->
+    <div class="uni-card">
+      <div class="uni-card-header">
+        <div class="uni-logo-wrap">
+          <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="#f5f3ff"/>
+            <text x="26" y="33" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="11" fill="#5b21b6">UBB</text>
+          </svg>
+        </div>
+        <div class="uni-header-info">
+          <div class="uni-name">Babeș-Bolyai Tudományegyetem</div>
+          <div class="uni-meta"><span>📍 Kolozsvár</span><span>👥 ~50 000 hallgató</span></div>
+        </div>
+        <div class="level-chip l2">L2 Fejlődő</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-cell">
+          <div class="metric-icon">😊</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Hallgató-<br>barátság</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🏢</div>
+          <div class="metric-val">2–3</div>
+          <div class="metric-lbl">kar + central</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">👤</div>
+          <div class="metric-val">~4–6</div>
+          <div class="metric-lbl">karrier staff</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">💻</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Online<br>konzultáció</div>
+        </div>
+        <div class="metric-cell">
+          <div class="metric-icon">🧠</div>
+          <div class="dot-rating"><div class="dot-r dot-filled"></div><div class="dot-r dot-filled"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div><div class="dot-r dot-empty"></div></div>
+          <div class="metric-lbl">Mentál-<br>higiéné</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="services-label">Elérhető szolgáltatások</div>
+        <div class="svc-tags">
+          <span class="svc-tag svc-career">UBB-CORE – PNRR-finanszírozott kutatói karrierközpont</span>
+          <span class="svc-tag svc-career">Pályaorientáció + tanácsadás (2026. febr. bejelentés)</span>
+          <span class="svc-tag svc-corporate">FSEGA kari vállalati együttműködések</span>
+          <span class="svc-tag svc-career">QS #761–770 brand előny</span>
+          <span class="svc-tag svc-mental">Pszichológiai tanácsadás (kari szinten)</span>
+          <span class="svc-tag svc-missing">Nincs egységes hallgatói karrierszolgáltatás</span>
+        </div>
+        <div class="staff-row">
+          <div class="staff-cell"><div class="staff-num">~5</div><div class="staff-lbl">karrier-<br>koordinátor</div></div>
+          <div class="staff-cell"><div class="staff-num">1–2</div><div class="staff-lbl">pszichológus<br>(kari szinten)</div></div>
+          <div class="staff-cell"><div class="staff-num">50K</div><div class="staff-lbl">hallgató –<br>nagy potenciál</div></div>
+        </div>
+        <div class="access-wrap">
+          <div class="access-top"><span>Infó-elérhetőség (magyar hallgatóknak különösen)</span><span style="color:var(--blue);font-weight:700;">38%</span></div>
+          <div class="bar"><div class="bar-fill" style="width:38%"></div></div>
+        </div>
+        <div class="gap-note">⚠ Az UBB-CORE főként PhD-kutatókra fókuszál. Az 50 000 alapszakos hallgató számára nincs egységes karrierszolgáltatás. Magyar hallgatók számára minimális a célzott tájékoztatás.</div>
+      </div>
+    </div>
+
+  </div><!-- end uni-grid -->
+</section>
+
+<!-- ===== SERVICE MAP ===== -->
+<section id="servicemap">
+  <div class="sec-head">
+    <h2>Szolgáltatástérkép</h2>
+    <p>Melyik intézményen milyen szolgáltatás érhető el — 7 értékelési dimenzióban, hasznosság-elemzéssel.</p>
+  </div>
+
+  <div class="map-scroll">
+    <table class="svc-table">
+      <thead>
+        <tr>
+          <th>Szolgáltatás</th>
+          <th>BCE</th><th>ELTE</th><th>BME</th><th>SZTE</th>
+          <th>DE</th><th>PTE</th><th>SZE</th><th>ME</th><th>ÓE</th><th>BBU</th>
+          <th style="text-align:left;width:110px;">Hasznosság</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="cat-row"><td colspan="12">🎯 KARRIER-ALAPSZOLGÁLTATÁSOK</td></tr>
+        <tr>
+          <td>Éves állásbörzék (fizikai)</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td>
+          <td class="c-yes">✓</td><td class="c-part">~</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-part">~</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:55%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Közepes</span></div></td>
+        </tr>
+        <tr>
+          <td>Dedikált online álláshirdetés-portál</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-part">~</td><td class="c-yes">✓</td>
+          <td class="c-part">~</td><td class="c-no">–</td><td class="c-part">~</td><td class="c-no">–</td><td class="c-part">~</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:65%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Jó</span></div></td>
+        </tr>
+        <tr>
+          <td>Egyéni karrier-coaching (folyamatos)</td>
+          <td class="c-yes">✓</td><td class="c-part">~</td><td class="c-part">~</td><td class="c-part">~</td>
+          <td class="c-part">~</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-part">~</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:90%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Kiváló</span></div></td>
+        </tr>
+        <tr>
+          <td>Online konzultáció / workshopok</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-part">~</td><td class="c-yes">✓</td>
+          <td class="c-part">~</td><td class="c-part">~</td><td class="c-part">~</td><td class="c-no">–</td><td class="c-yes">✓</td><td class="c-part">~</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:80%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Magas</span></div></td>
+        </tr>
+
+        <tr class="cat-row"><td colspan="12">🏢 VÁLLALATI INTEGRÁCIÓ</td></tr>
+        <tr>
+          <td>Fizetős employer branding csomagok</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-part">~</td><td class="c-part">~</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:88%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Kiváló</span></div></td>
+        </tr>
+        <tr>
+          <td>Strukturált duális képzési partnerség</td>
+          <td class="c-yes">✓</td><td class="c-part">~</td><td class="c-yes">✓</td><td class="c-part">~</td>
+          <td class="c-part">~</td><td class="c-part">~</td><td class="c-yes">✓</td><td class="c-part">~</td><td class="c-part">~</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:82%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Magas</span></div></td>
+        </tr>
+
+        <tr class="cat-row"><td colspan="12">👩‍🎓 ALUMNI & KÖZÖSSÉG</td></tr>
+        <tr>
+          <td>Alumni mentoring program</td>
+          <td class="c-yes">✓</td><td class="c-no">–</td><td class="c-part">~</td><td class="c-no">–</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:93%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Kritikus</span></div></td>
+        </tr>
+        <tr>
+          <td>Globális karrierplatform (Highered)</td>
+          <td class="c-yes">✓</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-yes">✓</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:74%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Magas</span></div></td>
+        </tr>
+
+        <tr class="cat-row"><td colspan="12">🧠 MENTÁLHIGIÉNÉ & PSZICHOLÓGIAI TANÁCSADÁS</td></tr>
+        <tr>
+          <td>Egyéni pszichológiai tanácsadás</td>
+          <td class="c-part">~</td><td class="c-yes">✓</td><td class="c-part">~</td><td class="c-yes">✓</td>
+          <td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-yes">✓</td><td class="c-part">~</td><td class="c-yes">✓</td><td class="c-part">~</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:88%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Kiváló</span></div></td>
+        </tr>
+        <tr>
+          <td>Online pszichológiai konzultáció</td>
+          <td class="c-part">~</td><td class="c-yes">✓</td><td class="c-no">–</td><td class="c-part">~</td>
+          <td class="c-part">~</td><td class="c-part">~</td><td class="c-part">~</td><td class="c-no">–</td><td class="c-yes">✓</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:82%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Magas</span></div></td>
+        </tr>
+        <tr>
+          <td>Csoportos tréningek (stressz, önismeret)</td>
+          <td class="c-part">~</td><td class="c-part">~</td><td class="c-no">–</td><td class="c-part">~</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-yes">✓</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:78%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Magas</span></div></td>
+        </tr>
+        <tr>
+          <td>Karrier + mentálhigiéné INTEGRÁLTAN</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:97%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Stratégiai</span></div></td>
+        </tr>
+
+        <tr class="cat-row"><td colspan="12">🤖 JÖVŐ – AI & KOMPETENCIA</td></tr>
+        <tr>
+          <td>AI-alapú kompetencia profil / gap</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:97%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Stratégiai</span></div></td>
+        </tr>
+        <tr>
+          <td>Gamifikált fejlesztési program (Skill Passport)</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td><td class="c-no">–</td>
+          <td><div class="util-bar"><div class="u-track"><div class="u-f" style="width:92%"></div></div><span style="font-size:0.68rem;color:var(--muted)">Stratégiai</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert alert-blue" style="margin-top:1.5rem;">
+    <strong>🔑 Kiemelkedő fehér folt:</strong> „Karrier + mentálhigiéné integráltan" <strong>egyetlen intézménynél sem létezik</strong>. A pszichológiai tanácsadás szinte mindenhol megvan, de szervezetileg elkülönül a karrierirodától. Ez az integrált modell — ahol a belső megküzdés és a külső elhelyezkedés egy folyamatban támogatott — páratlan versenyelőnyt adna az első bevezető intézménynek.
+  </div>
+</section>
+
+<!-- ===== MATURITY ===== -->
+<section id="maturity">
+  <div class="sec-head">
+    <h2>Érettségi modell és intézményi besorolás</h2>
+    <p>4 szintű keretrendszer 7 értékelési dimenzió mentén: karrier-infrastruktúra, vállalati integráció, hallgatói barátság, mentálhigiéné, staffing, digitális jelenlét, kompetencia-alapúság.</p>
+  </div>
+
+  <div class="mat-levels">
+    <div class="mat-col l1-col">
+      <div class="mat-num" style="color:#94a3b8">L1</div>
+      <div class="mat-title" style="color:#64748b">Alapszintű</div>
+      <div class="mat-desc">Reaktív, esemény-alapú megközelítés. Az alap elvárások teljesítése, nincs stratégia.</div>
+      <div class="mat-crit">
+        <div>Évi max. 1 állásbörze</div>
+        <div>Alapszintű weboldal</div>
+        <div>Nincs dedikált iroda</div>
+        <div>≤2 fős staff</div>
+        <div>Nincs EB-csomag</div>
+        <div>Nincs digitális platform</div>
+      </div>
+    </div>
+    <div class="mat-col l2-col">
+      <div class="mat-num" style="color:var(--orange)">L2</div>
+      <div class="mat-title" style="color:var(--orange)">Fejlődő</div>
+      <div class="mat-desc">Rendszeres eseményekkel és néhány vállalati kapcsolattal, de szétaprózott és nem tudatos.</div>
+      <div class="mat-crit">
+        <div>Évi 2+ esemény</div>
+        <div>Néhány vállalati megállapodás</div>
+        <div>Alapszintű tanácsadás</div>
+        <div>3–6 fős staff</div>
+        <div>Részleges online jelenlét</div>
+        <div>Pszichológiai tanácsadás van</div>
+      </div>
+    </div>
+    <div class="mat-col l3-col">
+      <div class="mat-num" style="color:var(--blue)">L3</div>
+      <div class="mat-title" style="color:var(--blue)">Haladó</div>
+      <div class="mat-desc">Strukturált karrier-ökoszisztéma, fizetős EB, digitális platform, aktív vállalati kapcsolatok.</div>
+      <div class="mat-crit">
+        <div>Fizetős EB-csomagok</div>
+        <div>Dedikált digitális platform</div>
+        <div>7–12 fős staff</div>
+        <div>CV-coaching, tanácsadás</div>
+        <div>Önálló karrierközpont</div>
+        <div>Pszichológiai tanácsadás</div>
+      </div>
+    </div>
+    <div class="mat-col l4-col">
+      <div class="mat-num" style="color:#15803d">L4</div>
+      <div class="mat-title" style="color:#15803d">Vezető</div>
+      <div class="mat-desc">Teljes integráció: kompetencia-alapú, adatvezérelt, alumni-integrált, bevétel-generáló rendszer.</div>
+      <div class="mat-crit">
+        <div>Alumni integráció</div>
+        <div>Kompetencia-profilok</div>
+        <div>Bevételgeneráló modell</div>
+        <div>12+ fős staff</div>
+        <div>Külföldi intern. program</div>
+        <div>Karrier + mentálhigiéné integrált</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mat-grid">
+
+    <!-- BCE L4 -->
+    <div class="mat-card level4" style="border-top: 3px solid #15803d;">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#f0f4ff"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#000073">BCE</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Budapesti Corvinus Egyetem</div>
+          <span class="level-chip l4">L4 — Vezető</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#e8f8f0;color:#15803d;">😊 Hallgató-barátság: ★★★★★</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~12 fő</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">💻 Online: igen</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: különálló</span>
+      </div>
+      <div class="mat-reason">Az egyetlen hazai intézmény, ahol a karrierszolgáltatás stratégiai üzleti egységként működik. A CCBF fizetős EB-csomagjai, Highered integráció, Pannonia külföldi program, alumni café és a dedikált Director of Corporate Relations igazolják az L4 besorolást. Hiánya: AI-kompetencia profil, karrier+mentálhigiéné integráció.</div>
+    </div>
+
+    <!-- BME L3 -->
+    <div class="mat-card level3" style="border-top: 3px solid var(--blue);">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#fffbeb"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#b45309">BME</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Budapesti Műszaki Egyetem</div>
+          <span class="level-chip l3">L3 — Haladó</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#fffbeb;color:#b45309;">😊 Hallgató-barátság: ★★★☆☆</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~6 fő</span>
+        <span class="mat-score-pill" style="background:#fff7ed;color:#c2410c;">💻 Online: részleges</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: alapszintű</span>
+      </div>
+      <div class="mat-reason">Magyarország legpresztízsesebb állásbörze-szervezője. Az ipari integráció és a 2030-as munkaerőpiacra való fókusz erős. Visszahúzó tényező: nehézkesen navigálható webes karrier-info, nincs dedikált digitális platform, nincs alumni program. Az esemény-presztízs messze megelőzi a digitális infrastruktúrát.</div>
+    </div>
+
+    <!-- ELTE L3 -->
+    <div class="mat-card level3" style="border-top: 3px solid var(--blue);">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#f0fff4"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="11" fill="#15803d">ELTE</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Eötvös Loránd Tudományegyetem</div>
+          <span class="level-chip l3">L3 — Haladó</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#f0fff4;color:#15803d;">😊 Hallgató-barátság: ★★★★☆</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~7 fő</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">💻 Online: igen</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: ★★★★☆ (PPK)</span>
+      </div>
+      <div class="mat-reason">Fejlett karrierközpont, fizetős EB-csomagok, aktív Karriernap (42 kiállító, 700+ résztvevő). Az ELTE PPK Pszichológiai Intézete révén az egyik legjobb mentálhigiénés ellátás Magyarországon — de ez elkülönül a karrierirodától. Korlát: kari széttagoltság (IT kizárólagossági korlát), nincs alumni integráció.</div>
+    </div>
+
+    <!-- SZTE L3 -->
+    <div class="mat-card level3" style="border-top: 3px solid var(--blue);">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#f0fdfa"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="11" fill="#0f766e">SZTE</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Szegedi Tudományegyetem</div>
+          <span class="level-chip l3">L3 — Haladó</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#f0fdfa;color:#0f766e;">😊 Hallgató-barátság: ★★★★☆</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~9 fő</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">💻 Online: igen</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: ★★★☆☆</span>
+      </div>
+      <div class="mat-reason">800+ vállalati partnerkapcsolat és Highered platform integráció az L3 alapja. A GTK karrier irodája strukturált szakmai gyakorlat-folyamattal rendelkezik. Visszahúzó tényező: a 800 partner döntően adminisztratív, nem employer branding. Nincs AI-eszköz, nincs alumni program.</div>
+    </div>
+
+    <!-- DE L2 -->
+    <div class="mat-card level2" style="border-top: 3px solid var(--orange);">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#faf5ff"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="14" fill="#6d28d9">DE</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Debreceni Egyetem</div>
+          <span class="level-chip l2">L2 — Fejlődő</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#fffbeb;color:#b45309;">😊 Hallgató-barátság: ★★★☆☆</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~5 fő</span>
+        <span class="mat-score-pill" style="background:#fff7ed;color:#c2410c;">💻 Online: részleges</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: ★★★☆☆</span>
+      </div>
+      <div class="mat-reason">Az évi 2 állásbörze és regionális vállalati kapcsolatok megvannak, de strukturálatlanok. A 26 000 hallgatós méret és a friss BMW + Samsung SDI befektetések kihasználatlan lehetőséget jelentenek. Nincs egységes platform, nincs kompetencia-alapú megközelítés, az info-elérhetőség alacsony (48%).</div>
+    </div>
+
+    <!-- PTE L2 -->
+    <div class="mat-card level2" style="border-top: 3px solid var(--orange);">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#fff1f2"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#be123c">PTE</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Pécsi Tudományegyetem</div>
+          <span class="level-chip l2">L2 — Fejlődő</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#fff1f2;color:#be123c;">😊 Hallgató-barátság: ★★☆☆☆</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~4 fő</span>
+        <span class="mat-score-pill" style="background:#fff7ed;color:#c2410c;">💻 Online: részleges</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: ★★★☆☆</span>
+      </div>
+      <div class="mat-reason">Jelenlegi valóság: L2 — kari szintű állásbörzék, néhány konzultációs lehetőség, szétaprózott pszichológiai tanácsadás. A hallgató-barátság alacsony: nehéz megtalálni a karrierszolgáltatásokat. 20 000 hallgató és orvosi/bölcsész/műszaki profilmix a fejlesztés komoly alapja. Nincs karrierstratégia.</div>
+    </div>
+
+    <!-- SZE L2 -->
+    <div class="mat-card level2" style="border-top: 3px solid var(--orange);">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#fff7ed"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="12" fill="#c2410c">SZE</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Széchenyi István Egyetem</div>
+          <span class="level-chip l2">L2 — Fejlődő</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#fff7ed;color:#c2410c;">😊 Hallgató-barátság: ★★★☆☆</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~3 fő</span>
+        <span class="mat-score-pill" style="background:#fff7ed;color:#c2410c;">💻 Online: részleges</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: ★★☆☆☆</span>
+      </div>
+      <div class="mat-reason">Erős ipari ökoszisztéma (Audi Hungaria, ZF, Rába, Bosch) és duális képzési hagyomány. A kari szintű széttagoltság és strukturálatlan corporate kapcsolatok visszatartják a fejlődést. A győri ipari bázis kihasználása az egyik legnagyobb quick win lehetőség Magyarországon.</div>
+    </div>
+
+    <!-- BBU L2 -->
+    <div class="mat-card level2" style="border-top: 3px solid var(--orange);">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#f5f3ff"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="11" fill="#5b21b6">UBB</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Babeș-Bolyai Tudományegyetem (Kolozsvár)</div>
+          <span class="level-chip l2">L2 — Fejlődő</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#fffbeb;color:#b45309;">😊 Hallgató-barátság: ★★☆☆☆</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">🏢 Staff: ~5 fő</span>
+        <span class="mat-score-pill" style="background:#fff7ed;color:#c2410c;">💻 Online: részleges</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: ★★☆☆☆</span>
+      </div>
+      <div class="mat-reason">Az UBB-CORE PNRR-finanszírozott kutatói karriertámogatása progresszív. A 2026. februári pályaorientációs bejelentés ígéretes. A QS ranking (#761–770) és a 4 oktatási nyelv brand előnyt jelent. Kritikus hiány: az 50 000 hallgató 90%-ának nincs strukturált karrierszolgáltatása. Magyar hallgatóknak kiemelten gyenge az infó-hozzáférés.</div>
+    </div>
+
+    <!-- ME L1 -->
+    <div class="mat-card level1" style="border-top: 3px solid #94a3b8;">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#f8fafc"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="14" fill="#475569">ME</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Miskolci Egyetem</div>
+          <span class="level-chip l1">L1 — Alapszintű</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#f8fafc;color:#64748b;">😊 Hallgató-barátság: ★★☆☆☆</span>
+        <span class="mat-score-pill" style="background:#f8fafc;color:#64748b;">🏢 Staff: ~2 fő</span>
+        <span class="mat-score-pill" style="background:#f8fafc;color:#64748b;">💻 Online: minimális</span>
+        <span class="mat-score-pill" style="background:#f8fafc;color:#64748b;">🧠 Mentálhigiéné: ★☆☆☆☆</span>
+      </div>
+      <div class="mat-reason">Egyetlen éves Karrierfeszt és alapszintű weboldal jellemzi. A csökkenő hallgatólétszám és forráshiány strukturális akadályt jelent, de ez egyben sürgős tennivalót is jelent. A régióspecifikus ipari kapcsolatok (acél, bányászat, autóipar) megvannak, de nem szervesülnek karriertámogatássá. Zöldmezős fejlesztési lehetőség.</div>
+    </div>
+
+    <!-- ÓE L1 -->
+    <div class="mat-card level1" style="border-top: 3px solid #94a3b8;">
+      <div class="mat-card-top">
+        <div class="mat-uni-logo">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="8" fill="#fdf4ff"/><text x="24" y="31" text-anchor="middle" font-family="Open Sans,sans-serif" font-weight="800" font-size="14" fill="#7e22ce">ÓE</text></svg>
+        </div>
+        <div>
+          <div class="mat-card-name">Óbudai Egyetem</div>
+          <span class="level-chip l1">L1 — Alapszintű</span>
+        </div>
+      </div>
+      <div class="mat-scores">
+        <span class="mat-score-pill" style="background:#f8fafc;color:#64748b;">😊 Hallgató-barátság: ★★☆☆☆</span>
+        <span class="mat-score-pill" style="background:#f8fafc;color:#64748b;">🏢 Staff: ~3 fő</span>
+        <span class="mat-score-pill" style="background:#eff6ff;color:#1d4ed8;">💻 Online: ★★★★ (pszichológia!)</span>
+        <span class="mat-score-pill" style="background:#fdf4ff;color:#7e22ce;">🧠 Mentálhigiéné: ★★★★☆ (kiemelkedő!)</span>
+      </div>
+      <div class="mat-reason">Paradoxon: Az ÓE mentálhigiénés programja az ország egyik legfejlettebb hallgatói pszichológiai szolgáltatása (12 ingyenes alkalom, Teams online konzultáció, csoportos tréningek) — de a karrierszolgáltatás L1 szintű. A fővárosi elhelyezkedés és a műszaki profil kihasználatlan. Az aszimmetria az egyik legnagyobb fejlesztési lehetőség.</div>
+    </div>
+
+  </div><!-- end mat-grid -->
+</section>
+
+<!-- ===== QUICK WINS ===== -->
+<section id="quickwins">
+  <div class="sec-head">
+    <h2>Gyors, látványos eredmények — Fejlesztési prioritások</h2>
+    <p>Ahol a legrövidebb idő alatt a legjelentősebb karrierszolgáltatás-fejlesztés érhető el.</p>
+  </div>
+
+  <div class="alert alert-green" style="margin-bottom:1.5rem;">
+    <strong>Stratégiai jelzőfény:</strong> A legtöbb intézménynél a <strong>karrier + mentálhigiéné integráció</strong> az egyetlen igazán differenciáló lépés, amelyre senki nem lépett még. Az első bevezető intézmény versenyelőnye tartós és kommunikálható.
+  </div>
+
+  <div class="qw-grid">
+
+    <div class="qw-card">
+      <div class="qw-header" style="background:#f0fdf4;">
+        <div class="qw-priority" style="background:linear-gradient(135deg,#15803d,#22c55e);">1</div>
+        <div>
+          <div class="qw-uni-name" style="color:#14532d;">SZE – Széchenyi István Egyetem</div>
+          <div class="qw-uni-type" style="color:#15803d;">Ipari ökoszisztéma formalizálása</div>
+        </div>
+      </div>
+      <div class="qw-body">
+        <div class="qw-section-title">Miért az első prioritás?</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Audi Hungaria, ZF, Rába, Bosch mind helyben van – de a karrieriroda nem értékesíti ezt a vállalati hálózatot strukturáltan</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Az autóipari munkaerőkereslet folyamatosan magas – azonnali bevételi lehetőség employer branding csomagokból</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Kis staff + egyszerű struktúra = gyors döntési folyamat, alacsony belső ellenállás</div>
+        <div class="qw-section-title">Konkrét lépések (0–3 hónap)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Audi/ZF „Preferred Recruitment Partner" státusz kialakítása – dedikált toborzási csatorna</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Kompetenciatérkép pilot: műszaki profil × autóipari munkakörök gap-analízis (Gaphopper)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Karrierportál egységesítése + cégeknek szóló landing page-ek (hallgató-barátság ugrás: 42% → 70%+)</div>
+        <div class="impact-wrap">
+          <div class="impact-top"><span>Várható láthatóság 6 hónapon belül</span><span style="color:var(--blue);font-weight:700;">88%</span></div>
+          <div class="impact-track"><div class="impact-fill" style="width:88%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qw-card">
+      <div class="qw-header" style="background:#eff6ff;">
+        <div class="qw-priority">2</div>
+        <div>
+          <div class="qw-uni-name">DE – Debreceni Egyetem</div>
+          <div class="qw-uni-type">Méretelőny + friss multinacionális befektetők</div>
+        </div>
+      </div>
+      <div class="qw-body">
+        <div class="qw-section-title">Miért vonzó célpont?</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>26 000+ hallgató – Magyarország egyik legnagyobb egye., komoly EB-bevételi potenciál</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>BMW gyár + Samsung SDI + Leonidas – friss debreceni befektetők karrier-partnerként még nem szervesültek</div>
+        <div class="qw-section-title">Konkrét lépések (0–3 hónap)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>BMW DE-specifikus toborzási program – az első kötött corporate partnerkapcsolat karrieiroda szinten</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Egységes karrierplatform indítása – a kari széttagoltság megszüntetése egy landing oldalon</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Kompetencia önértékelő tool bevezetése (Gaphopper mLearning) kampányszerűen</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Karrier + mentálhigiéné integráció pilot – egyedülálló az ország összes egyetemén</div>
+        <div class="impact-wrap">
+          <div class="impact-top"><span>Várható láthatóság 6 hónapon belül</span><span style="color:var(--blue);font-weight:700;">82%</span></div>
+          <div class="impact-track"><div class="impact-fill" style="width:82%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qw-card">
+      <div class="qw-header" style="background:#fff7ed;">
+        <div class="qw-priority" style="background:linear-gradient(135deg,var(--orange),#fb923c);">3</div>
+        <div>
+          <div class="qw-uni-name" style="color:#7c2d12;">PTE – Pécsi Tudományegyetem</div>
+          <div class="qw-uni-type" style="color:var(--orange);">Hallgató-barátság radikális javítása</div>
+        </div>
+      </div>
+      <div class="qw-body">
+        <div class="qw-section-title">Miért érdemes?</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Jelenleg L2 – minimális strukturált rendszer, zöldmezős bevezetés bármilyen megoldásnak</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>20 000 hallgató, orvosi + bölcsész + műszaki diverzitás – sokféle vállalati partner vonzható</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Hallgató-barátság jelenleg 35% – az egyszerű portál-egységesítés is azonnali eredményt hoz</div>
+        <div class="qw-section-title">Konkrét lépések (0–3 hónap)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Egyetlen, egységes karrierportál indítása – a kari széttagoltság felszámolása</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>5–8 regionális vállalati partner beléptetése EB-csomaggal (Baranya megye + Pécs agglomerációja)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Karrier + pszichológiai tanácsadás összekötése – a PTE BTK-s pszichológusok karrier-összefüggésbe helyezve</div>
+        <div class="impact-wrap">
+          <div class="impact-top"><span>Várható láthatóság 6 hónapon belül</span><span style="color:var(--blue);font-weight:700;">78%</span></div>
+          <div class="impact-track"><div class="impact-fill" style="width:78%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qw-card">
+      <div class="qw-header">
+        <div class="qw-priority">4</div>
+        <div>
+          <div class="qw-uni-name">ÓE – Óbudai Egyetem</div>
+          <div class="qw-uni-type">Mentálhigiéné-karrierintegráció pilot</div>
+        </div>
+      </div>
+      <div class="qw-body">
+        <div class="qw-section-title">A paradoxon kihasználása</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Az ÓE mentálhigiénés programja az ország egyik legfejlettebb hallgatói pszichológiai szolgáltatása</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Ez az infrastruktúra (online Teams, 3 pszichológus, csoportos tréning) karrierszolgáltatásba integrálható</div>
+        <div class="qw-section-title">Konkrét lépések (0–3 hónap)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Karrier + mentálhigiéné integrált program pilot: „Belső fejlődés → Külső elhelyezkedés" folyamat</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Műszaki profil × IT/mérnöki EB-csomagok kialakítása – a fővárosi location adott</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>PR: „Az ÓE az első integrált karrier-mentálhigiénés programot működteti Magyarországon"</div>
+        <div class="impact-wrap">
+          <div class="impact-top"><span>Várható láthatóság 6 hónapon belül</span><span style="color:var(--blue);font-weight:700;">74%</span></div>
+          <div class="impact-track"><div class="impact-fill" style="width:74%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qw-card">
+      <div class="qw-header">
+        <div class="qw-priority">5</div>
+        <div>
+          <div class="qw-uni-name">BBU – Babeș-Bolyai (Kolozsvár)</div>
+          <div class="qw-uni-type">Első strukturált magyar nyelvű karrier program Erdélyben</div>
+        </div>
+      </div>
+      <div class="qw-body">
+        <div class="qw-section-title">Egyedi, versenytárs nélküli lehetőség</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>70 magyar nyelvű alapképzés – nincs hasonló célzott karrierszolgáltatás sem Romániában, sem Erdélyben</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>PNRR-forrásokból finanszírozható fejlesztés az UBB-CORE modell alapján</div>
+        <div class="qw-section-title">Konkrét lépések (0–3 hónap)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Magyar nyelvű pályaorientációs modul pilot a FSEGA karon (~2 000 hallgató)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Kolozsvári IT/startup ökoszisztéma (fejlett helyi tech-szektor) partner toborzás</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Határon átnyúló program: román diploma + magyarországi/romániai kettős munkaerőpiac</div>
+        <div class="impact-wrap">
+          <div class="impact-top"><span>Várható láthatóság 6 hónapon belül</span><span style="color:var(--blue);font-weight:700;">70%</span></div>
+          <div class="impact-track"><div class="impact-fill" style="width:70%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qw-card">
+      <div class="qw-header">
+        <div class="qw-priority">6</div>
+        <div>
+          <div class="qw-uni-name">BME – Budapesti Műszaki Egyetem</div>
+          <div class="qw-uni-type">Digitális uplift + alumni aktiválás</div>
+        </div>
+      </div>
+      <div class="qw-body">
+        <div class="qw-section-title">Miért van itt rejtett quick win?</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>A Műegyetemi Állásbörze presztízse adott, de a digitális karrier-infrastruktúra elmarad a reputációtól</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>A hallgató-barátság csupán ★★★☆☆ egy olyan intézménynél, amelynek diplomásai a legtöbbet keresik Magyarországon</div>
+        <div class="qw-section-title">Konkrét lépések (0–3 hónap)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Egységes, dedikált karrierweboldal – ez önmagában 60% → 78%+ info-elérhetőséget eredményezne</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Alumni mentoring program indítása (a Műegyetem hatalmas alumni bázisa kihasználatlan)</div>
+        <div class="qw-step"><span class="qw-arrow">→</span>Mérnöki munkakör–kompetencia térkép pilot: szoftvermérnök vs. gépészmérnök profil</div>
+        <div class="impact-wrap">
+          <div class="impact-top"><span>Várható láthatóság 6 hónapon belül</span><span style="color:var(--blue);font-weight:700;">66%</span></div>
+          <div class="impact-track"><div class="impact-fill" style="width:66%"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="alert alert-green" style="margin-top:2rem;">
+    <strong>Összefoglalás – Prohuman belépési lehetőség 3 horizonton:</strong><br>
+    <strong>0–3 hónap:</strong> SZE (ipari network formalizálás), DE (BMW-pilot), PTE (portál + partner) — alacsony belső ellenállás, gyors döntés.<br>
+    <strong>3–12 hónap:</strong> ÓE (karrier+mentálhigiéné integráció, ország-első), BBU (erdélyi magyar pilot), ME (niche iparági program).<br>
+    <strong>12+ hónap:</strong> BME, ELTE (presztízsegyetemek, lassabb döntéshozatal, de legnagyobb piac és PR-hatás).
+  </div>
+</section>
+
+
+<section id="profiles">
+
+<div class="uni-tabs-wrap">
+  <button class="uni-tab active" onclick="showUni('bce',this)"><span class="uni-dot" style="background:#0345EB"></span>BCE Corvinus</button>
+  <button class="uni-tab" onclick="showUni('elte',this)"><span class="uni-dot" style="background:#15803d"></span>ELTE</button>
+  <button class="uni-tab" onclick="showUni('bme',this)"><span class="uni-dot" style="background:#b45309"></span>BME</button>
+  <button class="uni-tab" onclick="showUni('szte',this)"><span class="uni-dot" style="background:#0f766e"></span>SZTE</button>
+  <button class="uni-tab" onclick="showUni('de',this)"><span class="uni-dot" style="background:#6d28d9"></span>DE Debrecen</button>
+  <button class="uni-tab" onclick="showUni('pte',this)"><span class="uni-dot" style="background:#be123c"></span>PTE Pécs</button>
+  <button class="uni-tab" onclick="showUni('sze',this)"><span class="uni-dot" style="background:#c2410c"></span>SZE Győr</button>
+  <button class="uni-tab" onclick="showUni('me',this)"><span class="uni-dot" style="background:#475569"></span>ME Miskolc</button>
+  <button class="uni-tab" onclick="showUni('oe',this)"><span class="uni-dot" style="background:#7e22ce"></span>ÓE Óbuda</button>
+  <button class="uni-tab" onclick="showUni('bbu',this)"><span class="uni-dot" style="background:#5b21b6"></span>BBU Kolozsvár</button>
+</div>
+
+<div class="uni-section active" id="uni-bce">
+<div class="profile-header">
+  <div class="profile-logo">BCE</div>
+  <div class="profile-meta">
+    <div class="profile-name">Budapesti Corvinus Egyetem</div>
+    <div class="profile-sub">1093 Budapest, Fővám tér 8. · KEKVA-s intézmény (Budapesti Gazdasági Felsőoktatásért Alapítvány)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level4">L4 – Vezető szint</span>
+      <span class="ptag ptag-neutral">~14 000 hallgató</span>
+      <span class="ptag ptag-neutral">Üzleti, Közgazdasági, Társadalomtudományok</span>
+      <span class="ptag" style="background:#e8f8f0;color:#15803d;border:1px solid #bbf7d0;">Alumni: integrált</span>
+      <span class="ptag" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">Highered platform</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~12</div><div class="qs-lbl">karrierközpont munkatárs</div></div><div class="qs-card"><div class="qs-val">3</div><div class="qs-lbl">fizikai iroda / kampusz</div></div><div class="qs-card"><div class="qs-val">2×/év</div><div class="qs-lbl">Career & Business Festival</div></div><div class="qs-card"><div class="qs-val">3 000+</div><div class="qs-lbl">hallgató/kiállító CCBF-en</div></div><div class="qs-card"><div class="qs-val">92%</div><div class="qs-lbl">infó-elérhetőség</div></div><div class="qs-card"><div class="qs-val">igen</div><div class="qs-lbl">online konzultáció</div></div></div>
+<div class="p-two-col">
+<div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Karriertámogatási Központ – Dr. Farkas-Hussey Noémi (PhD, ír karrier-szakértő background)</div><div class="svc-desc">Egyéni coaching, CV-konzultáció, mock interjú, online és személyes formában. Külföldi hallgatóknak is.</div><a href="https://www.uni-corvinus.hu/ind/career-2/for-students/career-support/career-advising-and-employability-services/" class="svc-link" target="_blank">→ career.uni-corvinus.hu</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Career & Business Festival (CCBF) – évi 2× (tavasz + ősz)</div><div class="svc-desc">Fizetős EB-csomagok cégeknek: festival stage, newsletter, LED. 3 000+ hallgató elérése.</div><a href="https://www.uni-corvinus.hu/post/landing-page/corvinus-career-and-business-festival/" class="svc-link" target="_blank">→ CCBF landing page</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pannonia Internship Programme</div><div class="svc-desc">Strukturált külföldi internprogram, 6+ hónapos elhelyezkedési céllal.</div><a href="https://www.uni-corvinus.hu/ind/career-2/for-students/career-support/" class="svc-link" target="_blank">→ Career Support oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Highered – globális karrierplatform integráció</div><div class="svc-desc">Kapcsolódás globális munkaadókhoz és karriereseményekhez, egyéni profil.</div><a href="https://highered.global" class="svc-link" target="_blank">→ highered.global</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Alumni Café – mentoring sessziók (20 perces)</div><div class="svc-desc">Végzett Corvinus-os alumni találkozók a karriernapon. Tanszéki mentorprogramok is futnak.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Corvinus Karrier Portál (Recruito)</div><div class="svc-desc">Állásajánlatok, gyakornoki pozíciók.</div><a href="https://karrier.recruito.net/corvinus/" class="svc-link" target="_blank">→ karrier.recruito.net/corvinus</a></div></li><li class="svc-item"><span class="svc-icon">⚠️</span><div><div class="svc-name">Mentálhigiénés tanácsadás – különálló szervezeti egység</div><div class="svc-desc">Hallgatói Jólét keretében, nem integrált a karriercsapatba.</div></div></li></ul><div class="p-gap-box p-gap-warn"><strong>Fehér foltok:</strong> AI-alapú kompetencia-profil és gamifikált fejlesztési program nem létezik. A mentálhigiénés és karrierszolgáltatás szervezetileg elkülönül. Nincs Skill Passport rendszer.</div><div class="p-gap-box p-gap-good"><strong>Prohuman lehetőség:</strong> L4 → L4+: Gaphopper AI-kompetencia modul + mentálhigiéné-integráció = egyedülálló differenciálás.</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">👤</span> Kulcsszereplők és elérhetőségek</div><div class="staff-grid"><div class="staff-card"><div class="staff-name">Dr. Farkas-Hussey Noémi</div><div class="staff-role">Karriertámogatási Központ vezető</div><div class="staff-email">uni-corvinus.hu/career</div></div><div class="staff-card"><div class="staff-name">Gyarmati Anna</div><div class="staff-role">Alumni vezető</div></div><div class="staff-card"><div class="staff-name">Baranyai Dávid</div><div class="staff-role">Vállalati és Intézményi Kapcsolatok vezető</div></div></div><table class="contact-table"><tr><td>Karriertámogatás</td><td><a href="https://www.uni-corvinus.hu/ind/career-2/" target="_blank">uni-corvinus.hu/career</a></td></tr><tr><td>Állásportál</td><td><a href="https://karrier.recruito.net/corvinus/" target="_blank">karrier.recruito.net/corvinus</a></td></tr><tr><td>CCBF esemény</td><td><a href="https://www.uni-corvinus.hu/post/landing-page/corvinus-career-and-business-festival/" target="_blank">CCBF landing page</a></td></tr><tr><td>Tel.</td><td>+ 36 1 482 5000</td></tr></table></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://www.uni-corvinus.hu/ind/career-2/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Career Services főoldal</a><a href="https://www.uni-corvinus.hu/ind/career-2/for-students/career-support/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Hallgatói karriertámogatás</a><a href="https://www.uni-corvinus.hu/ind/career-2/for-employers/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Munkáltatóknak (for employers)</a><a href="https://karrier.recruito.net/corvinus/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Állásportál (Recruito)</a><a href="https://www.uni-corvinus.hu/fooldal/kepzes/dualis-kepzes/vallalati-partnerek/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Duális képzés – partnerlista</a><a href="https://www.uni-corvinus.hu/post/landing-page/corvinus-career-and-business-festival/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Career & Business Festival</a></div></div></div>
+<div class="uni-section" id="uni-elte">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#f0fff4;color:#15803d;">ELTE</div>
+  <div class="profile-meta">
+    <div class="profile-name">Eötvös Loránd Tudományegyetem</div>
+    <div class="profile-sub">1053 Budapest, Egyetem tér 1-3. · Állami fenntartású (nem KEKVA) · Magyarország legtöbb hallgatójával rendelkező tudományegyeteme</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level3">L3 – Haladó szint</span>
+      <span class="ptag ptag-neutral">~28 000 hallgató</span>
+      <span class="ptag ptag-neutral">8 tudományterület, 28 kar</span>
+      <span class="ptag" style="background:#f0fff4;color:#15803d;border:1px solid #bbf7d0;">HVG Diploma #1 rangsor</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~7</div><div class="qs-lbl">karrierközpont munkatárs</div></div><div class="qs-card"><div class="qs-val">4–5</div><div class="qs-lbl">iroda (kari + central)</div></div><div class="qs-card"><div class="qs-val">42</div><div class="qs-lbl">kiállító cég 2025-ös karriernapon</div></div><div class="qs-card"><div class="qs-val">700+</div><div class="qs-lbl">aktív résztvevő 2025. ápr.</div></div><div class="qs-card"><div class="qs-val">74%</div><div class="qs-lbl">infó-elérhetőség</div></div><div class="qs-card"><div class="qs-val">igen</div><div class="qs-lbl">online konzultáció</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">ELTE Karrierközpont – önálló szervezeti egység (Mester Alexandra)</div><div class="svc-desc">Az ELTE Szolgáltatási Igazgatóság részeként működik.</div><a href="https://karrierkozpont.elte.hu/" class="svc-link" target="_blank">→ karrierkozpont.elte.hu</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">ELTE Állásportál</div><div class="svc-desc">Folyamatos álláshirdetések, diákmunkától pályakezdő pozíciókon át. Céges landing page-ek, PR cikkek lehetősége.</div><a href="https://allasborze.elte.hu/" class="svc-link" target="_blank">→ allasborze.elte.hu</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">ELTE Karriernap – évi 2× (tavasz + ősz)</div><div class="svc-desc">2025. ápr. 10.: 42 kiállító, 700+ résztvevő. CV-fotó, önéletrajz-tanácsadás, mock interjú. Következő: 2026. ápr. 28.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Karriermenedzsment I-II. online kurzus</div><div class="svc-desc">KM I: az álláskeresés megalapozása. KM II: soft skill fejlesztés.</div><a href="https://karrierkozpont.elte.hu/karriermenedzsment-allaskeresoi-keszsegfejlesztes-karriermenedzsment-ii/" class="svc-link" target="_blank">→ KM II. kurzus</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pszichológiai tanácsadás – ELTE PPK (10 alkalom/tanév, online is)</div><div class="svc-desc">Erős mentálhigiénés háttér.</div><a href="https://pszi.ppk.elte.hu/" class="svc-link" target="_blank">→ PPK Pszichológiai Intézet</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Fizetős EB-csomagok cégeknek</div><div class="svc-desc">Landing page, PR cikkek, célzott hírlevél, vállalati előadások/tréningek hallgatóknak.</div><a href="https://allasborze.elte.hu/cegeknek/" class="svc-link" target="_blank">→ Cégeknek szóló oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Partnerek: Morgan Stanley, Aon, P&G, MBH Bank, NAV, Wizz Air</div><div class="svc-desc">Aktív vállalati jelenlét az állásbörze-rendezvényeken.</div></div></li><li class="svc-item"><span class="svc-icon">❌</span><div><div class="svc-name">Alumni mentoring program – HIÁNYZIK</div><div class="svc-desc">28 000 hallgató és a hatalmas ELTE alumni bázis nincs szervesen integrálva.</div></div></li><li class="svc-item"><span class="svc-icon">⚠️</span><div><div class="svc-name">Kari széttagoltság – 28 kar eltérő megközelítéssel</div><div class="svc-desc">Az IK-val kötött megállapodás az IT-álláshirdetések közzétételét korlátozza is.</div></div></li></ul><div class="p-gap-box p-gap-good"><strong>Prohuman lehetőség:</strong> Az alumni hálózat aktiválása + összegyetemi kompetenciaplatform 28 000 hallgató esetén hatalmas léptékű. A pszichológiai háttér karrierbe integrálása egyedi versenyelőny.</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">👤</span> Kulcsszereplők és elérhetőségek</div><div class="staff-grid"><div class="staff-card"><div class="staff-name">Mester Alexandra</div><div class="staff-role">ELTE Karrierközpont képzés- és programszervező</div><div class="staff-email">munkaeropiac@kancellaria.elte.hu</div></div></div><table class="contact-table"><tr><td>Karrierközpont</td><td><a href="https://karrierkozpont.elte.hu/" target="_blank">karrierkozpont.elte.hu</a></td></tr><tr><td>Állásportál</td><td><a href="https://allasborze.elte.hu/" target="_blank">allasborze.elte.hu</a></td></tr><tr><td>Cégeknek</td><td><a href="https://allasborze.elte.hu/cegeknek/" target="_blank">allasborze.elte.hu/cegeknek</a></td></tr><tr><td>Email</td><td>munkaeropiac@kancellaria.elte.hu</td></tr><tr><td>Pszichológia</td><td><a href="https://pszi.ppk.elte.hu/" target="_blank">pszi.ppk.elte.hu</a></td></tr></table></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://karrierkozpont.elte.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>ELTE Karrierközpont főoldal</a><a href="https://allasborze.elte.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>ELTE Állásportál</a><a href="https://allasborze.elte.hu/cegeknek/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Cégeknek szóló oldal</a><a href="https://karrierkozpont.elte.hu/allaskeresoknek" target="_blank" class="link-item"><span class="link-arrow">↗</span>Álláskeresőknek</a><a href="https://pszi.ppk.elte.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>PPK Pszichológiai Intézet</a><a href="https://allasborze.elte.hu/elte-karriernap-2025/" target="_blank" class="link-item"><span class="link-arrow">↗</span>ELTE Karriernap 2025</a></div></div></div>
+<div class="uni-section" id="uni-bme">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#fffbeb;color:#b45309;">BME</div>
+  <div class="profile-meta">
+    <div class="profile-name">Budapesti Műszaki és Gazdaságtudományi Egyetem</div>
+    <div class="profile-sub">1111 Budapest, Műegyetem rakpart 3-9. · Állami fenntartású (nem KEKVA) · Magyarország legrangosabb műszaki egyeteme</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level3">L3 – Haladó szint</span>
+      <span class="ptag ptag-neutral">~23 000 hallgató</span>
+      <span class="ptag ptag-neutral">Mérnöki, műszaki, informatika, gazdasági</span>
+      <span class="ptag" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;">#1 bérigény Magyarországon</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~6</div><div class="qs-lbl">karrierközpont munkatárs (ÉSZI)</div></div><div class="qs-card"><div class="qs-val">2–3</div><div class="qs-lbl">iroda (R épület, 2. em.)</div></div><div class="qs-card"><div class="qs-val">2×/év</div><div class="qs-lbl">Műegyetemi Állásbörze</div></div><div class="qs-card"><div class="qs-val">60%</div><div class="qs-lbl">infó-elérhetőség (gyenge pontja)</div></div><div class="qs-card"><div class="qs-val">~6</div><div class="qs-lbl">ingyenes pszicho-alkalom/félév</div></div><div class="qs-card"><div class="qs-val">1995 óta</div><div class="qs-lbl">állásbörze hagyomány</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">BME Értékesítési és Szolgáltatási Igazgatóság (ÉSZI)</div><div class="svc-desc">1111 Budapest, Műegyetem rakpart 7-9. R ép. 2. em. Email: tanacsadas@m365.bme.hu</div><a href="https://services.bme.hu/karrier/" class="svc-link" target="_blank">→ services.bme.hu/karrier</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Műegyetemi Állásbörze – évi 2× (okt. 14–15., 2025)</div><div class="svc-desc">Magyarország legrangosabb állásbörze-eseménye 1995 óta.</div><a href="https://www.muegyetemiallasborze.hu/" class="svc-link" target="_blank">→ muegyetemiallasborze.hu</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Karrier konzultáció – egyéni, online is elérhető</div><div class="svc-desc">1 ingyenes alkalom hallgatóknak. 5 perces kérdőív, várólistán email-es visszajelzés.</div><a href="https://services.bme.hu/hallgatoi-ugyintezes/tanacsadas/karrier/karrier-konzultacio/" class="svc-link" target="_blank">→ Karrier konzultáció</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Online kurzusok, letölthető munkafüzetek, Karrier kurzuscsomag</div><div class="svc-desc">CV-készítés, interjúfelkészítés, külföldi munkavállalás (angolul is).</div><a href="https://services.bme.hu/karrier/karriertervezes/" class="svc-link" target="_blank">→ Karriertervezés oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pszichológiai tanácsadás – ÉSZI (~6 alkalmas folyamat, félévente 1×)</div><div class="svc-desc">Szakértő pszichológusok. Figyelmeztetés: 1–2 hónapos várólistával kell számolni!</div><a href="https://services.bme.hu/hallgatoi-ugyintezes/tanacsadas/" class="svc-link" target="_blank">→ Pszichológiai tanácsadás</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Hirdetési szolgáltatások cégeknek (hirdetes@m365.bme.hu)</div><div class="svc-desc">Csomagok: teljes körű, online, egyszeri. Megrendelő letölthető.</div><a href="https://services.bme.hu/karrier/hirdetesi-szolgaltatas/" class="svc-link" target="_blank">→ Hirdetési szolgáltatás</a></div></li><li class="svc-item"><span class="svc-icon">❌</span><div><div class="svc-name">Nincs dedikált digitális karrierplatform</div><div class="svc-desc">Navigáció nehézkes. A Műegyetemi presztízshez mérten gyenge online jelenlét.</div></div></li><li class="svc-item"><span class="svc-icon">❌</span><div><div class="svc-name">Nincs alumni mentoring program</div><div class="svc-desc">A BME 100 000+ alumni bázisa teljesen kihasználatlan a karrierszolgáltatásban.</div></div></li></ul><div class="p-gap-box p-gap-warn"><strong>Digitális paradoxon:</strong> A Műegyetem diplomásai a legmagasabb bérigényű munkavállalók Magyarországon, mégis a karrieriroda navigációja nehézkes (60% infó-elérhetőség). Ez komoly presztízs-aránytalanság.</div><div class="p-gap-box p-gap-good"><strong>Prohuman lehetőség:</strong> Egységes karrierplatform + alumni aktiválás = azonnali presztízsuplift. Mérnöki AI kompetenciatérkép pilot páratlan értékajánlat az ipar felé.</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">👤</span> Kulcsszereplők és elérhetőségek</div><table class="contact-table"><tr><td>Karrier tanácsadás</td><td>tanacsadas@m365.bme.hu</td></tr><tr><td>Hirdetés (cégeknek)</td><td>hirdetes@m365.bme.hu</td></tr><tr><td>ÉSZI iroda</td><td>1111 Bp., Műegyetem rkp. 7-9. R ép. 2. em.</td></tr><tr><td>Karrierszolgáltatások</td><td><a href="https://services.bme.hu/karrier/" target="_blank">services.bme.hu/karrier</a></td></tr><tr><td>Állásbörze</td><td><a href="https://www.muegyetemiallasborze.hu/" target="_blank">muegyetemiallasborze.hu</a></td></tr><tr><td>Állásajánlatok</td><td><a href="https://eszi.bme.hu/allasajanlatok/" target="_blank">eszi.bme.hu/allasajanlatok</a></td></tr></table></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://services.bme.hu/karrier/" target="_blank" class="link-item"><span class="link-arrow">↗</span>BME Karrierszolgáltatások</a><a href="https://www.muegyetemiallasborze.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Műegyetemi Állásbörze</a><a href="https://services.bme.hu/karrier/hirdetesi-szolgaltatas/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Hirdetési szolgáltatás (cégeknek)</a><a href="https://services.bme.hu/hallgatoi-ugyintezes/tanacsadas/karrier/karrier-konzultacio/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Karrier konzultáció</a><a href="https://eszi.bme.hu/allasajanlatok/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Állásajánlatok</a><a href="https://www.bme.hu/karrierpalyazatok" target="_blank" class="link-item"><span class="link-arrow">↗</span>BME Karrier & pályázatok</a></div></div></div>
+<div class="uni-section" id="uni-szte">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#f0fdfa;color:#0f766e;">SZTE</div>
+  <div class="profile-meta">
+    <div class="profile-name">Szegedi Tudományegyetem</div>
+    <div class="profile-sub">6720 Szeged, Dugonics tér 13. · KEKVA-s intézmény (Szegedi Tudományegyetemért Alapítvány)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level3">L3 – Haladó szint</span>
+      <span class="ptag ptag-neutral">~21 000 hallgató</span>
+      <span class="ptag" style="background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">800+ vállalati partner</span>
+      <span class="ptag" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">Highered platform</span>
+      <span class="ptag" style="background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">2005 óta aktív</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~9</div><div class="qs-lbl">karrier iroda munkatárs</div></div><div class="qs-card"><div class="qs-val">2–3</div><div class="qs-lbl">iroda (Vitéz u. + GTK KO)</div></div><div class="qs-card"><div class="qs-val">800+</div><div class="qs-lbl">vállalati partnerkapcsolat</div></div><div class="qs-card"><div class="qs-val">okt. 8.</div><div class="qs-lbl">Karriernap 2025 (JATIK)</div></div><div class="qs-card"><div class="qs-val">70%</div><div class="qs-lbl">infó-elérhetőség</div></div><div class="qs-card"><div class="qs-val">igen</div><div class="qs-lbl">online konzultáció</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">SZTE Karrier Iroda – 2005 óta aktív</div><div class="svc-desc">6722 Szeged, Vitéz utca 17. · Tel: 62/546-680 · H–Cs: 8:00–16:30, P: 8:00–14:00</div><a href="https://u-szeged.hu/sztekarrier" class="svc-link" target="_blank">→ u-szeged.hu/sztekarrier</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">SZTE GTK Karrier Iroda – Masa Barbara (hallgatói koordinátor, masa.barbara@szte.hu)</div><div class="svc-desc">Kötelező szakmai gyakorlat teljes adminisztrációja. Csák Luca Nóra talent manager és alumni koordinátor.</div><a href="https://u-szeged.hu/sztekarrier/hallgatoknak-for/magyar-nyelvu" class="svc-link" target="_blank">→ Magyar hallgatóknak</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Felkészítő Programok – Fazekas Melinda pályatervezési tanácsadó</div><div class="svc-desc">CV-tanácsadás, LinkedIn-profil workshop, interjú-felkészítő. Online és személyes.</div><a href="https://u-szeged.hu/sztekarrier/felkeszito-programok" class="svc-link" target="_blank">→ Felkészítő Programok oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">SZTE Karriernapok – évi 1× (okt. 8., JATIK)</div><div class="svc-desc">Felkészítő Program előzi meg. Cégek, workshopok, interjú-megfigyelés.</div><a href="https://u-szeged.hu/karriernapok" class="svc-link" target="_blank">→ Karriernapok oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Highered globális karrierplatform integráció</div><div class="svc-desc">Globális álláslehetőségek – az SZTE az egyetlen vidéki intézmény ezzel.</div><a href="https://highered.global" class="svc-link" target="_blank">→ highered.global</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Ormándiné dr. Paulik Ildikó – key account manager a vállalati kapcsolatokért</div><div class="svc-desc">Ő intézi az álláshirdetések, együttműködések vállalati oldalát.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Havi karrierhírlevél állás- és gyakornoki ajánlatokkal</div><div class="svc-desc">EUGLOH Business Talk eseményekkel, céglátogatásokkal.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pszichológiai tanácsadás – SZTE Életvezetési és Tanácsadó Központ</div><div class="svc-desc">Különálló szervezeti egység, online és személyes formában.</div></div></li><li class="svc-item"><span class="svc-icon">⚠️</span><div><div class="svc-name">800+ partner döntően adminisztratív jellegű</div><div class="svc-desc">Nincs fizetős EB-csomag, holott a hálózat meglenne rá.</div></div></li></ul><div class="p-gap-box p-gap-warn"><strong>A számok paradoxona:</strong> 800+ partnerrel Magyarország egyik legnagyobb vállalati hálózatával bíró karrier iroda, mégis ez nem generál bevételt. Fizetős EB-csomagok kialakítása a BCE-modell alapján könnyen megvalósítható.</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">👤</span> Kulcsszereplők</div><div class="staff-grid"><div class="staff-card"><div class="staff-name">Fazekas Melinda</div><div class="staff-role">Pályatervezési és karriertanácsadó, iroda vezető</div><div class="staff-email">fazekas.melinda@szte.hu</div></div><div class="staff-card"><div class="staff-name">Masa Barbara</div><div class="staff-role">Hallgatói koordinátor (GTK), szakmai gyakorlat admin.</div><div class="staff-email">masa.barbara@szte.hu</div></div><div class="staff-card"><div class="staff-name">Ormándiné dr. Paulik Ildikó</div><div class="staff-role">Key account manager (vállalati kapcsolatok)</div></div><div class="staff-card"><div class="staff-name">Csák Luca Nóra</div><div class="staff-role">Talent manager & Alumni koordinátor (GTK)</div></div></div><table class="contact-table"><tr><td>Karrier Iroda</td><td><a href="https://u-szeged.hu/sztekarrier" target="_blank">u-szeged.hu/sztekarrier</a></td></tr><tr><td>Tel.</td><td>62/546-680 (H–Cs 8:00–16:30, P 8:00–14:00)</td></tr><tr><td>Cím</td><td>6722 Szeged, Vitéz u. 17.</td></tr><tr><td>Karriernapok</td><td><a href="https://u-szeged.hu/karriernapok" target="_blank">u-szeged.hu/karriernapok</a></td></tr><tr><td>LinkedIn</td><td><a href="https://www.linkedin.com/company/szte-karrier-iroda/" target="_blank">SZTE Karrier Iroda LinkedIn</a></td></tr></table></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://u-szeged.hu/sztekarrier" target="_blank" class="link-item"><span class="link-arrow">↗</span>SZTE Karrier Iroda főoldal</a><a href="https://u-szeged.hu/sztekarrier/felkeszito-programok" target="_blank" class="link-item"><span class="link-arrow">↗</span>Felkészítő Programok</a><a href="https://u-szeged.hu/karriernapok" target="_blank" class="link-item"><span class="link-arrow">↗</span>SZTE Karriernapok</a><a href="https://u-szeged.hu/sztekarrier/kapcsolat-200623" target="_blank" class="link-item"><span class="link-arrow">↗</span>Kapcsolat / Staff</a><a href="https://eco.u-szeged.hu/hallgatoknak/karrier-iroda/karrier-iroda" target="_blank" class="link-item"><span class="link-arrow">↗</span>GTK Karrier Iroda</a><a href="https://sztekarrieriroda.com/" target="_blank" class="link-item"><span class="link-arrow">↗</span>SZTE Karrier Iroda – önálló oldal</a></div></div></div>
+<div class="uni-section" id="uni-de">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#faf5ff;color:#6d28d9;">DE</div>
+  <div class="profile-meta">
+    <div class="profile-name">Debreceni Egyetem</div>
+    <div class="profile-sub">4032 Debrecen, Egyetem tér 1. · KEKVA-s intézmény (Gróf Tisza István Debreceni Egyetemért Alapítvány)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level2">L2 – Fejlődő szint</span>
+      <span class="ptag ptag-neutral">~26 000 hallgató (Hu 2. legnagyobb)</span>
+      <span class="ptag ptag-neutral">Orvos, műszaki, agrár, gazdaság, természettudomány</span>
+      <span class="ptag" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;">BMW + Samsung SDI befektetők</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~5</div><div class="qs-lbl">karrierközpont munkatárs</div></div><div class="qs-card"><div class="qs-val">2×/év</div><div class="qs-lbl">Állásbörze & Karriernap</div></div><div class="qs-card"><div class="qs-val">48%</div><div class="qs-lbl">infó-elérhetőség</div></div><div class="qs-card"><div class="qs-val">4</div><div class="qs-lbl">karrierépítési online kurzus</div></div><div class="qs-card"><div class="qs-val">igen</div><div class="qs-lbl">pszichológiai tanácsadás</div></div><div class="qs-card"><div class="qs-val">~34 000</div><div class="qs-lbl">hallgató 2025-ben</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Hallgatói Karrierközpont (HKK)</div><div class="svc-desc">Az HKSZK részeként működik. Facebook: DE Hallgatói Karrierközpont (1238 köv.)</div><a href="https://karrierkozpont.unideb.hu/" class="svc-link" target="_blank">→ karrierkozpont.unideb.hu</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pályaorientáció és karrier-tanácsadás – átfogó weboldal</div><div class="svc-desc">Karriertani alapismeretek, tréningek, egyéni karrier-tanácsadás.</div><a href="https://unideb.hu/karrier-es-palyatanacsadas" class="svc-link" target="_blank">→ unideb.hu/karrier-es-palyatanacsadas</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Online kurzusok – »Karrierre készülve« program</div><div class="svc-desc">Karriertani alapok, tréningek, kompetenciafejlesztés, önismeret.</div><a href="https://unideb.hu/karrierre-keszulve" class="svc-link" target="_blank">→ unideb.hu/karrierre-keszulve</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Angol nyelv álláskeresőknek – B2 kurzus (Idegennyelvi Központ)</div><div class="svc-desc">Angol álláskeresés, CV, interjú, munkakommunikáció. 3. félévestől.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Állásbörze és Karriernap – évi 2× (ápr. + nov.)</div><div class="svc-desc">Regionális fókusz: Hajdú-Bihar megye + multinacionálisok.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pszichológiai tanácsadás – DE Pszichológiai Intézet</div><div class="svc-desc">Erős elméleti háttér (munka- és szervezetpszichológia specializáció). Nincs integrálva karrierirodával.</div><a href="https://pszichologia.unideb.hu/" class="svc-link" target="_blank">→ DE Pszichológiai Intézet</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">TTK – 100+ ipari partner, garantált munkahely a kar szintjén</div><div class="svc-desc">Természettudományi és Technológiai Kar aktív iparkapcsolatai.</div></div></li><li class="svc-item"><span class="svc-icon">❌</span><div><div class="svc-name">Nincs egységes összegyetemi karrierplatform</div><div class="svc-desc">A karrierszolgáltatások kari szinten szétszórtak.</div></div></li></ul><div class="p-gap-box p-gap-danger"><strong>Kritikus fehér folt:</strong> A Debrecen régiójába érkező BMW, Samsung SDI, Continental multinacionálisok strukturálisan nincsenek bekapcsolva a DE karrierrendszerébe. Magyarország egyik legnagyobb kihasználatlan karrieriroda-lehetősége.</div><div class="p-gap-box p-gap-good"><strong>Prohuman lehetőség (0–3 hó):</strong> BMW pilot – strukturált együttműködési megállapodás + Gaphopper mérnöki kompetenciaprofil. Azonnal mérhető eredmény.</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">👤</span> Kulcsszereplők és elérhetőségek</div><table class="contact-table"><tr><td>Hallgatói Karrierközpont</td><td><a href="https://karrierkozpont.unideb.hu/" target="_blank">karrierkozpont.unideb.hu</a></td></tr><tr><td>Karrier és pályatanácsadás</td><td><a href="https://unideb.hu/karrier-es-palyatanacsadas" target="_blank">unideb.hu oldal</a></td></tr><tr><td>Állásajánlatok portál</td><td><a href="https://unideb.hu/hu/allasajanlatok" target="_blank">unideb.hu/allasajanlatok</a></td></tr><tr><td>Facebook (1238 köv.)</td><td><a href="https://www.facebook.com/dekarrier/" target="_blank">DE Karrierközpont FB</a></td></tr></table></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://karrierkozpont.unideb.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>DE Hallgatói Karrierközpont</a><a href="https://unideb.hu/karrier-es-palyatanacsadas" target="_blank" class="link-item"><span class="link-arrow">↗</span>Karrier és pályatanácsadás</a><a href="https://unideb.hu/karrierre-keszulve" target="_blank" class="link-item"><span class="link-arrow">↗</span>Karrierre készülve (kurzusok)</a><a href="https://unideb.hu/hu/allasajanlatok" target="_blank" class="link-item"><span class="link-arrow">↗</span>Állásajánlatok portál</a><a href="https://pszichologia.unideb.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>DE Pszichológiai Intézet</a><a href="https://www.facebook.com/dekarrier/" target="_blank" class="link-item"><span class="link-arrow">↗</span>DE Karrierközpont Facebook</a></div></div></div>
+<div class="uni-section" id="uni-pte">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#fff1f2;color:#be123c;">PTE</div>
+  <div class="profile-meta">
+    <div class="profile-name">Pécsi Tudományegyetem</div>
+    <div class="profile-sub">7622 Pécs, Vasvári Pál u. 4. · KEKVA-s intézmény (Pécsi Tudományegyetemért Alapítvány)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level2">L2 – Fejlődő szint</span>
+      <span class="ptag ptag-neutral">~20 000 hallgató</span>
+      <span class="ptag ptag-neutral">Orvos, jog, bölcsész, műszaki, zene, közgazdaság – 12 kar</span>
+      <span class="ptag" style="background:#fff1f2;color:#be123c;border:1px solid #fecdd3;">35% infó-elérhetőség (legalacsonyabb top 5-ben)</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~4</div><div class="qs-lbl">karrier koordinátor (becsült)</div></div><div class="qs-card"><div class="qs-val">kari</div><div class="qs-lbl">szintű iroda-struktúra</div></div><div class="qs-card"><div class="qs-val">35%</div><div class="qs-lbl">infó-elérhetőség (legalacsonyabb)</div></div><div class="qs-card"><div class="qs-val">12</div><div class="qs-lbl">kar – szétaprózott</div></div><div class="qs-card"><div class="qs-val">igen</div><div class="qs-lbl">pszichológia BTK + ÁOK karokon</div></div><div class="qs-card"><div class="qs-val">20 000</div><div class="qs-lbl">hallgató – kihasználatlan</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Jelenlegi karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">⚠️</span><div><div class="svc-name">Kari szintű karrier irodák – szétszórtan</div><div class="svc-desc">Minden karon van valamilyen koordinátor, de nincs egységes, összegyetemi Karrierközpont. PTE.HU navigáció bonyolult.</div><a href="https://www.pte.hu" class="svc-link" target="_blank">→ pte.hu főoldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Szakmai gyakorlat koordináció karonként</div><div class="svc-desc">ÁOK, KTK karokon szervezett megállapodások. 230/2012. Korm. r. szerinti kötelező megállapodások megvannak.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pszichológiai tanácsadás – BTK és ÁOK karokon</div><div class="svc-desc">A PTE az egyik hazai mentálhigiéniai prevenció-specialista képzőhely.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Állásbörzék – kari szinten</div><div class="svc-desc">Egyes karok (pl. KTK) saját állásbörze-eseményeket szerveznek.</div></div></li><li class="svc-item"><span class="svc-icon">❌</span><div><div class="svc-name">Nincs egységes karrierportál</div><div class="svc-desc">Hiányzik egységes, összegyetemi álláshirdetési és karrierszolgáltatási platform.</div></div></li><li class="svc-item"><span class="svc-icon">❌</span><div><div class="svc-name">Nincs strukturált employer branding program</div><div class="svc-desc">Cégeknek nincs hova fordulniuk egységesen az összes PTE-s hallgató eléréséhez.</div></div></li></ul><div class="p-gap-box p-gap-danger"><strong>Kritikus pont:</strong> A 35%-os infó-elérhetőség a legalacsonyabb az összes vizsgált intézmény között. Egy első éves hallgató nagyon nehezen találja meg, hova forduljon karriertanácsadásért.</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">🚀</span> Fejlesztési potenciál és Prohuman kontextus</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">Orvos + jog + bölcsész + műszaki = sokszínű hallgatói profil</div><div class="svc-desc">Egyedülálló képzési mix – sokkal szélesebb vállalati célcsoportot tesz elérhetővé, mint a profilspecifikus intézmények.</div></div></li><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">KEKVA státusz = teljesítményindikátorok = sürgető motiváció</div><div class="svc-desc">A feladatfinanszírozási megállapodásban vállalati kapcsolatok és DPR indikátorok szerepelnek. Belső nyomás a fejlesztésre.</div></div></li><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">Continental, Bosch, Panasonic – regionális nagyvállalatok</div><div class="svc-desc">Pécs régiójában potenciális EB-partnerek formalizálatlan kapcsolattal.</div></div></li><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">Zöldmezős bevezetés – nincs meglévő rendszer</div><div class="svc-desc">A legkevesebb belső ellenállással járó intézmény: nincs fennálló platform, ami konkurálna az újjal.</div></div></li></ul><div class="p-gap-box p-gap-good"><strong>Prohuman lehetőség (0–3 hó):</strong> (1) Egységes karrierportál indítása – 35%→65%+ ugrás. (2) 5–8 regionális vállalati EB-partner bevonása. (3) PTE BTK pszichológusok karrierbe integrálása – ország-első integrált modell.</div></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://www.pte.hu" target="_blank" class="link-item"><span class="link-arrow">↗</span>PTE főoldal</a><a href="https://gytk.pte.hu/dokumentum/34913" target="_blank" class="link-item"><span class="link-arrow">↗</span>GYTK szakmai gyakorlat tájékoztató</a><a href="https://gytk.pte.hu/dokumentum/34929" target="_blank" class="link-item"><span class="link-arrow">↗</span>Hallgatói munkaszerződés info</a></div></div></div>
+<div class="uni-section" id="uni-sze">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#fff7ed;color:#c2410c;">SZE</div>
+  <div class="profile-meta">
+    <div class="profile-name">Széchenyi István Egyetem</div>
+    <div class="profile-sub">9026 Győr, Egyetem tér 1. · KEKVA-s intézmény (Széchenyi István Egyetemért Alapítvány)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level2">L2 – Fejlődő szint</span>
+      <span class="ptag ptag-neutral">~11 000 hallgató</span>
+      <span class="ptag ptag-neutral">Műszaki, gazdasági, egészségügyi, jogi</span>
+      <span class="ptag" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">Audi, ZF, Rába, Bosch – győri ipari ökoszisztéma</span>
+      <span class="ptag" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">1500+ vállalati partner a portálon</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~3</div><div class="qs-lbl">karrier koordinátor (PKK)</div></div><div class="qs-card"><div class="qs-val">1500+</div><div class="qs-lbl">vállalati partner a portálon</div></div><div class="qs-card"><div class="qs-val">1×/év</div><div class="qs-lbl">Széchenyi Karrierbörze</div></div><div class="qs-card"><div class="qs-val">42%</div><div class="qs-lbl">infó-elérhetőség</div></div><div class="qs-card"><div class="qs-val">igen</div><div class="qs-lbl">mentálhigiénés tanácsadás (AK Lelki Tér)</div></div><div class="qs-card"><div class="qs-val">csüt.</div><div class="qs-lbl">személyes fogadóóra napja</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pályaorientációs és Karrier Központ (PKK)</div><div class="svc-desc">Győr, Egyetem tér 1. Személyes fogadóóra: csütörtök 8:00–16:00.</div><a href="https://karrier.sze.hu/" class="svc-link" target="_blank">→ karrier.sze.hu</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">1500+ vállalati partner adatbázis</div><div class="svc-desc">Állásajánlatok, gyakorlati helyek, munkáltatói profilok.</div><a href="https://karrier.sze.hu/karrier_ajanlatok" class="svc-link" target="_blank">→ Karrierlehetőségek</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Szakmai gyakorlat koordináció – teljes adminisztrációs csomag</div><div class="svc-desc">Szándéknyilatkozat, megállapodás, munkanapló letölthető.</div><a href="https://karrier.sze.hu/vonatkozo-szabalyzatok" class="svc-link" target="_blank">→ Vonatkozó szabályzatok</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Duális képzés – Audi és ipari partnerekkel</div><div class="svc-desc">Duális megállapodások műszaki területeken.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Mentálhigiénés életvezetési tanácsadás – AK Lelki Tér</div><div class="svc-desc">SZE AK Lelki Tér (Liszt F. u. 42. 204. terem). Klinikai szakpszichológus, csoportos tréningek, egyéni konzultáció. <strong>A csoportok teltek, várólistás!</strong></div><a href="https://student.sze.hu/mentalhigienes-eletvezetesi-tanacsadas" class="svc-link" target="_blank">→ Mentálhigiénés oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Cégeknek: hallgatók közvetlen elérése adatbázison és HÖK levelezőlistán</div><div class="svc-desc">Vállalati szolgáltatások oldal.</div><a href="https://karrier.sze.hu/szolgaltatasaink" class="svc-link" target="_blank">→ Szolgáltatások (cégeknek)</a></div></li></ul><div class="p-gap-box p-gap-warn"><strong>Az ipari potenciál paradoxona:</strong> Az SZE rendelkezik a legfejlettebb ipari ökoszisztémával a L2-es intézmények között (Audi, ZF, Rába közvetlen közelségben), mégis ez a legkevésbé formalizált vállalati kapcsolat a karrieriroda szintjén. »Preferred Partner« státusz kialakítása azonnali, látványos eredményt hozna.</div><div class="p-gap-box p-gap-good"><strong>Prohuman prioritás #1 (0–3 hó):</strong> Kisméretű staff = gyors döntés. Audi + ZF EB-csomag pilot → automatikus quick win. Mentálhigiénés program karrierbe integrálása = egyedi differenciálás.</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">👤</span> Kulcsszereplők és elérhetőségek</div><table class="contact-table"><tr><td>Karrier Iroda</td><td><a href="https://karrier.sze.hu/" target="_blank">karrier.sze.hu</a></td></tr><tr><td>Kapcsolat</td><td><a href="https://karrier.sze.hu/kapcsolat" target="_blank">karrier.sze.hu/kapcsolat</a></td></tr><tr><td>Cím</td><td>9026 Győr, Egyetem tér 1.</td></tr><tr><td>Tel.</td><td>+36 96 503 400</td></tr><tr><td>Mentálhigiéné</td><td><a href="https://student.sze.hu/mentalhigienes-eletvezetesi-tanacsadas" target="_blank">AK Lelki Tér</a></td></tr><tr><td>Duális képzés</td><td><a href="https://dualis.sze.hu/" target="_blank">dualis.sze.hu</a></td></tr></table></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://karrier.sze.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>SZE Karrier Iroda főoldal</a><a href="https://karrier.sze.hu/kapcsolat" target="_blank" class="link-item"><span class="link-arrow">↗</span>Kapcsolat / elérhetőségek</a><a href="https://karrier.sze.hu/szolgaltatasaink" target="_blank" class="link-item"><span class="link-arrow">↗</span>Szolgáltatások (cégeknek)</a><a href="https://karrier.sze.hu/vonatkozo-szabalyzatok" target="_blank" class="link-item"><span class="link-arrow">↗</span>Vonatkozó szabályzatok</a><a href="https://student.sze.hu/mentalhigienes-eletvezetesi-tanacsadas" target="_blank" class="link-item"><span class="link-arrow">↗</span>Mentálhigiénés tanácsadás</a><a href="https://karrier.sze.hu/karrier_ajanlatok" target="_blank" class="link-item"><span class="link-arrow">↗</span>Karrierlehetőségek portál</a></div></div></div>
+<div class="uni-section" id="uni-me">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#f8fafc;color:#475569;">ME</div>
+  <div class="profile-meta">
+    <div class="profile-name">Miskolci Egyetem</div>
+    <div class="profile-sub">3515 Miskolc-Egyetemváros · KEKVA-s intézmény (Miskolci Egyetemért Alapítvány)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level1">L1 – Alapszintű</span>
+      <span class="ptag ptag-neutral">~8 000 hallgató (csökkenő)</span>
+      <span class="ptag ptag-neutral">Műszaki, anyagmérnöki, jog, gazdaság, bölcsész</span>
+      <span class="ptag" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0;">Ország legnagyobb vidéki állásbörze-rendezvénye</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~2</div><div class="qs-lbl">karrier koordinátor (Hallgatói Központ)</div></div><div class="qs-card"><div class="qs-val">1×/év</div><div class="qs-lbl">Miskolci Egyetemi Állásbörze</div></div><div class="qs-card"><div class="qs-val">28%</div><div class="qs-lbl">infó-elérhetőség (legalacsonyabb)</div></div><div class="qs-card"><div class="qs-val">KED(V)</div><div class="qs-lbl">heti interaktív karrier-program</div></div><div class="qs-card"><div class="qs-val">van</div><div class="qs-lbl">Nagy I. Etelka pszichológus</div></div><div class="qs-card"><div class="qs-val">vidéki #1</div><div class="qs-lbl">legnagyobb vidéki állásbörze</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">ME Karrieriroda – Hallgatói Központ</div><div class="svc-desc">A/1 mfszt. 7-es iroda. Álláshirdetések faliújságon, HÖK levelezőlistákon, plakátokon.</div><a href="https://karrieriroda.uni-miskolc.hu/" class="svc-link" target="_blank">→ karrieriroda.uni-miskolc.hu</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">KARRIERKEDD(V) – heti interaktív programsorozat (keddenként)</div><div class="svc-desc">Céges roadshow-k (pl. EY Inside Roadshow), tréningek, tanácsadások.</div><a href="https://karrieriroda.uni-miskolc.hu/karrier-and-coaching" class="svc-link" target="_blank">→ Karrier & Coaching oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Miskolci Egyetemi Állásbörze – az ország legsanyabb vidéki állásbörze</div><div class="svc-desc">Évi 1× (április). Többhetes Állásbörze Felkészítő Napok előzik meg.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">CV-tanácsadás, próbainterjú, önéletrajz tanácsadás, állásajánlat-értesítő</div><div class="svc-desc">Jabil, Sanofi, S.E.G.A. Hungary – aktuális hirdetések.</div><a href="https://karrieriroda.uni-miskolc.hu/allas" class="svc-link" target="_blank">→ Állások portál</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Pszichológiai tanácsadás – Nagy I. Etelka pszichológus</div><div class="svc-desc">A KARRIERKEDD(V) sorozatban is megjelent pszichológiai előadás.</div></div></li><li class="svc-item"><span class="svc-icon">❌</span><div><div class="svc-name">Minimális digitális jelenlét, szétszórt tartalmak</div><div class="svc-desc">28%-os infó-elérhetőség – a legalacsonyabb az összes vizsgált intézmény között.</div></div></li></ul><div class="p-gap-box p-gap-good"><strong>Prohuman lehetőség:</strong> Niche iparági pozicionálás (Miskolc Steel &amp; Materials Career Hub) + Gaphopper pilot mérnöki hallgatókra = 3 hónapon belül mérhető eredmény. PR-hatás: »a ME karrierszolgáltatásai megújultak.«</div></div><div class="info-block"><div class="block-title"><span class="block-title-icon">👤</span> Kulcsszereplők és elérhetőségek</div><table class="contact-table"><tr><td>Karrieriroda főoldal</td><td><a href="https://karrieriroda.uni-miskolc.hu/" target="_blank">karrieriroda.uni-miskolc.hu</a></td></tr><tr><td>Karrier & Coaching</td><td><a href="https://karrieriroda.uni-miskolc.hu/karrier-and-coaching" target="_blank">Karrier & Coaching</a></td></tr><tr><td>Álláslehetőségek</td><td><a href="https://karrieriroda.uni-miskolc.hu/allas" target="_blank">Állások portál</a></td></tr><tr><td>Iroda</td><td>A/1 mfszt. 7-es iroda, Miskolc-Egyetemváros</td></tr></table></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://karrieriroda.uni-miskolc.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>ME Karrieriroda főoldal</a><a href="https://karrieriroda.uni-miskolc.hu/karrier-and-coaching" target="_blank" class="link-item"><span class="link-arrow">↗</span>Karrier & Coaching</a><a href="https://karrieriroda.uni-miskolc.hu/allas" target="_blank" class="link-item"><span class="link-arrow">↗</span>Álláslehetőségek</a><a href="https://web.uni-miskolc.hu/hk/karrier_szolg.htm" target="_blank" class="link-item"><span class="link-arrow">↗</span>Karrier- és önéletrajzi tanácsadás</a><a href="https://www.uni-miskolc.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>ME főoldal</a></div></div></div>
+<div class="uni-section" id="uni-oe">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#fdf4ff;color:#7e22ce;">ÓE</div>
+  <div class="profile-meta">
+    <div class="profile-name">Óbudai Egyetem</div>
+    <div class="profile-sub">1034 Budapest, Bécsi út 96/B · KEKVA-s intézmény (Óbudai Egyetemért Alapítvány)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level1">L1 – Alapszintű (karrierszolgáltatásban)</span>
+      <span class="ptag ptag-neutral">~11 000 hallgató</span>
+      <span class="ptag ptag-neutral">Műszaki, informatika, egészségügyi, gazdasági</span>
+      <span class="ptag" style="background:#fdf4ff;color:#7e22ce;border:1px solid #e9d5ff;">⭐ Kiemelkedő mentálhigiénés program</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~3</div><div class="qs-lbl">karrier koordinátor</div></div><div class="qs-card"><div class="qs-val">2</div><div class="qs-lbl">kampusz (Budapest + Szfv.)</div></div><div class="qs-card"><div class="qs-val">12</div><div class="qs-lbl">ingyenes pszichológiai alkalom/tanév ⭐</div></div><div class="qs-card"><div class="qs-val">igen</div><div class="qs-lbl">Teams online konzultáció (pszichológia)</div></div><div class="qs-card"><div class="qs-val">2×/év</div><div class="qs-lbl">Állásbörze (Bp. + Székesfehérvár)</div></div><div class="qs-card"><div class="qs-val">35%</div><div class="qs-lbl">karrierinfó-elérhetőség</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">ÓE Karrier szekció</div><div class="svc-desc">1034 Budapest, Bécsi út 96/B I-II. em. · Tel: +36 (1) 666-5500.</div><a href="https://uni-obuda.hu/karrier/" class="svc-link" target="_blank">→ uni-obuda.hu/karrier</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">KGK VKKI – Vállalati Kapcsolatok és Karrier Iroda</div><div class="svc-desc">1084 Budapest, Tavaszmező u. 17. A ép. 136. szoba. Dedikált karrier iroda a KGK karon.</div><a href="https://kgk.uni-obuda.hu/intezetek/vallalati-kapcsolatok-es-karrier-iroda/" class="svc-link" target="_blank">→ KGK VKKI oldal</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Állásbörze évi 2× – Budapest (okt. 7.) és Székesfehérvár (okt. 14.)</div><div class="svc-desc">Hallgatók széleskörű elérése, ipari partnerek részvételével.</div></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Duális képzés – megállapodás-sablonok elérhetők</div><div class="svc-desc">Munkászerződés-sablonok, együttműködési megállapodás-minták.</div><a href="https://dualis.uni-obuda.hu/" class="svc-link" target="_blank">→ ÓE Duális képzés</a></div></li></ul></div><div class="info-block"><div class="block-title"><span class="block-title-icon">🧠</span> ⭐ Kiemelkedő: Mentálhigiénés tanácsadás</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">⭐</span><div><div class="svc-name">12 ingyenes pszichológiai alkalom/tanév – az ország egyik legmagasabb száma</div><div class="svc-desc">50 perces alkalmak, előzetes időpontfoglalással.</div><a href="https://uni-obuda.hu/mentalhigienes-tanacsadas-treningek/" class="svc-link" target="_blank">→ Mentálhigiénés tanácsadás</a></div></li><li class="svc-item"><span class="svc-icon">⭐</span><div><div class="svc-name">Online Teams konzultáció – videóhívással, email-egyeztetett időpontban</div><div class="svc-desc">Teljes funkcionalitás az online formátumban is.</div></div></li><li class="svc-item"><span class="svc-icon">⭐</span><div><div class="svc-name">Csoportos tréningek – stresszkezelés, asszertivitás, önismeret, konfliktuskezelés</div><div class="svc-desc">Az ÓE az egyetlen vizsgált intézmény, ahol ilyen rendszeresen fut.</div></div></li><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">PARADOXON: 4★ mentálhigiéné + L1 karrierszolgáltatás</div><div class="svc-desc">A mentálhigiénés program integrálása a karrierszolgáltatásba a legkönnyebb és leghatásosabb fejlesztési lépés. »Ország első integrált karrier-mentálhigiénés programja.«</div></div></li></ul><div class="p-gap-box p-gap-good"><strong>Prohuman prioritás #4 (3–12 hó):</strong> Meglévő pszichológiai infrastruktúra + karrierszolgáltatás összekötése = gyors, olcsó és PR-értékű eredmény. Az ÓE lehet »ország első integrált karrier-mentálhigiénés intézménye.«</div></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://uni-obuda.hu/karrier/" target="_blank" class="link-item"><span class="link-arrow">↗</span>ÓE Karrier szekció</a><a href="https://uni-obuda.hu/mentalhigienes-tanacsadas-treningek/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Mentálhigiénés tanácsadás ⭐</a><a href="https://kgk.uni-obuda.hu/intezetek/vallalati-kapcsolatok-es-karrier-iroda/" target="_blank" class="link-item"><span class="link-arrow">↗</span>KGK Vállalati Kapcsolatok és Karrier Iroda</a><a href="https://dualis.uni-obuda.hu/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Duális képzés (sablonok)</a></div></div></div>
+<div class="uni-section" id="uni-bbu">
+<div class="profile-header">
+  <div class="profile-logo" style="background:#f5f3ff;color:#5b21b6;">UBB</div>
+  <div class="profile-meta">
+    <div class="profile-name">Babeș-Bolyai Tudományegyetem (Universitatea Babeș-Bolyai)</div>
+    <div class="profile-sub">400084 Cluj-Napoca (Kolozsvár), Str. M. Kogălniceanu nr. 1. · Romániai állami intézmény (nem KEKVA)</div>
+    <div class="profile-tags">
+      <span class="ptag ptag-level2">L2 – Fejlődő szint</span>
+      <span class="ptag ptag-neutral">~50 000 hallgató (Románia legnagyobb)</span>
+      <span class="ptag ptag-neutral">70 magyar nyelvű alapképzés</span>
+      <span class="ptag" style="background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe;">QS #761–770 (2026) – Kelet-Európa #13</span>
+      <span class="ptag" style="background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe;">PNRR-finanszírozott UBB-CORE</span>
+    </div>
+  </div>
+</div>
+<div class="quick-stats"><div class="qs-card"><div class="qs-val">~5</div><div class="qs-lbl">karrierközpont munkatárs (becsült)</div></div><div class="qs-card"><div class="qs-val">50 000</div><div class="qs-lbl">hallgató (90%+ nincs lefedve)</div></div><div class="qs-card"><div class="qs-val">38%</div><div class="qs-lbl">infó-elérhetőség (magyar: még alacsonyabb)</div></div><div class="qs-card"><div class="qs-val">PNRR</div><div class="qs-lbl">kutatói karrier forrás (UBB-CORE)</div></div><div class="qs-card"><div class="qs-val">5 nyelv</div><div class="qs-lbl">oktatás (ro, hu, de, en, fr)</div></div><div class="qs-card"><div class="qs-val">2026</div><div class="qs-lbl">személyre szabott pályaorientáció bejelentés</div></div></div><div class="p-two-col"><div class="info-block"><div class="block-title"><span class="block-title-icon">🎓</span> Karrier- és pályaorientációs szolgáltatások</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">UBB-CORE – PNRR-finanszírozott kutatói karrierközpont</div><div class="svc-desc">PhD-hallgatók, fiatal kutatók karriertámogatása. Magas minőségű szolgáltatások, román és angol nyelven.</div><a href="https://ubbcore.ro/en/" class="svc-link" target="_blank">→ ubbcore.ro</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Személyre szabott pályaorientáció – 2026. februári bejelentés</div><div class="svc-desc">Hallgatók számára induló új szolgáltatások. Részletek egyelőre limitáltak.</div><a href="https://www.ubbcluj.ro/ro/" class="svc-link" target="_blank">→ ubbcluj.ro</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">FSEGA kari vállalati együttműködések – kolozsvári üzleti szféra</div><div class="svc-desc">Gazdaságtudományi Kar aktív iparkapcsolatai.</div><a href="https://econ.ubbcluj.ro/" class="svc-link" target="_blank">→ FSEGA kar oldala</a></div></li><li class="svc-item"><span class="svc-icon">✅</span><div><div class="svc-name">Erasmus+ mobilitás – tanulmányok és gyakorlat (NEM KEKVA!)</div><div class="svc-desc">Az UBB nem KEKVA, így nem zárták ki az EU programokból! Aktív Erasmus+ program.</div><a href="https://rei.ubbcluj.ro/" class="svc-link" target="_blank">→ UBB Erasmus iroda</a></div></li><li class="svc-item"><span class="svc-icon">⚠️</span><div><div class="svc-name">Magyar nyelvű karrierszolgáltatás – szinte teljesen hiányzik</div><div class="svc-desc">A 70 magyar nyelvű program hallgatói számára nincs célzott, magyar nyelvű karriertámogatás.</div></div></li><li class="svc-item"><span class="svc-icon">⚠️</span><div><div class="svc-name">Pszichológiai tanácsadás – kari szinten, limitáltan</div><div class="svc-desc">Nincs összegyetemi, egységes rendszer az 50 000 hallgató számára.</div></div></li></ul></div><div class="info-block"><div class="block-title"><span class="block-title-icon">🌍</span> Egyedi stratégiai lehetőségek</div><ul class="svc-list"><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">Erdélyi magyar karrierszolgáltatás – versenytárs NINCS</div><div class="svc-desc">Az UBB az egyetlen erdélyi intézmény 70 magyar képzéssel. Aki először kínál strukturált magyar karrierszolgáltatást, monopol pozíciót szerez.</div></div></li><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">Kolozsvári tech- és startup ökoszisztéma</div><div class="svc-desc">Románia egyik legfejlettebb tech-ökoszisztémája. Számos IT-vállalat és startup aktívan keres UBB-s végzetteket.</div></div></li><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">Határon átnyúló program: román diploma × magyarországi munkaerőpiac</div><div class="svc-desc">Strukturált program (UBB × Prohuman × magyar cégek) páratlan értékajánlat lenne.</div></div></li><li class="svc-item"><span class="svc-icon">💡</span><div><div class="svc-name">PNRR-forrásból finanszírozható fejlesztés</div><div class="svc-desc">Az UBB-CORE igazolta, hogy PNRR-forrásból lehet karrierközpontot fejleszteni.</div></div></li></ul><div class="p-gap-box p-gap-good"><strong>Prohuman prioritás #5 (3–12 hó):</strong> FSEGA kari pilot (2000 hallgató) → Gaphopper → kolozsvári IT-cégek EB-csomag. Határon átnyúló elhelyezkedési program: UBB-diploma + magyarországi karrieriroda-hálózat.</div></div></div><div class="info-block pfull"><div class="block-title"><span class="block-title-icon">🔗</span> Fontos linkek</div><div class="link-grid"><a href="https://www.ubbcluj.ro/en/" target="_blank" class="link-item"><span class="link-arrow">↗</span>UBB főoldal (angol)</a><a href="https://ubbcore.ro/en/" target="_blank" class="link-item"><span class="link-arrow">↗</span>UBB-CORE kutatói karrierközpont</a><a href="https://econ.ubbcluj.ro/" target="_blank" class="link-item"><span class="link-arrow">↗</span>FSEGA Gazdaságtudományi Kar</a><a href="https://rei.ubbcluj.ro/" target="_blank" class="link-item"><span class="link-arrow">↗</span>Erasmus+ és Mobilitás Iroda</a><a href="https://www.ubbcluj.ro/ro/" target="_blank" class="link-item"><span class="link-arrow">↗</span>UBB főoldal (román)</a></div></div></div>
+</section>
+</div><!-- .content -->
+
+<div class="footer-bar">
+  <div>
+    <svg style="width:20px;height:20px;vertical-align:middle;margin-right:8px;" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="10" r="6" fill="#0345EB" opacity="0.8"/><path d="M6 32 Q6 22 18 22 Q30 22 30 32" fill="#0345EB" opacity="0.8"/></svg>
+    <strong>PROHUMAN 2004 KFT.</strong> · Felsőoktatási Karrierszolgáltatási Radar 2026
+  </div>
+  <div style="color:rgba(255,255,255,0.5);">prohuman.hu · +36 1 432 1280</div>
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showUni(id, btn) {
+  document.querySelectorAll('.uni-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.uni-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('uni-' + id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+</script>
+</body>
+</html>

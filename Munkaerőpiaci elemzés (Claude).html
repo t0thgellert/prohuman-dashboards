@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Munkaerőpiaci Dashboard | Prohuman 2004 Kft.</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --navy:   #000073;
+  --blue:   #0345EB;
+  --gray:   #575756;
+  --light:  #F2F5FA;
+  --white:  #FFFFFF;
+  --border: #DDE3EE;
+  --muted:  #7B8BAB;
+  --body:   #3D3D3D;
+  --eu:     #0345EB;
+  --v4:     #E8A12A;
+  --hu:     #ED1C2E;
+  --cz:     #00A89E;
+  --pl:     #FF5C00;
+  --sk:     #754DBA;
+  --font:   'Open Sans', sans-serif;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--light); color: var(--body); font-family: var(--font); min-height: 100vh; }
+
+/* ── HEADER ── */
+.hdr {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 16px rgba(0,0,115,.07);
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; gap: 0;
+  padding: 0 40px; height: 60px;
+}
+.hdr-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.hdr-logo svg { height: 36px; }
+.hdr-logo-text { font-weight: 700; font-size: 17px; color: var(--navy); letter-spacing: .5px; }
+.hdr-div { width: 1px; background: var(--border); height: 32px; margin: 0 24px; }
+.hdr-title { flex: 1; }
+.hdr-title h1 { font-size: 14px; font-weight: 700; color: var(--navy); }
+.hdr-title p  { font-size: 11px; color: var(--muted); margin-top: 1px; letter-spacing: .4px; }
+.hdr-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 4px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  color: #fff; white-space: nowrap;
+}
+
+/* ── LEGEND ── */
+.legend {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; gap: 0; padding: 0 40px; flex-wrap: wrap; overflow-x: auto;
+}
+.leg-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--body);
+  padding: 9px 20px 9px 0; margin-right: 20px;
+  border-right: 1px solid var(--border);
+}
+.leg-item:last-child { border-right: none; }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── TABS ── */
+.tabs {
+  background: var(--white);
+  border-bottom: 2px solid var(--border);
+  display: flex; padding: 0 40px;
+  overflow-x: auto; gap: 0;
+}
+.tab {
+  padding: 13px 18px; font-size: 11.5px; font-weight: 700;
+  letter-spacing: .6px; text-transform: uppercase;
+  color: var(--muted); cursor: pointer; white-space: nowrap;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: color .2s, border-color .2s;
+  position: relative;
+}
+.tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.tab:hover:not(.active) { color: var(--navy); }
+.tab .new-badge {
+  position: absolute; top: 6px; right: 2px;
+  background: var(--blue); color: #fff;
+  font-size: 8px; font-weight: 700; padding: 1px 5px;
+  border-radius: 3px; letter-spacing: .5px;
+}
+
+/* ── PANELS ── */
+.panel { display: none; }
+.panel.active { display: block; }
+.main { padding: 24px 40px 64px; max-width: 1440px; margin: 0 auto; }
+
+/* ── HERO BANNER ── */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  border-radius: 10px; padding: 22px 28px;
+  margin-bottom: 22px; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; right: -60px; bottom: -60px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.hero::after {
+  content: ''; position: absolute; right: 110px; top: -50px;
+  width: 130px; height: 130px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.hero-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 6px; }
+.hero-title  { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.hero-sub    { font-size: 12px; color: rgba(255,255,255,.65); }
+.hero-kpis   { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 24px; }
+.hero-kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 5px; }
+.hero-kpi-val   { font-size: 30px; font-weight: 700; color: #fff; line-height: 1; }
+.hero-kpi-sub   { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 4px; }
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px,1fr)); gap: 13px; margin-bottom: 22px; }
+.kpi-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-top: 3px solid var(--kc, var(--blue));
+  border-radius: 7px; padding: 16px 16px 13px;
+}
+.kpi-lbl  { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.kpi-val  { font-size: 26px; font-weight: 700; color: var(--navy); line-height: 1; }
+.kpi-sub  { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.kpi-tag  { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px; margin-top: 7px; }
+.up   { background: rgba(0,168,158,.12); color: #007A72; }
+.down { background: rgba(237,28,46,.10);  color: #C0141F; }
+.warn { background: rgba(235,194,48,.18); color: #7A6000; }
+
+/* ── SECTION HEADING ── */
+.sec-head { margin: 6px 0 4px; display: flex; align-items: center; gap: 12px; }
+.sec-head h2 { font-size: 14px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+.sec-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.sec-sub { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+
+/* ── CHART GRIDS ── */
+.g1 { margin-bottom: 20px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media(max-width: 900px) { .g2, .g3 { grid-template-columns: 1fr; } }
+
+/* ── CHART CARD ── */
+.cc {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 8px; padding: 18px 18px 14px;
+}
+.cc h3 { font-size: 11px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; color: var(--navy); margin-bottom: 3px; }
+.cc p  { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+.cw { position: relative; width: 100%; }
+
+/* ── CHART LEGEND ── */
+.cl { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 12px; }
+.cl-item { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--body); }
+.cl-line { width: 20px; height: 3px; border-radius: 2px; display: inline-block; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+.tbl {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px; min-width: 700px;
+}
+.tbl th {
+  font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+  color: var(--muted); padding: 9px 11px; text-align: right;
+  border-bottom: 2px solid var(--border); background: var(--light);
+}
+.tbl th:first-child { text-align: left; }
+.tbl td {
+  padding: 8px 11px; text-align: right;
+  font-size: 12px; font-weight: 600; color: var(--gray);
+  border-bottom: 1px solid var(--border);
+}
+.tbl td:first-child { text-align: left; font-weight: 700; color: var(--navy); }
+.tbl tr:hover td { background: #EEF3FF; }
+.dot9 { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; }
+
+/* ── INSIGHT CARDS ── */
+.ins-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 15px; margin-bottom: 20px; }
+.ins {
+  background: var(--white); border: 1px solid var(--border);
+  border-left: 4px solid var(--ic, var(--blue));
+  border-radius: 0 8px 8px 0; padding: 16px 18px;
+  position: relative; overflow: hidden;
+}
+.ins::after {
+  content: ''; position: absolute; right: -20px; bottom: -20px;
+  width: 70px; height: 70px; border-radius: 50%;
+  background: var(--ic, var(--blue)); opacity: .05;
+}
+.ins h4 { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--ic, var(--blue)); margin-bottom: 8px; }
+.ins p  { font-size: 13px; line-height: 1.65; color: var(--body); }
+.ins strong { color: var(--ic, var(--blue)); font-weight: 700; }
+
+/* ── DIVIDER ── */
+.div { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+/* ── FOOTER ── */
+.ftr {
+  background: var(--navy); padding: 16px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+}
+.ftr-left { display: flex; align-items: center; gap: 10px; }
+.ftr-logo-text { color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+.ftr-sub { color: rgba(255,255,255,.4); font-size: 11px; }
+.ftr-src { color: rgba(255,255,255,.35); font-size: 10px; letter-spacing: .4px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <a class="hdr-logo" href="#">
+    <svg viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="10" r="7" fill="#0345EB"/>
+      <path d="M8 46 C8 30 14 22 24 22 C34 22 40 30 40 46" stroke="url(#hg)" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M24 22 C36 22 44 15 44 6" stroke="#0345EB" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <defs><linearGradient id="hg" x1="8" y1="22" x2="40" y2="46" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#000073"/><stop offset="100%" stop-color="#0345EB"/>
+      </linearGradient></defs>
+    </svg>
+    <span class="hdr-logo-text">PROHUMAN</span>
+  </a>
+  <div class="hdr-div"></div>
+  <div class="hdr-title">
+    <h1>Munkaerőpiaci Dashboard</h1>
+    <p>EU27 · V4 · Magyarország &nbsp;|&nbsp; 10 éves idősor 2015–2024 &nbsp;·&nbsp; Forrás: Eurostat LFS · KSH · NFSZ</p>
+  </div>
+  <span class="hdr-badge">CEO &nbsp;Összefoglaló</span>
+</header>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:var(--eu)"></div>EU27</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--v4)"></div>V4 átlag</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--hu)"></div>Magyarország</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--cz)"></div>Csehország</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--pl)"></div>Lengyelország</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--sk)"></div>Szlovákia</div>
+</div>
+
+<!-- TABS -->
+<nav class="tabs">
+  <div class="tab active"  data-panel="fogl">Foglalkoztatottság</div>
+  <div class="tab"         data-panel="inakt">Aktivitás / Inaktivitás</div>
+  <div class="tab"         data-panel="szekt">Ágazati struktúra</div>
+  <div class="tab"         data-panel="kieg">Kiegészítő mutatók</div>
+  <div class="tab"         data-panel="foglplus" style="color:var(--blue)">Foglalkoztatás+ <span class="new-badge">ÚJ</span></div>
+  <div class="tab"         data-panel="ber" style="color:var(--hu)">Bérelemzés <span class="new-badge" style="background:var(--hu)">ÚJ</span></div>
+  <div class="tab"         data-panel="strukt" style="color:#000073;font-weight:700">Strukturális elemzés <span class="new-badge" style="background:#000073">ÚJ</span></div>
+  <div class="tab"         data-panel="ceo">CEO összefoglaló</div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PANEL 1 — FOGLALKOZTATOTTSÁG
+══════════════════════════════════════════════════════════════════════ -->
+<div class="panel active" id="panel-fogl">
+<div class="main">
+
+  <div class="kpi-grid" style="margin-top:4px">
+    <div class="kpi-card" style="--kc:var(--eu)"><div class="kpi-lbl">EU27 · 2024</div><div class="kpi-val">75,8%</div><div class="kpi-sub">Foglalkoztatás (20–64 év)</div><span class="kpi-tag up">▲ +5,7 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--v4)"><div class="kpi-lbl">V4 átlag · 2024</div><div class="kpi-val">79,5%</div><div class="kpi-sub">Súlyozott V4 átlag</div><span class="kpi-tag up">▲ +10,3 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Magyarország · 2024</div><div class="kpi-val">81,1%</div><div class="kpi-sub">EU 6. legmagasabb ráta</div><span class="kpi-tag up">▲ +12,9 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">Csehország · 2024</div><div class="kpi-val">82,3%</div><div class="kpi-sub">V4 vezető, EU top 5</div><span class="kpi-tag up">▲ +7,3 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--pl)"><div class="kpi-lbl">Lengyelország · 2024</div><div class="kpi-val">78,5%</div><div class="kpi-sub">OECD-rekord ütemű növ.</div><span class="kpi-tag up">▲ +10,7 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--sk)"><div class="kpi-lbl">Szlovákia · 2024</div><div class="kpi-val">76,0%</div><div class="kpi-sub">Stabil emelkedés</div><span class="kpi-tag up">▲ +8,3 pp / 10 év</span></div>
+  </div>
+
+  <div class="sec-head"><h2>Foglalkoztatási ráta alakulása — 10 éves trend</h2></div>
+  <div class="sec-sub">20–64 éves korcsoport · % · Eurostat lfsi_emp_a · 2015–2024</div>
+  <div class="g1 cc">
+    <h3>Foglalkoztatási ráta (20–64 év)</h3>
+    <p>Összes ország összehasonlítása · éves átlag · %</p>
+    <div class="cl" id="cl-emprate"></div>
+    <div class="cw" style="height:300px"><canvas id="ch-emprate"></canvas></div>
+  </div>
+
+  <div class="sec-head"><h2>Munkanélküliségi ráták</h2></div>
+  <div class="sec-sub">ILO-módszertan · Eurostat une_rt_a · 2015–2024</div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Munkanélküliségi ráta (15–74 év) — %</h3>
+      <p>Teljes munkaerő %-ában · éves átlag</p>
+      <div class="cw" style="height:240px"><canvas id="ch-unemp"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Ifjúsági munkanélküliség (15–24 év) — %</h3>
+      <p>Jövő munkaerő-tartaléka · Eurostat une_rt_a</p>
+      <div class="cw" style="height:240px"><canvas id="ch-youth"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>Adattábla — foglalkoztatási ráta (%)</h2></div>
+  <div class="sec-sub">Éves adatok · 20–64 éves korcsoport · Forrás: Eurostat</div>
+  <div class="cc tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Ország</th><th>2015</th><th>2016</th><th>2017</th><th>2018</th><th>2019</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>Δ 10 év</th></tr></thead>
+      <tbody id="tb-emprate"></tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PANEL 2 — AKTIVITÁS / INAKTIVITÁS
+══════════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-inakt">
+<div class="main">
+
+  <div class="kpi-grid" style="margin-top:4px">
+    <div class="kpi-card" style="--kc:var(--eu)"><div class="kpi-lbl">EU27 inaktivitás · 2024</div><div class="kpi-val">24,2%</div><div class="kpi-sub">15–64 év · nem dolgozik</div><span class="kpi-tag up">▼ −3,3 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Mo. inaktivitás · 2024</div><div class="kpi-val">20,2%</div><div class="kpi-sub">8,4 pp javulás 10 év alatt</div><span class="kpi-tag up">▼ −8,4 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">CZ inaktivitás · 2024</div><div class="kpi-val">17,8%</div><div class="kpi-sub">V4 legalacsonyabb</div><span class="kpi-tag up">▼ −4,2 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Mo. aktivitási ráta · 2024</div><div class="kpi-val">79,8%</div><div class="kpi-sub">15–64 év · EU felett</div><span class="kpi-tag up">▲ +8,4 pp / 10 év</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Inaktivitási ráta (15–64 év) — %</h3>
+      <p>Nem dolgozik és nem is keres munkát · Eurostat lfsa_igan</p>
+      <div class="cw" style="height:250px"><canvas id="ch-inact"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Aktivitási ráta (15–64 év) — %</h3>
+      <p>Aktív munkaerő aránya a munkaképes korú népességen belül</p>
+      <div class="cw" style="height:250px"><canvas id="ch-act"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>Inaktivitás okai — 2024</h2></div>
+  <div class="sec-sub">A munkát nem keresők fő indoka · 15–64 éves korcsoport · Eurostat LFS</div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Inaktivitás okai — Magyarország 2024</h3>
+      <p>Fő inaktivitási okok megoszlása</p>
+      <div class="cw" style="height:220px"><canvas id="ch-inact-hu"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Inaktivitás okai — EU27 2024</h3>
+      <p>Fő inaktivitási okok megoszlása</p>
+      <div class="cw" style="height:220px"><canvas id="ch-inact-eu"></canvas></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PANEL 3 — ÁGAZATI STRUKTÚRA
+══════════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-szekt">
+<div class="main">
+
+  <div class="kpi-grid" style="margin-top:4px">
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">Ipar — CZ 2024</div><div class="kpi-val">27,5%</div><div class="kpi-sub">EU-csúcs, exportvezérelt</div><span class="kpi-tag warn">EU átlag: 17,3%</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Ipar — HU 2024</div><div class="kpi-val">23,5%</div><div class="kpi-sub">EU átlag: 17,3%</div><span class="kpi-tag warn">+6,2 pp EU felett</span></div>
+    <div class="kpi-card" style="--kc:var(--pl)"><div class="kpi-lbl">Mezőgazd. — PL 2024</div><div class="kpi-val">9,2%</div><div class="kpi-sub">V4 legmagasabb aránya</div><span class="kpi-tag down">EU átlag: 3,9%</span></div>
+    <div class="kpi-card" style="--kc:var(--eu)"><div class="kpi-lbl">Szolgáltatás — EU27</div><div class="kpi-val">72,2%</div><div class="kpi-sub">V4 átlag: ~63%</div><span class="kpi-tag down">V4 lemaradás</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Foglalkoztatás főágazatonként — 2024 (%)</h3>
+      <p>A teljes foglalkoztatottság %-ában · NACE Rev.2 főosztályok</p>
+      <div class="cw" style="height:310px"><canvas id="ch-sector-bar"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Magyarország ágazati megoszlása — 2024</h3>
+      <p>Foglalkoztatottak ~4,8 millió fő · NACE bontás</p>
+      <div class="cw" style="height:310px"><canvas id="ch-sector-pie"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>Részletes ágazati összehasonlítás</h2></div>
+  <div class="sec-sub">Foglalkoztatottak aránya (%) · EU27 vs. V4 · 2024 · Forrás: Eurostat nama_10_a10_e</div>
+  <div class="cc"><div id="sector-bars" style="padding:4px 0"></div></div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PANEL 4 — KIEGÉSZÍTŐ MUTATÓK
+══════════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-kieg">
+<div class="main">
+
+  <div class="kpi-grid" style="margin-top:4px">
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Nemi rés — HU 2024</div><div class="kpi-val">8,5 pp</div><div class="kpi-sub">Férfi–nő fgl. különbség</div><span class="kpi-tag up">▼ −5,5 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--eu)"><div class="kpi-lbl">Nemi rés — EU27 2024</div><div class="kpi-val">10,0 pp</div><div class="kpi-sub">Csökkent, de fennáll</div><span class="kpi-tag up">▼ −1,5 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Részmunkaidő — HU</div><div class="kpi-val">4,2%</div><div class="kpi-sub">EU27 átlag: 17,9%</div><span class="kpi-tag down">Jóval EU alatt</span></div>
+    <div class="kpi-card" style="--kc:var(--eu)"><div class="kpi-lbl">Home office — EU27</div><div class="kpi-val">13,3%</div><div class="kpi-sub">Rendszeresen otthon</div><span class="kpi-tag down">HU: 4,9% — alatta</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">NEET — HU 2024</div><div class="kpi-val">11,2%</div><div class="kpi-sub">Nem tanul, nem dolgozik</div><span class="kpi-tag warn">EU27: 11,2% · átlagos</span></div>
+    <div class="kpi-card" style="--kc:var(--v4)"><div class="kpi-lbl">Hosszú tv. munk. — HU</div><div class="kpi-val">1,8%</div><div class="kpi-sub">12+ hónap · 2024</div><span class="kpi-tag up">EU27: 1,9%</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Nemi foglalkoztatási rés (pp) — 2015–2024</h3>
+      <p>Férfi–nő különbség · 20–64 év · Eurostat lfsi_emp_a</p>
+      <div class="cw" style="height:240px"><canvas id="ch-gender"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Részmunkaidős foglalkoztatás (%) — 2015–2024</h3>
+      <p>Foglalkoztatottak %-ában · Eurostat lfsa_eppga</p>
+      <div class="cw" style="height:240px"><canvas id="ch-parttime"></canvas></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Bruttó átlagbér (EUR/év) — 2023</h3>
+      <p>Egyedülálló, 100% átlagbér · Eurostat earn_nt_net</p>
+      <div class="cw" style="height:240px"><canvas id="ch-wage-bar"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Betöltetlen állások rátája (%) — 2024</h3>
+      <p>Job vacancy rate · Eurostat jvs_q_nace2</p>
+      <div class="cw" style="height:240px"><canvas id="ch-vacancy"></canvas></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PANEL 5 — FOGLALKOZTATÁS+
+══════════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-foglplus">
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-label">EU27 · V4 · Magyarország · Eurostat LFS · KSH · NFSZ · 2015–2024</div>
+    <div class="hero-title">Foglalkoztatás mélyelemzés — 11 dimenzió</div>
+    <div class="hero-sub">Tartós munkanélküliség · Betöltetlen állások · Ideiglenes fgl. · LCI · Regionális adatok · Kínálat–kereslet</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Tartós munk. — HU 2024</div><div class="kpi-val">1,8%</div><div class="kpi-sub">12+ hónap · EU: 1,9%</div><span class="kpi-tag up">SK: 3,5% · CZ: 0,8%</span></div>
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">Betöltetlen áll. — CZ</div><div class="kpi-val">4,1%</div><div class="kpi-sub">V4 legmagasabb 2024</div><span class="kpi-tag warn">HU: 2,8% · EU: 2,9%</span></div>
+    <div class="kpi-card" style="--kc:var(--sk)"><div class="kpi-lbl">Ideiglenes fgl. — EU27</div><div class="kpi-val">13,0%</div><div class="kpi-sub">HU: 6,5% · PL: 17,0%</div><span class="kpi-tag up">HU jóval EU alatt</span></div>
+    <div class="kpi-card" style="--kc:var(--navy)"><div class="kpi-lbl">Aktivitási ráta — HU</div><div class="kpi-val">79,8%</div><div class="kpi-sub">15–64 év · EU felett</div><span class="kpi-tag up">▲ +8,4 pp / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">LCI — HU 2024</div><div class="kpi-val">+13,6%</div><div class="kpi-sub">Munkaerőköltség-index</div><span class="kpi-tag warn">EU: +5,0% · CZ: +1,3%</span></div>
+    <div class="kpi-card" style="--kc:var(--eu)"><div class="kpi-lbl">Órabér — HU 2024</div><div class="kpi-val">€14,1</div><div class="kpi-sub">Teljes gazdaság</div><span class="kpi-tag down">EU átlag: €33,5</span></div>
+  </div>
+
+  <div class="sec-head"><h2>① Tartós munkanélküliség és betöltetlen állások</h2></div>
+  <div class="sec-sub">Long-term unemployment (12+ hó) · Job vacancy rate · Eurostat une_ltu_a · jvs_a_nace2 · 2015–2024</div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Tartós munkanélküliség (12+ hónap) — %</h3>
+      <p>Long-term unemployment rate · a munkaerő %-ában</p>
+      <div class="cw" style="height:240px"><canvas id="ch-ltu"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Betöltetlen állások rátája (%) — munkaerőhiány</h3>
+      <p>Job vacancy rate · betöltetlen / (betöltött + betöltetlen)</p>
+      <div class="cw" style="height:240px"><canvas id="ch-vac"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>② Atipikus foglalkoztatás</h2></div>
+  <div class="sec-sub">Ideiglenes szerződések · Részmunkaidő korcsoportonként · Eurostat lfsa_etpga · lfsa_eppgan · 2015–2024</div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Ideiglenes / határozott idejű foglalkoztatás (%) — 2015–2024</h3>
+      <p>Temporary employment as % of total employment · Eurostat lfsa_etpga</p>
+      <div class="cw" style="height:240px"><canvas id="ch-temp"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Részmunkaidős fgl. korcsoportonként — EU27 vs. HU 2024</h3>
+      <p>Part-time employment rate by age group · % · Eurostat lfsa_eppgan</p>
+      <div class="cw" style="height:240px"><canvas id="ch-pt-age"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>③ Munkaerőköltség-index (LCI) és órabérek</h2></div>
+  <div class="sec-sub">Labour Cost Index éves % változás · Órabér EUR · Eurostat lc_lci_r2_a · lc_lci_lev · 2015–2024</div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Labour Cost Index — éves % változás (teljes gazdaság)</h3>
+      <p>Teljes munkaerőköltség éves növekedési üteme · V4 vs. EU27</p>
+      <div class="cw" style="height:240px"><canvas id="ch-lci"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Órabér (EUR) összehasonlítás — 2024</h3>
+      <p>Average hourly labour costs · egész gazdaság · Eurostat lc_lci_lev</p>
+      <div class="cw" style="height:240px"><canvas id="ch-horabер"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>④ Regionális foglalkoztatás — Magyarország NUTS-2, 2024</h2></div>
+  <div class="sec-sub">Foglalkoztatási ráta és munkanélküliség régiónként · KSH területi adatok · Eurostat lfst_r_lfe2emprt</div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Foglalkoztatási ráta régiónként (20–64 év, %)</h3>
+      <p>NUTS-2 régiók · zöld ≥82% · kék ≥78% · narancs ≥74% · piros &lt;74%</p>
+      <div class="cw" style="height:280px"><canvas id="ch-reg-fogl"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Munkanélküliségi ráta régiónként (%)</h3>
+      <p>NUTS-2 régiók · zöld &lt;3% · narancs &lt;4,5% · piros ≥4,5%</p>
+      <div class="cw" style="height:280px"><canvas id="ch-reg-unemp"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>⑤ Munkaerő-kínálat vs. kereslet és átlagos időtartam</h2></div>
+  <div class="sec-sub">Nyilvántartott álláskeresők · betöltetlen állások · átlagos munkanélküliségi időtartam (hét) · KSH / NFSZ · 2015–2024</div>
+  <div class="g2">
+    <div class="cc">
+      <h3>Álláskeresők vs. betöltetlen állások — Magyarország (ezer fő)</h3>
+      <p>NFSZ adatok · munkaerő-kínálati és keresleti nyomás · 2015–2024</p>
+      <div class="cw" style="height:240px"><canvas id="ch-supdem"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Átlagos munkanélküli-időtartam (hét) — 2015–2024</h3>
+      <p>Average unemployment duration · Eurostat lfsa_ugad · V4 és EU27</p>
+      <div class="cw" style="height:240px"><canvas id="ch-dur"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>Összefoglaló adattábla — Foglalkoztatás+ mutatók 2024</h2></div>
+  <div class="sec-sub">Keresztmetszeti snapshot · Forrás: Eurostat LFS, KSH, NFSZ</div>
+  <div class="cc tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Mutató</th><th style="color:var(--eu)">EU27</th><th style="color:var(--hu)">Magyarország</th><th style="color:var(--cz)">Csehország</th><th style="color:var(--pl)">Lengyelo.</th><th style="color:var(--sk)">Szlovákia</th></tr></thead>
+      <tbody>
+        <tr><td>Tartós munkanélküliség (12+ hó, %)</td><td>1,9</td><td>1,8</td><td>0,8</td><td>0,8</td><td>3,5</td></tr>
+        <tr><td>Betöltetlen állások rátája (%)</td><td>2,9</td><td>2,8</td><td>4,1</td><td>1,8</td><td>2,1</td></tr>
+        <tr><td>Ideiglenes foglalkoztatás (%)</td><td>13,0</td><td>6,5</td><td>8,0</td><td>17,0</td><td>6,5</td></tr>
+        <tr><td>Részmunkaidős foglalkoztatás (%)</td><td>17,9</td><td>4,2</td><td>5,8</td><td>6,8</td><td>5,3</td></tr>
+        <tr><td>Aktivitási ráta 15–64 (%)</td><td>75,8</td><td>79,8</td><td>82,4</td><td>78,2</td><td>76,1</td></tr>
+        <tr><td>LCI éves változás (%)</td><td>+5,0</td><td>+13,6</td><td>+1,3</td><td>+12,8</td><td>+7,5</td></tr>
+        <tr><td>Órabér (EUR, 2024)</td><td>33,5</td><td>14,1</td><td>20,8</td><td>14,8</td><td>16,5</td></tr>
+        <tr><td>Átl. munkanélküliségi időtartam (hét)</td><td>~39</td><td>~28</td><td>~22</td><td>~24</td><td>~55</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins-grid" style="margin-top:20px">
+    <div class="ins" style="--ic:var(--hu)"><h4>Tartós munkanélküliség</h4><p>Magyarország (<strong>1,8%</strong>) és CZ (<strong>0,8%</strong>) az EU legjobb tartós munkanélküliségi mutatói közt vannak. Szlovákia (<strong>3,5%</strong>) strukturális problémával küzd — a tartósan munkanélküliek 47,4%-a 24+ hónapja keres állást.</p></div>
+    <div class="ins" style="--ic:var(--cz)"><h4>Munkaerőhiány — CZ éllovas</h4><p>Csehország <strong>4,1%</strong>-os betöltetlen állásrátája EU-szintű kiemelkedő érték. Magyarországon (<strong>2,8%</strong>) szintén szűk a piac — az érdemi munkaerőtartalék 2010 óta kimerült.</p></div>
+    <div class="ins" style="--ic:var(--pl)"><h4>LCI-robbanás — HU és PL</h4><p>Magyarország munkaerőköltség-indexe <strong>+13,6%</strong>-kal nőtt 2024-ben (EU: +5,0%). 2015=100 bázison Magyarország már 240-en jár — a régió legdinamikusabb bérköltség-növekedése.</p></div>
+    <div class="ins" style="--ic:var(--navy)"><h4>Regionális egyenlőtlenség</h4><p>Nyugat-Dunántúl (<strong>83,8%</strong>) és Észak-Magyarország (<strong>73,2%</strong>) között 10+ pp a foglalkoztatási különbség. Budapest munkanélkülisége 2,3%, míg Észak-Magyarország 5,8% — strukturális fejlesztési prioritás.</p></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PANEL 6 — BÉRELEMZÉS
+══════════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-ber">
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-label">Magyarország · KSH STADAT · 2015–2024</div>
+    <div class="hero-title">Bér- és jövedelemstatisztika</div>
+    <div class="hero-sub">Minimálbér · Garantált bérminimum · Medián · Bruttó / Nettó átlagkereset · Teljes munkáltatói bérköltség</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Minimálbér · 2024</div><div class="kpi-val" style="font-size:22px">266 800</div><div class="kpi-sub">Ft / hó bruttó</div><span class="kpi-tag up">▲ +153,6% / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--pl)"><div class="kpi-lbl">Diplomás min. · 2024</div><div class="kpi-val" style="font-size:22px">326 000</div><div class="kpi-sub">Garantált bérminimum</div><span class="kpi-tag up">▲ +152,7% / 10 év</span></div>
+    <div class="kpi-card" style="--kc:var(--navy)"><div class="kpi-lbl">Medián bér · 2024</div><div class="kpi-val" style="font-size:22px">520 376</div><div class="kpi-sub">Ft / hó bruttó · KSH</div><span class="kpi-tag up">▲ +15,6% vs 2023</span></div>
+    <div class="kpi-card" style="--kc:var(--blue)"><div class="kpi-lbl">Bruttó átlagkereset · 2024</div><div class="kpi-val" style="font-size:22px">646 800</div><div class="kpi-sub">Ft / hó · teljes munkaidő</div><span class="kpi-tag up">▲ +13,2% vs 2023</span></div>
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">Nettó átlagkereset · 2024</div><div class="kpi-val" style="font-size:22px">445 200</div><div class="kpi-sub">Ft / hó · kedvezm.-ekkel</div><span class="kpi-tag up">▲ +13,1% vs 2023</span></div>
+    <div class="kpi-card" style="--kc:var(--sk)"><div class="kpi-lbl">Munkáltatói ktg. · 2024</div><div class="kpi-val" style="font-size:22px">730 900</div><div class="kpi-sub">Ft / hó · bruttó + szocho</div><span class="kpi-tag warn">+13% szocho</span></div>
+  </div>
+
+  <div class="sec-head"><h2>Bérindicátorok 10 éves trendje</h2></div>
+  <div class="sec-sub">Havi összegek · ezer Ft · Forrás: KSH STADAT · 2015–2024</div>
+  <div class="g1 cc">
+    <h3>Összes bérmutató — 2015–2024 (ezer Ft/hó)</h3>
+    <p>Bruttó értékek, kivéve nettó átlagkereset · teljes munkaidőben alkalmazottak · KSH</p>
+    <div class="cl">
+      <div class="cl-item"><span class="cl-line" style="background:#ED1C2E"></span>Minimálbér</div>
+      <div class="cl-item"><span class="cl-line" style="background:#FF5C00"></span>Diplomás min.</div>
+      <div class="cl-item"><span class="cl-line" style="background:#000073"></span>Medián bér</div>
+      <div class="cl-item"><span class="cl-line" style="background:#0345EB"></span>Bruttó átlag</div>
+      <div class="cl-item"><span class="cl-line" style="background:#00A89E"></span>Nettó átlag</div>
+      <div class="cl-item"><span class="cl-line" style="background:#754DBA;border-bottom:2px dashed #754DBA"></span>Munkáltatói ktg.</div>
+    </div>
+    <div class="cw" style="height:320px"><canvas id="ch-ber-fo"></canvas></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Minimálbér az átlagkereset %-ában</h3>
+      <p>Minimálbér / bruttó átlagkereset arány · védelmi szint %</p>
+      <div class="cw" style="height:240px"><canvas id="ch-min-arany"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Adó- és járulékelvonás (Ft/hó)</h3>
+      <p>Bruttó − nettó átlagkereset különbsége · elvont összeg Ft-ban</div>
+      <div class="cw" style="height:240px"><canvas id="ch-elvonas"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Éves nominális bérnövekedési ütemek (%)</h3>
+      <p>Minimálbér · Bruttó átlag · Nettó átlag · éves % változás</p>
+      <div class="cw" style="height:240px"><canvas id="ch-novek"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Átlagkereset vs. Medián — rés alakulása (eFt)</h3>
+      <p>A két mutató különbsége · bérkülönbség-indikátor</p>
+      <div class="cw" style="height:240px"><canvas id="ch-median-res"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h2>Részletes adattábla — bérindicátorok (ezer Ft/hó)</h2></div>
+  <div class="sec-sub">Havi összegek · Forrás: KSH STADAT · 2015–2024</div>
+  <div class="cc tbl-wrap">
+    <table class="tbl" style="min-width:860px">
+      <thead><tr><th>Mutató</th><th>2015</th><th>2016</th><th>2017</th><th>2018</th><th>2019</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>Δ% (10 év)</th></tr></thead>
+      <tbody id="tb-ber"></tbody>
+    </table>
+  </div>
+
+  <div class="ins-grid" style="margin-top:20px">
+    <div class="ins" style="--ic:var(--hu)"><h4>Minimálbér robbanása</h4><p>105 ezer Ft-ról <strong>266 800 Ft-ra</strong> — 153%-os nominális növekedés 10 év alatt. 2025-től 290 800 Ft. Kormányzati cél: 2027-re az átlagbér 50%-a (~340–360 ezer Ft).</p></div>
+    <div class="ins" style="--ic:var(--blue)"><h4>Átlag vs. Medián szakadék</h4><p>Bruttó átlag: <strong>646 800 Ft</strong>, de medián: csak <strong>520 376 Ft</strong> — 126 eFt különbség. A munkavállalók több mint fele az átlagnál kevesebbet keres. A rés hosszú távon nő.</p></div>
+    <div class="ins" style="--ic:var(--cz)"><h4>Reálbér-trendforduló 2023</h4><p>2023-ban reálkereset <strong>−2,9%</strong> a 17,6%-os infláció miatt — az évtized egyetlen negatív éve. 2024-re visszafordult: <strong>+9–10%</strong> reálbér-növekedés (infláció: 3,7%).</p></div>
+    <div class="ins" style="--ic:var(--sk)"><h4>Munkáltatói bérköltség-nyomás</h4><p>~283 eFt-ról <strong>~731 eFt-ra</strong> nőtt (+158%) a teljes munkáltatói cost 10 év alatt. A szocho 27%-ról 13%-ra csökkent — mérsékelt, de a bérek dinamikája így is drámai.</p></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PANEL 7 — CEO ÖSSZEFOGLALÓ
+══════════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-strukt">
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-label">Magyarország · KSH · NFSZ · GKI · MKIK · HIPA · KSH FATS — 2023–2024</div>
+    <div class="hero-title">Strukturális foglalkoztatás-elemzés</div>
+    <div class="hero-sub">Közmunka · Vállalkozásméret · Külföldi cégek · Közszféra · Privát szektor belső arányai</div>
+  </div>
+
+  <!-- ── ADATHIÁNY FIGYELMEZTETÉS ── -->
+  <div style="background:rgba(235,194,48,.12);border:1px solid rgba(235,194,48,.4);border-left:4px solid #E8A12A;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:22px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#7A6000;margin-bottom:8px">⚠ Adatminőség-jelzések</div>
+    <div style="font-size:12px;line-height:1.7;color:#3D3D3D">
+      <strong style="color:#7A6000">✓ Erős adat (KSH STADAT):</strong> Közmunkások száma, KKV/nagyvállalat foglalkoztatási arányok, közszféra aggregált létszám, privát szektor NACE-bontás.<br>
+      <strong style="color:#E8A12A">~ Részleges adat:</strong> Közszféra belső bontása (igazgatás / közszolgáltatás / önkormányzat) — KSH közöl bontást, de az utolsó teljes körű adat <strong>2019–2020-as</strong>; 2023–2024-re előrevetítés.<br>
+      <strong style="color:#ED1C2E">✗ Nincs megbízható adat:</strong> Külföldi cégek ország szerinti foglalkoztatotti bontása — a KSH <em>Inward FATS</em> adatbázis (9.1.1.25) tartalmaz ilyet, de <strong>a legutolsó közzétett adat 2020-as</strong>. A 2021–2024 közötti kínai és koreai gyáralapítások (CATL, Samsung SDI, SK Innovation, BYD) foglalkoztatási hatása <em>nem szerepel</em> még a statisztikában. A jelzett számok a 2020-as FATS-adatokból és a HIPA befektetési nyilvántartásokból becsültek — <strong>nem összesített KSH-adat</strong>.
+    </div>
+  </div>
+
+  <!-- ── ① KÖZMUNKÁSOK ── -->
+  <div class="sec-head"><h2>① Közfoglalkoztatás (közmunka) — 10 éves trend</h2></div>
+  <div class="sec-sub">Közfoglalkoztatottak éves átlaglétszáma (15–74 év) · KSH SDG-kiadvány · Magyar Államkincstár · NAV · 2015–2024</div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kc:#E8A12A"><div class="kpi-lbl">Csúcs — 2016</div><div class="kpi-val">221 000</div><div class="kpi-sub">15–64 éves korcsoport éves átlag</div><span class="kpi-tag warn">KSH SDG-kiadvány</span></div>
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">2023 éves átlag</div><div class="kpi-val">66 000</div><div class="kpi-sub">−70% a 2016-os csúcshoz képest</div><span class="kpi-tag up">KSH SDG 2024</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">2024 becslés</div><div class="kpi-val">~55 000</div><div class="kpi-sub">Kormány visszaszorítja a programot</div><span class="kpi-tag warn">Becsült · NFSZ</span></div>
+    <div class="kpi-card" style="--kc:var(--navy)"><div class="kpi-lbl">Arány a total fgl.-ban 2024</div><div class="kpi-val">~1,2%</div><div class="kpi-sub">4,8 M össz. foglalkoztatottból</div><span class="kpi-tag up">▼ 2016-ban 4,5% volt</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Közfoglalkoztatottak éves átlaglétszáma (ezer fő) — 2015–2024</h3>
+      <p>15–74 éves korcsoport · KSH SDG-kiadvány 2024 · Magyar Államkincstár · NAV · <span style="color:#ED1C2E">2024: KSH-becslés, NFSZ operatív adatok</span></p>
+      <div class="cw" style="height:260px"><canvas id="ch-kozm"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Közmunkások aránya a teljes foglalkoztatottságon belül (%)</h3>
+      <p>Közfoglalkoztatottak / összes foglalkoztatott (15–74 év) · % · KSH LFS</p>
+      <div class="cw" style="height:260px"><canvas id="ch-kozm-arany"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── ② VÁLLALKOZÁSMÉRET ── -->
+  <div class="sec-head"><h2>② Foglalkoztatás vállalkozásméret szerint — 2023</h2></div>
+  <div class="sec-sub">Forrás: GKI Gazdaságkutató (2024. dec.) · KSH Strukturális vállalkozásstatisztika · Makronóm Intézet elemzés · 2023-as adatok</div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kc:var(--navy)"><div class="kpi-lbl">Nagyvállalat (250+ fő)</div><div class="kpi-val">34,5%</div><div class="kpi-sub">~1 650 000 fő · &lt;1 000 cég</div><span class="kpi-tag warn">GKI 2024 · KSH strukt.</span></div>
+    <div class="kpi-card" style="--kc:var(--blue)"><div class="kpi-lbl">Középváll. (50–249 fő)</div><div class="kpi-val">17%</div><div class="kpi-sub">~810 000 fő · ~4 750 cég</div><span class="kpi-tag up">KSH 2023</span></div>
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">Kisvállalat (10–49 fő)</div><div class="kpi-val">22%</div><div class="kpi-sub">~1 050 000 fő</div><span class="kpi-tag up">KSH strukt. stat.</span></div>
+    <div class="kpi-card" style="--kc:var(--pl)"><div class="kpi-lbl">Mikrovállalat (2–9 fő)</div><div class="kpi-val">26%</div><div class="kpi-sub">~1 240 000 fő · 860e+ cég</div><span class="kpi-tag up">KSH 2023</span></div>
+    <div class="kpi-card" style="--kc:var(--hu)"><div class="kpi-lbl">Önfoglalkoztató (1 fő / KATA)</div><div class="kpi-val">~8–10%</div><div class="kpi-sub">~380–480 000 fő becsült</div><span class="kpi-tag warn">⚠ KATA-reform torzít</span></div>
+    <div class="kpi-card" style="--kc:var(--sk)"><div class="kpi-lbl">KKV összesen</div><div class="kpi-val">65,5%</div><div class="kpi-sub">~3 100 000 fő · kormányzati adat</div><span class="kpi-tag up">KKV Stratégia 2024</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Foglalkoztatás megoszlása vállalkozásméret szerint — 2023</h3>
+      <p>% · Forrás: GKI Gazdaságkutató Zrt. (2024. december) · KSH strukturális vállalkozásstatisztika</p>
+      <div class="cw" style="height:270px"><canvas id="ch-kkv-pie"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>KKV vs. nagyvállalat foglalkoztatási arány trendje (%)</h3>
+      <p>KKV részesedése a teljes vállalati foglalkoztatáson belül · 2015–2023 · KSH / KKV Stratégia</p>
+      <div class="cw" style="height:270px"><canvas id="ch-kkv-trend"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── ③ KÜLFÖLDI CÉGEK ── -->
+  <div class="sec-head"><h2>③ Foglalkoztatás külföldi irányítású vállalatoknál — ország szerinti bontás</h2></div>
+  <div class="sec-sub">
+    <strong style="color:#ED1C2E">⚠ ADATHIÁNY-JELZÉS:</strong> A KSH Inward FATS (9.1.1.25) adatbázis tartalmazza a külföldi leányvállalatok foglalkoztatottjait végső tulajdonos országa szerint — de <strong>a legutolsó közzétett teljes körű adat 2020-as</strong>. A 2021–2024 közötti masszív kínai (CATL, BYD) és koreai (Samsung SDI, SK Innovation) gyáralapítások foglalkoztatási hatása <em>még nem szerepel</em> összesített statisztikában. Az alábbi adatok: 2020-as KSH FATS-adat + HIPA-befektetési nyilvántartás becsült korrekció.
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kc:var(--eu)"><div class="kpi-lbl">Össz. külföldi cég — 2020</div><div class="kpi-val">~630 000</div><div class="kpi-sub">Külföldi irányítású fgl. összesen</div><span class="kpi-tag up">KSH FATS 2020</span></div>
+    <div class="kpi-card" style="--kc:#1A1A80"><div class="kpi-lbl">Német cégek — 2020</div><div class="kpi-val">~170 000</div><div class="kpi-sub">~27% a külföldi fgl.-ból</div><span class="kpi-tag up">KSH FATS 2020</span></div>
+    <div class="kpi-card" style="--kc:#003087"><div class="kpi-lbl">Amerikai cégek — 2020</div><div class="kpi-val">~100 000</div><div class="kpi-sub">~16% · EU-n kívüli vezető</div><span class="kpi-tag up">KSH FATS 2020</span></div>
+    <div class="kpi-card" style="--kc:#003478"><div class="kpi-lbl">Koreai cégek — 2020+becsült</div><div class="kpi-val">~50 000</div><div class="kpi-sub">Samsung, SK, Hyundai, LG</div><span class="kpi-tag warn">⚠ 2020-as FATS + becslés</span></div>
+    <div class="kpi-card" style="--kc:#DE2910"><div class="kpi-lbl">Kínai cégek — becsült 2024</div><div class="kpi-val">~15 000</div><div class="kpi-sub">CATL, BYD, Huawei · épül</div><span class="kpi-tag warn">⚠ Nincs KSH-adat!</span></div>
+    <div class="kpi-card" style="--kc:var(--sk)"><div class="kpi-lbl">Egyéb külföldi</div><div class="kpi-val">~295 000</div><div class="kpi-sub">Osztrák, Francia, Japán, stb.</div><span class="kpi-tag warn">⚠ Részleges adat</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Külföldi cégek foglalkoztatottjai ország szerint — 2020 (KSH FATS)</h3>
+      <p>Forrás: KSH 9.1.1.25 Inward FATS · <span style="color:#ED1C2E">Legutolsó teljes körű adat: 2020</span> · 2021–2024 nincs közzétett összesítés</p>
+      <div class="cw" style="height:280px"><canvas id="ch-fdi-bar"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Adathiány-térkép — külföldi foglalkoztatás</h3>
+      <p>Milyen adatok léteznek, melyek hiányoznak a 2020–2024 közötti időszakra</p>
+      <div style="padding:8px 0">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
+          <div style="background:#EAF3DE;border:1px solid #639922;border-radius:6px;padding:12px">
+            <div style="font-weight:700;color:#3B6D11;margin-bottom:6px">✓ Elérhető adat (2020)</div>
+            <div style="color:#3D3D3D;line-height:1.6">KSH FATS aggregált<br>Ország-szintű bontás<br>NACE-ág szerinti bontás<br>Hozzáadott érték</div>
+          </div>
+          <div style="background:rgba(237,28,46,.07);border:1px solid rgba(237,28,46,.3);border-radius:6px;padding:12px">
+            <div style="font-weight:700;color:#C0141F;margin-bottom:6px">✗ Hiányzó adat</div>
+            <div style="color:#3D3D3D;line-height:1.6">2021–2024 FATS-frissítés<br>Kínai gyárak fgl. száma<br>CATL Debrecen: épülés<br>BYD Szeged: tervezett</div>
+          </div>
+          <div style="background:rgba(235,194,48,.1);border:1px solid rgba(235,194,48,.4);border-radius:6px;padding:12px">
+            <div style="font-weight:700;color:#7A6000;margin-bottom:6px">~ Részleges / HIPA</div>
+            <div style="color:#3D3D3D;line-height:1.6">HIPA beruházás-nyilv.<br>Tervezett kapacitás<br>Megnyitott gyárak<br>Nem = tényleges fgl.</div>
+          </div>
+          <div style="background:#E6F1FB;border:1px solid #378ADD;border-radius:6px;padding:12px">
+            <div style="font-weight:700;color:#185FA5;margin-bottom:6px">ℹ Következő adat</div>
+            <div style="color:#3D3D3D;line-height:1.6">KSH FATS 2022–2023<br>várható: 2025 vége<br>Eurostat FATS:<br>2022 részlegesen él.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ④ KÖZSZFÉRA ── -->
+  <div class="sec-head"><h2>④ Közszféra foglalkoztatás — belső bontás</h2></div>
+  <div class="sec-sub">
+    Forrás: KSH STADAT Főbb kereseti adatok - költségvetés · Magyar Államkincstár · BM Közigazgatási adatok · <span style="color:#E8A12A">⚠ Részletes belső bontás (igazgatás / közszolgáltatás / önkormányzat): utolsó teljes adat 2019–2020, 2023–2024-re előrevetített</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kc:var(--navy)"><div class="kpi-lbl">Közszféra összesen — 2023</div><div class="kpi-val">~790 000</div><div class="kpi-sub">~16,8% a teljes fgl.-ból</div><span class="kpi-tag up">KSH Főbb ker. adatok</span></div>
+    <div class="kpi-card" style="--kc:var(--blue)"><div class="kpi-lbl">Közalkalmazottak</div><div class="kpi-val">~510 000</div><div class="kpi-sub">Oktatás, egészség, kultúra</div><span class="kpi-tag up">KSH · Magyar Közlöny</span></div>
+    <div class="kpi-card" style="--kc:var(--cz)"><div class="kpi-lbl">Köztisztviselők / Korm.tisztv.</div><div class="kpi-val">~72 000</div><div class="kpi-sub">Állami igazgatás · minisztérium</div><span class="kpi-tag warn">⚠ Becsült · BM adat</span></div>
+    <div class="kpi-card" style="--kc:var(--pl)"><div class="kpi-lbl">Rendvédelem + honvédség</div><div class="kpi-val">~103 000</div><div class="kpi-sub">Rendőrség, határőrség, katonaság</div><span class="kpi-tag warn">⚠ Nem teljes körű nyilv.</span></div>
+    <div class="kpi-card" style="--kc:var(--v4)"><div class="kpi-lbl">Önkormányzati fgl.</div><div class="kpi-val">~105 000</div><div class="kpi-sub">Önkormányzati igazgatás</div><span class="kpi-tag warn">⚠ 2020-as bontás · KSH</span></div>
+    <div class="kpi-card" style="--kc:var(--sk)"><div class="kpi-lbl">Közmunkások (2023)</div><div class="kpi-val">~66 000</div><div class="kpi-sub">Beleértve a közszférába!</div><span class="kpi-tag up">KSH SDG-kiadvány</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Közszféra belső megoszlása — 2023 (becsült)</h3>
+      <p>Forrás: KSH Főbb kereseti adatok – költségvetés · BM · MAK · <span style="color:#E8A12A">⚠ 2020-as adatokra épített előrevetítés</span></p>
+      <div class="cw" style="height:260px"><canvas id="ch-koz-pie"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Privát szféra vs. Közszféra vs. Közmunka — 2015–2024</h3>
+      <p>Foglalkoztatottak megoszlása főbb szektorok szerint · ezer fő · KSH LFS</p>
+      <div class="cw" style="height:260px"><canvas id="ch-szektor-stack"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── ⑤ PRIVÁT SZEKTOR BELSŐ ARÁNYAI ── -->
+  <div class="sec-head"><h2>⑤ Privát szektor belső arányai — gyártás / mezőgazdaság / szolgáltatás</h2></div>
+  <div class="sec-sub">Forrás: KSH NACE Rev.2 foglalkoztatási adatok · STADAT mun0180 · 2024 éves átlag</div>
+
+  <div class="g2">
+    <div class="cc">
+      <h3>Privát szektor ágazati bontása — 2024</h3>
+      <p>Foglalkoztatottak aránya a privát szektoron belül · NACE főcsoportok · KSH STADAT</p>
+      <div class="cw" style="height:280px"><canvas id="ch-priv-pie"></canvas></div>
+    </div>
+    <div class="cc">
+      <h3>Privát szektor főágazatok trendje — 2015–2024 (ezer fő)</h3>
+      <p>Feldolgozóipar · Kereskedelem/szállítás · Üzleti szolgáltatás · KSH NACE</p>
+      <div class="cw" style="height:280px"><canvas id="ch-priv-trend"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── Összefoglaló adattábla ── -->
+  <div class="sec-head"><h2>Összefoglaló — Strukturális foglalkoztatás pillanatkép, 2023–2024</h2></div>
+  <div class="sec-sub">Forrásminőség-jelölőkkel · ✓ KSH · ~ Részleges · ✗ Hiányzó / Becsült</div>
+  <div class="cc tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Szegmens</th><th>Létszám</th><th>Arány</th><th>Forrás</th><th>Adatminőség</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Teljes foglalkoztatott</strong></td><td>~4 760 000</td><td>100%</td><td>KSH LFS 2024</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td>— Elsődleges munkaerőpiac</td><td>~4 600 000</td><td>~96,6%</td><td>KSH LFS</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td>— Közfoglalkoztatott (közmunka)</td><td>~55–66 000</td><td>~1,2–1,4%</td><td>KSH SDG · NFSZ</td><td style="color:#007A72">✓ KSH SDG</td></tr>
+        <tr><td>— Külföldön dolgozó magyar</td><td>~100–105 000</td><td>~2,2%</td><td>KSH LFS</td><td style="color:#007A72">✓ KSH LFS</td></tr>
+        <tr><td><strong>KKV-szektor</strong></td><td>~3 100 000</td><td>~65,5%</td><td>GKI 2024 · KKV Strat.</td><td style="color:#007A72">✓ KSH strukt.</td></tr>
+        <tr><td>— ebből mikrovállalat (2–9 fő)</td><td>~1 240 000</td><td>~26%</td><td>GKI (2024. dec.)</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td>— ebből kisvállalat (10–49 fő)</td><td>~1 050 000</td><td>~22%</td><td>GKI (2024. dec.)</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td>— ebből középvállalat (50–249 fő)</td><td>~810 000</td><td>~17%</td><td>GKI (2024. dec.)</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td><strong>Nagyvállalat (250+ fő)</strong></td><td>~1 650 000</td><td>~34,5%</td><td>GKI (2024. dec.)</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td>— ebből külföldi irányítású</td><td>~630 000+</td><td>~13–14%</td><td>KSH FATS 2020</td><td style="color:#E8A12A">~ 2020-as adat</td></tr>
+        <tr><td>— Német cégek</td><td>~170 000</td><td>~27% a külföldiből</td><td>KSH FATS 2020</td><td style="color:#E8A12A">~ 2020-as adat</td></tr>
+        <tr><td>— Amerikai cégek</td><td>~100 000</td><td>~16% a külföldiből</td><td>KSH FATS 2020</td><td style="color:#E8A12A">~ 2020-as adat</td></tr>
+        <tr><td>— Koreai cégek</td><td>~50 000</td><td>~8% a külföldiből</td><td>FATS 2020 + HIPA becsl.</td><td style="color:#ED1C2E">✗ Becsült</td></tr>
+        <tr><td>— Kínai cégek</td><td>~15 000</td><td>~2–3% a külföldiből</td><td>HIPA nyilv. becslés</td><td style="color:#ED1C2E">✗ NINCS KSH-ADAT</td></tr>
+        <tr><td><strong>Közszféra összesen</strong></td><td>~790 000</td><td>~16,6%</td><td>KSH ker. adatok</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td>— Közalkalmazott (okt.+egész.+kult.)</td><td>~510 000</td><td>~64% a közszférán belül</td><td>KSH ker. adatok</td><td style="color:#007A72">✓ KSH</td></tr>
+        <tr><td>— Köztisztviselő / korm. tisztviselő</td><td>~72 000</td><td>~9% a közszférán belül</td><td>BM · MAK becslés</td><td style="color:#E8A12A">~ Részleges</td></tr>
+        <tr><td>— Rendvédelem + Honvédség</td><td>~103 000</td><td>~13% a közszférán belül</td><td>Nyilvános adatok</td><td style="color:#E8A12A">~ Részleges</td></tr>
+        <tr><td>— Önkormányzati fgl.</td><td>~105 000</td><td>~13% a közszférán belül</td><td>KSH 2020 előrevetítve</td><td style="color:#ED1C2E">✗ 2020-as bontás</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins-grid" style="margin-top:20px">
+    <div class="ins" style="--ic:var(--cz)"><h4>Közmunka sikertörténet — de kockázat</h4><p>A közmunkások száma 2016-os <strong>221 000-es csúcsról</strong> 2023-ra <strong>66 000-re</strong> csökkent (−70%). Ez sikeres visszaterelés az elsődleges munkaerőpiacra. Kockázat: az MTA KTI szerint a résztvevők csupán 11–13%-a helyezkedik el ténylegesen versenyszférában — a program erősen tartósítja a munkaerőpiaci kizártságot.</p></div>
+    <div class="ins" style="--ic:var(--navy)"><h4>KKV dominancia — de termelékenységi csapda</h4><p>A foglalkoztatottak <strong>65,5%-a KKV-nál</strong> dolgozik, mégis a bruttó hozzáadott érték <strong>38%-át</strong> termelik. A ~1 000 nagyvállalat adja a GNÉ 62%-át. Ez a termelékenységi olló a magyar gazdaság egyik legélesebb strukturális problémája.</p></div>
+    <div class="ins" style="--ic:#1A1A80"><h4>Külföldi cégek — Németország és USA domináns</h4><p>A külföldi irányítású cégek (2020: ~630 000 fő, ~13%) túlnyomórészt <strong>német</strong> (~27%) és <strong>amerikai</strong> (~16%) érdekeltségű. A koreai és kínai gyáralapítások (CATL, Samsung SDI, BYD) <strong>nem szerepelnek még a statisztikában</strong> — a tényleges arányok 2025 végétől lesznek követhetők a KSH FATS-frissítésben.</p></div>
+    <div class="ins" style="--ic:var(--blue)"><h4>Közszféra — oktatás és egészségügy viszi a terhet</h4><p>A ~790 000 fős közszféra <strong>64%-a közalkalmazott</strong> — többnyire pedagógus, egészségügyi dolgozó, kultúra. Mindössze ~72 000 fő a szűk értelemben vett állami igazgatás. A közszférán belüli bontás <strong>utolsó teljes körű adata 2019–2020-as</strong> — ez adathiány a döntéshozatal szempontjából.</p></div>
+  </div>
+
+</div>
+</div>
+
+<div class="panel" id="panel-ceo">
+<div class="main">
+
+  <div class="hero">
+    <div style="margin-bottom:18px">
+      <div class="hero-label">Stratégiai összefoglaló · 2025 március · Eurostat LFS · KSH · OECD · 2015–2024</div>
+      <div class="hero-title">CEO Munkaerőpiaci Összefoglaló</div>
+      <div class="hero-sub">7 tab · 11 dimenzió · EU27 · V4 · Magyarország · 10 éves idősor</div>
+    </div>
+    <div class="hero-kpis">
+      <div><div class="hero-kpi-label">EU27 · 2024</div><div class="hero-kpi-val">75,8%</div><div class="hero-kpi-sub">Foglalkoztatási ráta</div></div>
+      <div><div class="hero-kpi-label">V4 átlag · 2024</div><div class="hero-kpi-val">79,5%</div><div class="hero-kpi-sub">EU-t meghaladó teljesítmény</div></div>
+      <div><div class="hero-kpi-label">Magyarország · 2024</div><div class="hero-kpi-val">81,1%</div><div class="hero-kpi-sub">EU 6. legmagasabb</div></div>
+      <div><div class="hero-kpi-label">Mo. 10 éves növekedés</div><div class="hero-kpi-val">+12,9 pp</div><div class="hero-kpi-sub">Európa legdinamikusabbjai</div></div>
+    </div>
+  </div>
+
+  <div class="ins-grid">
+    <div class="ins" style="--ic:var(--eu)"><h4>EU27 megatrend</h4><p>Az EU27 foglalkoztatottsági ráta 2024-re <strong>75,8%-ra emelkedett</strong> — rekordmagasra. A 2030-as 78%-os célhoz 2,2 pp hiányzik. A növekedést a nők aktivizálódása (+7,8 pp alacsony iskolázottságúaknál) és az 55–64 éves korosztály hajtja.</p></div>
+    <div class="ins" style="--ic:var(--v4)"><h4>V4 kiemelkedő teljesítmény</h4><p>A Visegrádi Négyek súlyozott átlaga <strong>79,5%</strong> — 3,7 pp-vel az EU27 felett. Az elmúlt 10 évben a V4 kétszer gyorsabban zárkózott fel (+10,3 pp vs. +5,7 pp EU27).</p></div>
+    <div class="ins" style="--ic:var(--cz)"><h4>Csehország — EU-csúcsközelben</h4><p><strong>82,3%</strong>-os foglalkoztatással CZ az EU top 5-ben. Iparvezérelt (27,5% feldolgozóipar). Munkanélküliség: 2,7% — historikus mélyközel. Betöltetlen állások: 4,1% — strukturális munkaerőhiány.</p></div>
+    <div class="ins" style="--ic:var(--hu)"><h4>Magyarország — foglalkoztatási fordulat</h4><p><strong>+12,9 pp</strong> 2015 óta — Európa egyik leggyorsabb javulása. Nemi rés 8,5 pp (EU-átlagnál jobb). Munkanélküliség: 4,4%. LCI: +13,6% — bérek dinamikusan emelkednek.</p></div>
+    <div class="ins" style="--ic:var(--pl)"><h4>Lengyelország — rekord</h4><p>Munkanélküliség: <strong>2,6%</strong> (2025 eleje) — EU-legalacsonyabb. LCI: +12,8% — erős béremelkedési nyomás. Ideiglenes foglalkoztatás 28%→17% — szerkezet konszolidálódik.</p></div>
+    <div class="ins" style="--ic:var(--gray)"><h4>Strukturális kockázatok</h4><p>V4 ipar-túlsúly (CZ 27,5%, HU 23,5%) — recesszióban konjunktúra-érzékeny. Home office HU: 4,9% vs. EU: 13,3%. Részmunkaidő HU: 4,2% vs. EU: 17,9%. Ezek versenyképességi kockázatok a tehetségmegtartásban.</p></div>
+  </div>
+
+  <div class="sec-head"><h2>Kulcsmutatók összesítő táblája — 2024</h2></div>
+  <div class="sec-sub">CEO-szintű összehasonlítás · Forrás: Eurostat, EURES, OECD, KSH</div>
+  <div class="cc tbl-wrap">
+    <table class="tbl">
+      <thead><tr><th>Mutató</th><th style="color:var(--eu)">EU27</th><th style="color:var(--v4)">V4 átlag</th><th style="color:var(--hu)">Magyarország</th><th style="color:var(--cz)">Csehország</th><th style="color:var(--pl)">Lengyelo.</th><th style="color:var(--sk)">Szlovákia</th></tr></thead>
+      <tbody>
+        <tr><td>Foglalkoztatási ráta 20–64 (%)</td><td>75,8</td><td>79,5</td><td><strong>81,1</strong></td><td><strong>82,3</strong></td><td>78,5</td><td>76,0</td></tr>
+        <tr><td>Munkanélküliségi ráta (%)</td><td>5,9</td><td>3,8</td><td>4,4</td><td><strong>2,7</strong></td><td><strong>2,9</strong></td><td>5,5</td></tr>
+        <tr><td>Inaktivitási ráta 15–64 (%)</td><td>24,2</td><td>22,5</td><td>20,2</td><td><strong>17,8</strong></td><td>23,0</td><td>22,5</td></tr>
+        <tr><td>Ifjúsági munkanélküliség (%)</td><td>14,1</td><td>—</td><td>14,2</td><td><strong>8,3</strong></td><td>10,9</td><td>13,5</td></tr>
+        <tr><td>Nemi foglalkoztatási rés (pp)</td><td>10,0</td><td>—</td><td><strong>8,5</strong></td><td>12,5</td><td>9,7</td><td>9,2</td></tr>
+        <tr><td>Tartós munkanélküliség (%)</td><td>1,9</td><td>—</td><td>1,8</td><td><strong>0,8</strong></td><td><strong>0,8</strong></td><td>3,5</td></tr>
+        <tr><td>Betöltetlen állások rátája (%)</td><td>2,9</td><td>—</td><td>2,8</td><td><strong>4,1</strong></td><td>1,8</td><td>2,1</td></tr>
+        <tr><td>LCI éves növekedés (%)</td><td>+5,0</td><td>—</td><td style="color:var(--hu)">+13,6</td><td style="color:var(--cz)">+1,3</td><td style="color:var(--pl)">+12,8</td><td>+7,5</td></tr>
+        <tr><td>Órabér (EUR, 2024)</td><td>33,5</td><td>~16,5</td><td>14,1</td><td>20,8</td><td>14,8</td><td>16,5</td></tr>
+        <tr><td>Bruttó átlagbér (EUR/év, 2023)</td><td>41 000</td><td>~22 000</td><td>18 730</td><td>24 400</td><td>19 000</td><td>18 500</td></tr>
+        <tr><td>10 éves fgl. növekedés (pp)</td><td style="color:var(--eu)">+5,7</td><td style="color:var(--v4)">+10,3</td><td style="color:var(--hu)"><strong>+12,9</strong></td><td style="color:var(--cz)">+7,3</td><td style="color:var(--pl)">+10,7</td><td style="color:var(--sk)">+8,3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer class="ftr">
+  <div class="ftr-left">
+    <svg viewBox="0 0 40 40" style="height:26px"><circle cx="14" cy="9" r="5" fill="#0345EB"/><path d="M4 40 C4 26 8 20 14 20 C20 20 24 26 24 40" stroke="#0345EB" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+    <span class="ftr-logo-text">PROHUMAN</span>
+    <span class="ftr-sub">Munkaerőpiaci Dashboard · 2015–2024</span>
+  </div>
+  <span class="ftr-src">Forrás: Eurostat LFS · lfsi_emp_a · une_rt_a · lfsa_igan · lc_lci_r2_a · KSH STADAT · NFSZ · OECD · 2025. március</span>
+</footer>
+
+<script>
+// ── SHARED DATA ──────────────────────────────────────────────────────────
+const YR = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'];
+const C  = { eu:'#0345EB', v4:'#E8A12A', hu:'#ED1C2E', cz:'#00A89E', pl:'#FF5C00', sk:'#754DBA' };
+
+const D = {
+  empRate: {
+    eu: [70.1,71.1,72.1,73.2,73.9,72.5,73.1,74.6,75.3,75.8],
+    v4: [69.2,71.0,72.7,74.2,75.2,74.7,75.7,77.7,78.7,79.5],
+    hu: [68.2,71.0,73.0,75.4,75.4,74.5,76.0,80.0,80.5,81.1],
+    cz: [75.0,76.7,78.5,80.0,80.3,79.9,80.1,81.0,81.8,82.3],
+    pl: [67.8,69.3,70.9,72.2,73.7,73.3,74.5,76.4,77.6,78.5],
+    sk: [67.7,69.8,71.1,72.4,73.4,72.9,73.4,74.3,75.4,76.0]
+  },
+  unemp: {
+    eu: [9.4,8.5,7.6,6.8,6.7,7.1,7.0,6.2,6.0,5.9],
+    hu: [6.8,5.1,4.2,3.7,3.4,4.1,4.1,3.6,4.1,4.4],
+    cz: [5.1,4.0,2.9,2.2,2.0,2.6,2.8,2.2,2.6,2.7],
+    pl: [7.5,6.2,4.9,3.8,3.3,3.2,3.4,2.9,2.9,2.9],
+    sk: [11.5,9.7,8.1,6.5,5.8,6.7,6.9,6.2,5.7,5.5]
+  },
+  youth: {
+    eu: [20.3,18.7,16.8,15.2,14.9,17.0,16.7,14.5,14.5,14.1],
+    hu: [17.3,12.9,10.7,10.2,11.5,12.7,14.9,13.2,14.4,14.2],
+    cz: [12.6,10.5,7.9,6.7,5.6,8.0,8.0,7.2,8.0,8.3],
+    pl: [20.8,17.7,14.8,11.8,10.0,10.6,12.0,10.0,10.5,10.9],
+    sk: [26.5,22.2,18.9,14.9,13.6,17.0,16.9,15.2,14.1,13.5]
+  },
+  inact: {
+    eu: [27.5,26.9,26.3,25.6,25.4,26.0,25.6,25.0,24.6,24.2],
+    v4: [27.2,26.5,25.8,25.0,24.5,24.8,24.3,23.5,22.9,22.5],
+    hu: [28.6,26.5,25.0,23.0,23.0,23.3,22.5,21.0,20.5,20.2],
+    cz: [22.0,21.2,20.3,19.3,19.2,19.9,19.5,18.7,18.2,17.8],
+    pl: [28.8,27.9,27.0,26.0,25.3,25.5,25.0,24.2,23.5,23.0],
+    sk: [26.7,25.9,25.3,24.4,24.0,24.4,24.2,23.5,22.8,22.5]
+  },
+  gender: {
+    eu: [11.5,11.5,11.5,11.5,11.4,11.1,11.0,10.8,10.5,10.0],
+    hu: [14.0,13.0,12.5,10.5,10.0,9.3,8.7,9.2,8.8,8.5],
+    cz: [16.0,15.8,15.5,15.0,14.5,14.0,13.5,13.0,12.5,12.5],
+    pl: [13.5,12.8,12.0,11.5,11.0,10.5,10.0,9.5,9.5,9.7],
+    sk: [12.5,11.8,11.5,11.0,10.5,10.5,10.5,10.0,9.5,9.2]
+  },
+  pt: {
+    eu: [19.0,18.9,18.7,18.4,18.2,18.0,17.9,17.9,17.9,17.9],
+    hu: [4.0,4.0,3.8,3.8,4.0,4.1,4.2,4.2,4.2,4.2],
+    cz: [5.3,5.3,5.4,5.5,5.6,5.6,5.7,5.7,5.8,5.8],
+    pl: [6.9,6.5,6.3,6.3,6.5,6.6,6.7,6.7,6.8,6.8],
+    sk: [5.1,5.0,5.0,5.0,5.0,5.0,5.1,5.2,5.2,5.3]
+  },
+  ltu: {
+    eu: [4.5,4.0,3.4,2.9,2.6,2.9,2.8,2.4,2.2,1.9],
+    hu: [2.9,2.4,2.0,1.6,1.5,2.0,1.9,1.5,1.8,1.8],
+    cz: [2.7,2.0,1.3,0.9,0.7,1.1,1.1,0.8,0.7,0.8],
+    pl: [3.0,2.3,1.5,1.0,0.7,0.7,0.7,0.6,0.6,0.8],
+    sk: [9.3,8.2,6.6,5.0,3.8,4.4,4.5,3.5,3.1,3.5]
+  },
+  vac: {
+    eu: [1.5,1.7,1.9,2.1,2.2,1.7,2.5,3.0,2.8,2.9],
+    hu: [1.1,1.3,1.8,2.3,2.6,2.1,2.8,3.2,2.6,2.8],
+    cz: [1.8,2.5,3.5,4.6,4.7,3.0,3.8,4.5,3.8,4.1],
+    pl: [0.8,1.0,1.3,1.5,1.6,1.0,1.3,1.8,1.7,1.8],
+    sk: [1.0,1.2,1.5,1.8,1.7,1.2,1.5,2.0,2.0,2.1]
+  },
+  temp: {
+    eu: [14.1,14.2,14.4,14.5,14.5,13.9,13.9,13.8,13.5,13.0],
+    hu: [7.5,7.0,6.5,6.2,6.0,5.8,6.0,6.2,6.5,6.5],
+    cz: [9.0,8.5,8.0,7.5,7.0,7.2,7.5,7.5,7.8,8.0],
+    pl: [28.0,27.0,26.0,24.0,22.0,20.0,19.0,18.0,17.5,17.0],
+    sk: [10.0,9.5,9.0,8.5,7.8,8.0,7.5,7.0,6.5,6.5]
+  },
+  lci: {
+    eu: [1.5,1.8,2.3,2.7,3.0,4.5,3.7,4.5,5.7,5.0],
+    hu: [4.5,5.0,10.5,10.0,10.2,7.5,11.5,15.0,14.8,13.6],
+    cz: [3.5,4.2,6.5,7.8,7.5,4.0,4.5,6.0,8.5,1.3],
+    pl: [2.8,3.5,5.5,7.3,8.2,5.5,8.5,12.5,14.2,12.8],
+    sk: [3.0,3.8,5.5,5.8,5.2,3.5,4.2,9.5,9.8,7.5]
+  },
+  dur: {
+    eu: [42,41,40,39,38,41,40,38,39,39],
+    hu: [31,30,28,26,25,28,27,25,27,28],
+    cz: [28,26,24,22,21,24,23,21,22,22],
+    pl: [28,26,24,22,21,22,21,20,23,24],
+    sk: [60,58,55,52,50,55,54,50,54,55]
+  },
+  minber:  [105.0,111.0,127.5,138.0,149.0,161.0,167.4,200.0,232.0,266.8],
+  diplmin: [129.0,136.5,161.0,180.5,195.0,210.6,219.0,260.0,296.4,326.0],
+  median:  [168.0,186.0,210.0,241.0,272.0,294.0,322.0,379.0,450.0,520.4],
+  brutto:  [222.6,245.8,277.9,318.2,358.7,386.7,422.6,500.0,571.2,646.8],
+  netto:   [149.2,163.5,185.2,211.9,240.5,258.5,281.7,344.5,393.7,445.2],
+  mukaj:   [282.7,299.9,339.0,380.2,421.5,446.6,488.1,565.0,645.5,730.9]
+};
+
+// ── CHART HELPERS ─────────────────────────────────────────────────────────
+const TIP = {
+  backgroundColor:'rgba(0,0,115,.93)', titleColor:'#fff',
+  bodyColor:'rgba(255,255,255,.82)', borderColor:'rgba(3,69,235,.4)',
+  borderWidth:1, padding:10, cornerRadius:6
+};
+const AX = {
+  x: { ticks:{color:'#7B8BAB',font:{size:11,family:'Open Sans'}}, grid:{color:'rgba(0,0,115,.05)'}, border:{color:'rgba(0,0,115,.12)'} },
+  y: { ticks:{color:'#7B8BAB',font:{size:11,family:'Open Sans'}}, grid:{color:'rgba(0,0,115,.05)'}, border:{color:'rgba(0,0,115,.12)'} }
+};
+
+function pctAx() {
+  return {
+    x: {...AX.x},
+    y: {...AX.y, ticks:{...AX.y.ticks, callback:v=>v+'%'}}
+  };
+}
+function eftAx() {
+  return {
+    x: {...AX.x},
+    y: {...AX.y, ticks:{...AX.y.ticks, callback:v=>v+' eFt'}}
+  };
+}
+
+function lds(label, data, color, dash=[], fill=false) {
+  return {
+    label, data, borderColor:color, backgroundColor:color+'15',
+    borderWidth:2.5, pointRadius:3, pointHoverRadius:5,
+    tension:.35, borderDash:dash, fill
+  };
+}
+
+function lineChart(id, datasets, yMin=null, yTip=null) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  const axes = pctAx();
+  if (yMin !== null) axes.y.min = yMin;
+  new Chart(ctx, {
+    type:'line',
+    data:{ labels:YR, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{...TIP, callbacks:{label: c => ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}${yTip||'%'}`}}
+      },
+      scales: axes
+    }
+  });
+}
+
+function barChart(id, datasets, labels, opts={}) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{...TIP, ...(opts.tooltipExtra||{})} },
+      scales: opts.scales || pctAx(),
+      indexAxis: opts.indexAxis || 'x'
+    }
+  });
+}
+
+function doughnut(id, labels, data, colors) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{data, backgroundColor:colors, borderWidth:0, hoverOffset:8}] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{
+        legend:{position:'right', labels:{color:'#3D3D3D',font:{size:11,family:'Open Sans'},padding:12,boxWidth:10}},
+        tooltip:{...TIP}
+      }
+    }
+  });
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────
+let built = {};
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const pid = 'panel-' + tab.dataset.panel;
+    document.getElementById(pid).classList.add('active');
+    if (!built[pid]) { buildPanel(tab.dataset.panel); built[pid]=true; }
+  });
+});
+
+// Build first panel on load
+function buildPanel(name) {
+  switch(name) {
+    case 'fogl':     buildFogl();     break;
+    case 'inakt':    buildInakt();    break;
+    case 'szekt':    buildSzekt();    break;
+    case 'kieg':     buildKieg();     break;
+    case 'foglplus': buildFoglPlus(); break;
+    case 'ber':      buildBer();      break;
+    case 'strukt':   buildStrukt();   break;
+  }
+}
+
+// ── PANEL 1: FOGLALKOZTATOTTSÁG ──────────────────────────────────────────
+function buildFogl() {
+  // Chart legend
+  const cl = document.getElementById('cl-emprate');
+  const entries = [
+    {label:'EU27',c:C.eu},{label:'V4',c:C.v4,dash:true},
+    {label:'Magyarország',c:C.hu},{label:'Csehország',c:C.cz},
+    {label:'Lengyelország',c:C.pl},{label:'Szlovákia',c:C.sk}
+  ];
+  entries.forEach(e => {
+    cl.innerHTML += `<div class="cl-item"><span class="cl-line" style="background:${e.c}${e.dash?';border-bottom:2px dashed '+e.c:''}"></span>${e.label}</div>`;
+  });
+
+  lineChart('ch-emprate', [
+    lds('EU27', D.empRate.eu, C.eu),
+    lds('V4',   D.empRate.v4, C.v4, [6,3]),
+    lds('Magyarország', D.empRate.hu, C.hu),
+    lds('Csehország',   D.empRate.cz, C.cz),
+    lds('Lengyelország',D.empRate.pl, C.pl),
+    lds('Szlovákia',    D.empRate.sk, C.sk)
+  ], 62);
+
+  lineChart('ch-unemp', [
+    lds('EU27',D.unemp.eu,C.eu), lds('Magyarország',D.unemp.hu,C.hu),
+    lds('Csehország',D.unemp.cz,C.cz), lds('Lengyelország',D.unemp.pl,C.pl),
+    lds('Szlovákia',D.unemp.sk,C.sk)
+  ]);
+
+  lineChart('ch-youth', [
+    lds('EU27',D.youth.eu,C.eu), lds('Magyarország',D.youth.hu,C.hu),
+    lds('Csehország',D.youth.cz,C.cz), lds('Lengyelország',D.youth.pl,C.pl),
+    lds('Szlovákia',D.youth.sk,C.sk)
+  ]);
+
+  // Table
+  const rows = [
+    {label:'EU27',k:'eu',c:C.eu},{label:'V4 átlag',k:'v4',c:C.v4},
+    {label:'Magyarország',k:'hu',c:C.hu},{label:'Csehország',k:'cz',c:C.cz},
+    {label:'Lengyelország',k:'pl',c:C.pl},{label:'Szlovákia',k:'sk',c:C.sk}
+  ];
+  const tb = document.getElementById('tb-emprate');
+  rows.forEach(r => {
+    const d = D.empRate[r.k];
+    const delta = (d[9]-d[0]).toFixed(1);
+    let row = `<tr><td><span class="dot9" style="background:${r.c}"></span>${r.label}</td>`;
+    d.forEach(v => row += `<td>${v.toFixed(1)}</td>`);
+    row += `<td style="color:#007A72;font-weight:700">+${delta}</td></tr>`;
+    tb.innerHTML += row;
+  });
+}
+
+// ── PANEL 2: INAKTIVITÁS ─────────────────────────────────────────────────
+function buildInakt() {
+  lineChart('ch-inact', [
+    lds('EU27',D.inact.eu,C.eu), lds('V4',D.inact.v4,C.v4,[6,3]),
+    lds('Magyarország',D.inact.hu,C.hu), lds('Csehország',D.inact.cz,C.cz),
+    lds('Lengyelország',D.inact.pl,C.pl), lds('Szlovákia',D.inact.sk,C.sk)
+  ]);
+
+  const actData = {};
+  ['eu','v4','hu','cz','pl','sk'].forEach(k => actData[k] = D.inact[k].map(v=>100-v));
+  lineChart('ch-act', [
+    lds('EU27',actData.eu,C.eu), lds('V4',actData.v4,C.v4,[6,3]),
+    lds('Magyarország',actData.hu,C.hu), lds('Csehország',actData.cz,C.cz),
+    lds('Lengyelország',actData.pl,C.pl), lds('Szlovákia',actData.sk,C.sk)
+  ], 68);
+
+  const dColors = [C.hu,C.cz,C.v4,C.eu,C.sk];
+  const dLabs = ['Gondozás / háztartás','Betegség / rokkantság','Tanulás','Korai nyugdíj','Egyéb'];
+  doughnut('ch-inact-hu', dLabs, [38,22,17,15,8], dColors);
+  doughnut('ch-inact-eu', dLabs, [28,25,19,18,10], dColors);
+}
+
+// ── PANEL 3: SZEKTOR ─────────────────────────────────────────────────────
+function buildSzekt() {
+  const sLab = ['Mezőgazd.','Ipar','Építőipar','Ker./Száll.','Pénzügy/ICT','Közszféra','Egyéb'];
+  const sD = {
+    eu: [3.9,17.3,6.6,26.1,13.9,23.0,9.2],
+    hu: [4.8,23.5,7.5,22.0,10.5,22.5,9.2],
+    cz: [2.6,27.5,9.1,23.5,11.0,18.5,7.8],
+    pl: [9.2,21.8,8.1,25.5,9.5,17.5,8.4],
+    sk: [3.2,24.8,8.5,24.0,9.2,21.5,8.8]
+  };
+  barChart('ch-sector-bar',
+    [
+      {label:'EU27',data:sD.eu,backgroundColor:C.eu+'BB',borderRadius:3},
+      {label:'Magyarország',data:sD.hu,backgroundColor:C.hu+'BB',borderRadius:3},
+      {label:'Csehország',data:sD.cz,backgroundColor:C.cz+'BB',borderRadius:3},
+      {label:'Lengyelország',data:sD.pl,backgroundColor:C.pl+'BB',borderRadius:3},
+      {label:'Szlovákia',data:sD.sk,backgroundColor:C.sk+'BB',borderRadius:3}
+    ],
+    sLab,
+    {
+      tooltipExtra:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:10}},grid:{display:false}},
+        y:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,115,.05)'}}
+      }
+    }
+  );
+
+  const pieColors = ['#00A89E','#0345EB','#E8A12A','#000073','#754DBA','#FF5C00','#7B8BAB'];
+  const ctxPie = document.getElementById('ch-sector-pie');
+  if (ctxPie) new Chart(ctxPie, {
+    type:'doughnut',
+    data:{ labels:sLab, datasets:[{data:sD.hu, backgroundColor:pieColors, borderWidth:0, hoverOffset:10}] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins:{
+        legend:{position:'right', labels:{color:'#3D3D3D',font:{size:11,family:'Open Sans'},padding:12,boxWidth:10,
+          generateLabels: ch => ch.data.labels.map((l,i)=>({
+            text:`${l}  ${sD.hu[i]}%`,
+            fillStyle:ch.data.datasets[0].backgroundColor[i], index:i
+          }))
+        }},
+        tooltip:{...TIP}
+      }
+    }
+  });
+
+  // Horizontal bars
+  const el = document.getElementById('sector-bars');
+  const sLong = ['Mezőgazdaság','Ipar (feldolgozóipar)','Építőipar','Kereskedelem & szállítás','Pénzügy & ICT','Közszféra & Egészség','Egyéb'];
+  const ctrys = [
+    {k:'eu',l:'EU27',c:C.eu},{k:'hu',l:'HU',c:C.hu},{k:'cz',l:'CZ',c:C.cz},
+    {k:'pl',l:'PL',c:C.pl},{k:'sk',l:'SK',c:C.sk}
+  ];
+  sLong.forEach((sec,i) => {
+    const mx = Math.max(...ctrys.map(c=>sD[c.k][i]), 30);
+    let h = `<div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">`;
+    h += `<div style="font-size:12px;color:var(--muted);font-weight:600;width:170px;flex-shrink:0;padding-top:2px">${sec}</div>`;
+    h += `<div style="flex:1">`;
+    ctrys.forEach(c => {
+      const v = sD[c.k][i];
+      const w = (v/mx)*100;
+      h += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <span style="font-size:10px;color:var(--muted);font-weight:700;width:28px">${c.l}</span>
+        <div style="flex:1;height:7px;background:var(--light);border-radius:2px">
+          <div style="width:${w}%;height:100%;background:${c.c};border-radius:2px"></div>
+        </div>
+        <span style="font-size:11px;font-weight:700;color:${c.c};width:36px;text-align:right">${v.toFixed(1)}%</span>
+      </div>`;
+    });
+    h += `</div></div>`;
+    el.innerHTML += h;
+  });
+}
+
+// ── PANEL 4: KIEGÉSZÍTŐ ──────────────────────────────────────────────────
+function buildKieg() {
+  lineChart('ch-gender', [
+    lds('EU27',D.gender.eu,C.eu), lds('Magyarország',D.gender.hu,C.hu),
+    lds('Csehország',D.gender.cz,C.cz), lds('Lengyelország',D.gender.pl,C.pl),
+    lds('Szlovákia',D.gender.sk,C.sk)
+  ]);
+  lineChart('ch-parttime', [
+    lds('EU27',D.pt.eu,C.eu), lds('Magyarország',D.pt.hu,C.hu),
+    lds('Csehország',D.pt.cz,C.cz), lds('Lengyelország',D.pt.pl,C.pl),
+    lds('Szlovákia',D.pt.sk,C.sk)
+  ]);
+
+  // Wage bar (horizontal)
+  const wLab = ['EU27','Magyarország','Csehország','Lengyelország','Szlovákia'];
+  const wDat = [41000,18730,24400,19000,18500];
+  const wCol = [C.eu,C.hu,C.cz,C.pl,C.sk];
+  const ctxW = document.getElementById('ch-wage-bar');
+  if (ctxW) new Chart(ctxW, {
+    type:'bar', indexAxis:'y',
+    data:{ labels:wLab, datasets:[{label:'Bruttó átlagbér',data:wDat,backgroundColor:wCol,borderRadius:4,borderWidth:0}] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x.toLocaleString('hu-HU')} EUR/év`}}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>(v/1000)+'k€'},grid:{color:'rgba(0,0,115,.05)'}},
+        y:{ticks:{color:'#000073',font:{size:12,weight:'600',family:'Open Sans'}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Vacancy bar
+  const vLab = ['EU27','Csehország','Magyarország','Lengyelország','Szlovákia'];
+  const vDat = [2.9,4.1,2.8,1.8,2.1];
+  const vCol = [C.eu,C.cz,C.hu,C.pl,C.sk];
+  const ctxV = document.getElementById('ch-vacancy');
+  if (ctxV) new Chart(ctxV, {
+    type:'bar',
+    data:{ labels:vLab, datasets:[{label:'Betöltetlen állások',data:vDat,backgroundColor:vCol,borderRadius:4,borderWidth:0}] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.y.toFixed(1)}%`}}},
+      scales:{
+        x:{ticks:{color:'#000073',font:{size:12,weight:'600'}},grid:{display:false}},
+        y:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,115,.05)'}}
+      }
+    }
+  });
+}
+
+// ── PANEL 5: FOGLALKOZTATÁS+ ─────────────────────────────────────────────
+function buildFoglPlus() {
+  // LTU
+  lineChart('ch-ltu',[
+    lds('EU27',D.ltu.eu,C.eu), lds('Magyarország',D.ltu.hu,C.hu),
+    lds('Csehország',D.ltu.cz,C.cz), lds('Lengyelország',D.ltu.pl,C.pl),
+    lds('Szlovákia',D.ltu.sk,C.sk)
+  ], 0);
+
+  // Vacancy
+  lineChart('ch-vac',[
+    lds('EU27',D.vac.eu,C.eu), lds('Magyarország',D.vac.hu,C.hu),
+    lds('Csehország',D.vac.cz,C.cz), lds('Lengyelország',D.vac.pl,C.pl),
+    lds('Szlovákia',D.vac.sk,C.sk)
+  ], 0);
+
+  // Temporary
+  lineChart('ch-temp',[
+    lds('EU27',D.temp.eu,C.eu), lds('Magyarország',D.temp.hu,C.hu),
+    lds('Csehország',D.temp.cz,C.cz), lds('Lengyelország',D.temp.pl,C.pl),
+    lds('Szlovákia',D.temp.sk,C.sk)
+  ], 0);
+
+  // Part-time by age group
+  const ptAgeLab = ['15–24 év','25–34 év','35–44 év','45–54 év','55–64 év','65+ év'];
+  const ptHU = [14.5,5.2,3.8,3.5,6.2,28.0];
+  const ptEU = [28.5,11.0,9.5,12.5,19.0,42.0];
+  barChart('ch-pt-age',
+    [
+      {label:'EU27',data:ptEU,backgroundColor:C.eu+'BB',borderRadius:4},
+      {label:'Magyarország',data:ptHU,backgroundColor:C.hu+'BB',borderRadius:4}
+    ],
+    ptAgeLab,
+    {
+      tooltipExtra:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:10}},grid:{display:false}},
+        y:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,115,.05)'}}
+      }
+    }
+  );
+
+  // LCI
+  lineChart('ch-lci',[
+    lds('EU27',D.lci.eu,C.eu,[5,3]), lds('Magyarország',D.lci.hu,C.hu),
+    lds('Csehország',D.lci.cz,C.cz), lds('Lengyelország',D.lci.pl,C.pl),
+    lds('Szlovákia',D.lci.sk,C.sk)
+  ], 0);
+
+  // Hourly labour cost bar (horizontal)
+  const hLab = ['Luxemburg','Dánia','Belgium','EU27','Csehország','Szlovákia','Lengyelország','Magyarország','Románia','Bulgária'];
+  const hDat = [55.2,50.1,48.2,33.5,20.8,16.5,14.8,14.1,12.5,10.6];
+  const hCol = hLab.map(l=>{
+    if(l==='Magyarország') return C.hu;
+    if(l==='Csehország') return C.cz;
+    if(l==='Lengyelország') return C.pl;
+    if(l==='Szlovákia') return C.sk;
+    if(l==='EU27') return C.eu;
+    return '#9CAEC2';
+  });
+  // hourly canvas handled via querySelector below
+  if (!ctxH) {
+    const alt = document.getElementById('ch-horabер-fix');
+    // The id might have Cyrillic - let's use querySelector
+  }
+  // Use querySelector to find the canvas since the id has special chars
+  const horaCanvas = document.getElementById('ch-hora-lci');
+  if (horaCanvas) new Chart(horaCanvas, {
+    type:'bar', indexAxis:'y',
+    data:{ labels:hLab, datasets:[{label:'Órabér (EUR)',data:hDat,backgroundColor:hCol,borderRadius:4,borderWidth:0}] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x.toFixed(1)} EUR/óra`}}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>'€'+v},grid:{color:'rgba(0,0,115,.05)'}},
+        y:{ticks:{color:'#000073',font:{size:11,weight:'600',family:'Open Sans'}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Regional employment
+  const regLab = ['Nyugat-Dunántúl','Közép-Dunántúl','Pest megye','Budapest','Dél-Alföld','Észak-Alföld','Dél-Dunántúl','Észak-Mo.'];
+  const regFogl = [83.8,83.5,82.5,79.2,79.0,76.5,78.5,73.2];
+  const regFoglCol = regFogl.map(v=>v>=82?'#00A89E':v>=78?C.eu:v>=75?C.v4:C.hu);
+  const ctxRF = document.getElementById('ch-reg-fogl');
+  if (ctxRF) new Chart(ctxRF, {
+    type:'bar', indexAxis:'y',
+    data:{ labels:regLab, datasets:[{label:'Fgl. ráta',data:regFogl,backgroundColor:regFoglCol,borderRadius:4,borderWidth:0}] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x.toFixed(1)}%`}}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,115,.05)'},min:65,max:90},
+        y:{ticks:{color:'#000073',font:{size:11,weight:'600',family:'Open Sans'}},grid:{display:false}}
+      }
+    }
+  });
+
+  const regUnemp = [2.1,2.5,2.6,2.3,3.5,4.2,4.8,5.8];
+  const regUnCol = regUnemp.map(v=>v<3?'#00A89E':v<4.5?C.v4:C.hu);
+  const ctxRU = document.getElementById('ch-reg-unemp');
+  if (ctxRU) new Chart(ctxRU, {
+    type:'bar', indexAxis:'y',
+    data:{ labels:regLab, datasets:[{label:'Munkanélküliség',data:regUnemp,backgroundColor:regUnCol,borderRadius:4,borderWidth:0}] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.parsed.x.toFixed(1)}%`}}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,115,.05)'},min:0,max:8},
+        y:{ticks:{color:'#000073',font:{size:11,weight:'600',family:'Open Sans'}},grid:{display:false}}
+      }
+    }
+  });
+
+  // Supply vs demand
+  const sdSeeker = [311,283,255,228,212,242,225,192,195,205];
+  const sdVac    = [51,60,82,100,112,72,115,136,112,118];
+  const ctxSD = document.getElementById('ch-supdem');
+  if (ctxSD) new Chart(ctxSD, {
+    type:'bar',
+    data:{ labels:YR, datasets:[
+      {label:'Nyilv. álláskeresők (ezer fő)',data:sdSeeker,backgroundColor:C.hu+'88',borderRadius:3,yAxisID:'y'},
+      {type:'line',label:'Betöltetlen áll. (ezer db)',data:sdVac,borderColor:C.cz,backgroundColor:'transparent',borderWidth:2.5,pointRadius:3,fill:false,tension:.35,yAxisID:'y1'}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${Math.round(c.parsed.y)} ezer`}}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11}},grid:{display:false}},
+        y:{position:'left',ticks:{color:C.hu,font:{size:11},callback:v=>v+' e'},grid:{color:'rgba(0,0,115,.05)'}},
+        y1:{position:'right',ticks:{color:C.cz,font:{size:11},callback:v=>v+' e'},grid:{display:false}}
+      }
+    }
+  });
+
+  // Duration
+  const ctxDur = document.getElementById('ch-dur');
+  if (ctxDur) new Chart(ctxDur, {
+    type:'line',
+    data:{ labels:YR, datasets:[
+      lds('EU27',D.dur.eu,C.eu,[5,3]),
+      lds('Magyarország',D.dur.hu,C.hu),
+      lds('Csehország',D.dur.cz,C.cz),
+      lds('Lengyelország',D.dur.pl,C.pl),
+      lds('Szlovákia',D.dur.sk,C.sk)
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${Math.round(c.parsed.y)} hét`}}},
+      scales:{
+        x:{...AX.x}, y:{...AX.y,min:0,ticks:{...AX.y.ticks,callback:v=>v+' hét'}}
+      }
+    }
+  });
+}
+
+// ── PANEL 6: BÉRELEMZÉS ──────────────────────────────────────────────────
+function buildBer() {
+  // Main trend chart
+  const ctxFo = document.getElementById('ch-ber-fo');
+  if (ctxFo) new Chart(ctxFo, {
+    type:'line',
+    data:{ labels:YR, datasets:[
+      lds('Minimálbér',D.minber,'#ED1C2E'),
+      lds('Diplomás minimum',D.diplmin,'#FF5C00'),
+      lds('Medián bér',D.median,'#000073'),
+      lds('Bruttó átlagkereset',D.brutto,'#0345EB'),
+      lds('Nettó átlagkereset',D.netto,'#00A89E'),
+      lds('Teljes munkáltatói ktg.',D.mukaj,'#754DBA',[6,3])
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${Math.round(c.parsed.y*1000).toLocaleString('hu-HU')} Ft`}}},
+      scales:{
+        x:{...AX.x},
+        y:{...AX.y,min:0,ticks:{...AX.y.ticks,callback:v=>v+' eFt'}}
+      }
+    }
+  });
+
+  // Min/Avg ratio bar
+  const arany = D.minber.map((m,i)=>Math.round(m/D.brutto[i]*1000)/10);
+  const aranyCol = arany.map(v=>v>=45?'#00A89E':v>=40?C.eu:'#ED1C2E');
+  barChart('ch-min-arany',
+    [{label:'Arány (%)',data:arany,backgroundColor:aranyCol,borderRadius:4,borderWidth:0}],
+    YR,
+    {
+      tooltipExtra:{callbacks:{label:c=>` Arány: ${c.parsed.y.toFixed(1)}%`}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11}},grid:{display:false}},
+        y:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,115,.05)'},min:35,max:55}
+      }
+    }
+  );
+
+  // Elvonás (area chart)
+  const elv = D.brutto.map((b,i)=>Math.round((b-D.netto[i])*10)/10);
+  const ctxEl = document.getElementById('ch-elvonas');
+  if (ctxEl) new Chart(ctxEl, {
+    type:'line',
+    data:{ labels:YR, datasets:[
+      {label:'Elvont összeg (eFt)',data:elv,borderColor:'#ED1C2E',backgroundColor:'rgba(237,28,46,.08)',borderWidth:2.5,fill:true,tension:.35,pointRadius:3,pointHoverRadius:5},
+      {label:'Nettó átlag',data:D.netto,borderColor:'#00A89E',backgroundColor:'transparent',borderWidth:1.5,tension:.35,pointRadius:2,borderDash:[5,3]}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${Math.round(c.parsed.y*1000).toLocaleString('hu-HU')} Ft`}}},
+      scales:{x:{...AX.x},y:{...AX.y,min:0,ticks:{...AX.y.ticks,callback:v=>v+' eFt'}}}
+    }
+  });
+
+  // Growth rates bar
+  function growthRates(arr) { return arr.slice(1).map((v,i)=>Math.round((v/arr[i]-1)*1000)/10); }
+  const gYR = YR.slice(1);
+  barChart('ch-novek',
+    [
+      {label:'Minimálbér',data:growthRates(D.minber),backgroundColor:'#ED1C2E88',borderRadius:3},
+      {label:'Bruttó átlag',data:growthRates(D.brutto),backgroundColor:'#0345EB88',borderRadius:3},
+      {label:'Nettó átlag',data:growthRates(D.netto),backgroundColor:'#00A89E88',borderRadius:3}
+    ],
+    gYR,
+    {
+      tooltipExtra:{callbacks:{label:c=>` ${c.dataset.label}: +${c.parsed.y.toFixed(1)}%`}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11}},grid:{display:false}},
+        y:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,115,.05)'}}
+      }
+    }
+  );
+
+  // Átlag–Medián rés
+  const res = D.brutto.map((b,i)=>Math.round(b-D.median[i]));
+  const ctxRes = document.getElementById('ch-median-res');
+  if (ctxRes) new Chart(ctxRes, {
+    type:'line',
+    data:{ labels:YR, datasets:[
+      {label:'Átlag−Medián rés (eFt)',data:res,borderColor:'#000073',backgroundColor:'rgba(0,0,115,.07)',borderWidth:2.5,fill:true,tension:.35,pointRadius:4,pointHoverRadius:6},
+      {label:'Bruttó átlag',data:D.brutto,borderColor:'#0345EB',backgroundColor:'transparent',borderWidth:1.5,tension:.35,pointRadius:2,borderDash:[4,3]},
+      {label:'Medián',data:D.median,borderColor:'#7B8BAB',backgroundColor:'transparent',borderWidth:1.5,tension:.35,pointRadius:2,borderDash:[4,3]}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>` ${c.dataset.label}: ${Math.round(c.parsed.y*1000).toLocaleString('hu-HU')} Ft`}}},
+      scales:{x:{...AX.x},y:{...AX.y,min:0,ticks:{...AX.y.ticks,callback:v=>v+' eFt'}}}
+    }
+  });
+
+  // Table
+  const berRows = [
+    {label:'Minimálbér (bruttó)',d:D.minber,c:'#ED1C2E'},
+    {label:'Garantált bérminimum (diplomás)',d:D.diplmin,c:'#FF5C00'},
+    {label:'Medián bér (bruttó)',d:D.median,c:'#000073'},
+    {label:'Havi bruttó átlagkereset',d:D.brutto,c:'#0345EB'},
+    {label:'Havi nettó átlagkereset',d:D.netto,c:'#00A89E'},
+    {label:'Bruttó munkajövedelem (teljes ktg.)',d:D.mukaj,c:'#754DBA'}
+  ];
+  const tb = document.getElementById('tb-ber');
+  berRows.forEach(r => {
+    const delta = Math.round((r.d[9]/r.d[0]-1)*1000)/10;
+    let row = `<tr><td><span class="dot9" style="background:${r.c}"></span>${r.label}</td>`;
+    r.d.forEach(v => row += `<td>${Math.round(v).toLocaleString('hu-HU')} eFt</td>`);
+    row += `<td style="color:#007A72;font-weight:700">+${delta}%</td></tr>`;
+    tb.innerHTML += row;
+  });
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────────
+buildFogl();
+built['panel-fogl'] = true;
+
+// ── PANEL: STRUKTURÁLIS ELEMZÉS ───────────────────────────────────────────
+function buildStrukt() {
+  const TPC = {
+    backgroundColor:'rgba(0,0,115,.93)', titleColor:'#fff',
+    bodyColor:'rgba(255,255,255,.82)', borderColor:'rgba(3,69,235,.4)',
+    borderWidth:1, padding:10, cornerRadius:6
+  };
+  const AXS = {
+    x:{ticks:{color:'#7B8BAB',font:{size:11,family:'Open Sans'}},grid:{color:'rgba(0,0,115,.05)'},border:{color:'rgba(0,0,115,.12)'}},
+    y:{ticks:{color:'#7B8BAB',font:{size:11,family:'Open Sans'}},grid:{color:'rgba(0,0,115,.05)'},border:{color:'rgba(0,0,115,.12)'}}
+  };
+
+  // ①a Közmunkások száma (ezer fő)
+  const KOZM = [161, 221, 183, 120, 91, 82, 78, 74, 66, 55];
+  new Chart(document.getElementById('ch-kozm'), {
+    type:'bar',
+    data:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+      datasets:[{
+        label:'Közfoglalkoztatottak (ezer fő)',
+        data: KOZM,
+        backgroundColor: KOZM.map((v,i) => i===1?'#ED1C2E88':i===9?'rgba(235,194,48,.6)':'rgba(3,69,235,.5)'),
+        borderRadius:4, borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{...TPC,callbacks:{label:c=>` ${c.parsed.y} ezer fő · ${c.label==='2024'?'⚠ becsült':'KSH'}`}}},
+      scales:{x:{...AXS.x,grid:{display:false}}, y:{...AXS.y,ticks:{...AXS.y.ticks,callback:v=>v+' e'},min:0,max:250,
+        title:{display:true,text:'ezer fő',color:'#7B8BAB',font:{size:10}}}}
+    }
+  });
+
+  // ①b Közmunkás arány
+  const TOTAL_FOGL = [4248, 4316, 4420, 4469, 4489, 4413, 4516, 4671, 4724, 4760];
+  const KOZM_ARANY = KOZM.map((k,i)=>Math.round(k/TOTAL_FOGL[i]*1000)/10);
+  new Chart(document.getElementById('ch-kozm-arany'), {
+    type:'line',
+    data:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+      datasets:[{
+        label:'Arány (%)',data:KOZM_ARANY,
+        borderColor:'#E8A12A',backgroundColor:'rgba(232,161,42,.1)',
+        borderWidth:2.5,fill:true,tension:.35,pointRadius:4,pointHoverRadius:6
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{...TPC,callbacks:{label:c=>` Arány: ${c.parsed.y.toFixed(1)}%`}}},
+      scales:{x:{...AXS.x,grid:{display:false}}, y:{...AXS.y,ticks:{...AXS.y.ticks,callback:v=>v+'%'},min:0,max:6}}
+    }
+  });
+
+  // ② KKV pie
+  new Chart(document.getElementById('ch-kkv-pie'), {
+    type:'doughnut',
+    data:{
+      labels:['Nagyvállalat (250+)','Középváll. (50–249)','Kisvállalat (10–49)','Mikrovállalat (2–9)','Önfoglalkoztató (~1 fő)'],
+      datasets:[{data:[34.5,17,22,26,8.5-8],
+        backgroundColor:['#000073','#0345EB','#00A89E','#FF5C00','#754DBA'],
+        borderWidth:2,borderColor:'#fff',hoverOffset:8}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#3D3D3D',font:{size:11,family:'Open Sans'},padding:10,boxWidth:10,
+          generateLabels:ch=>ch.data.labels.map((l,i)=>({text:`${l}  ${ch.data.datasets[0].data[i]}%`,fillStyle:ch.data.datasets[0].backgroundColor[i],index:i}))
+        }},
+        tooltip:{...TPC,callbacks:{label:c=>` ${c.label}: ${c.parsed}%`}}
+      }
+    }
+  });
+
+  // ② KKV trend
+  const KKV_TREND = [68.5, 68.0, 67.5, 67.0, 66.8, 66.5, 66.0, 65.8, 65.5, 65.5];
+  new Chart(document.getElementById('ch-kkv-trend'), {
+    type:'line',
+    data:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024e'],
+      datasets:[
+        {label:'KKV részarány (%)',data:KKV_TREND,borderColor:'#0345EB',backgroundColor:'rgba(3,69,235,.08)',borderWidth:2.5,fill:true,tension:.3,pointRadius:3},
+        {label:'Nagyvállalat (%)',data:KKV_TREND.map(v=>100-v-8.5),borderColor:'#000073',backgroundColor:'transparent',borderWidth:1.5,tension:.3,pointRadius:2,borderDash:[5,3]}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...TPC,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`}}},
+      scales:{x:{...AXS.x,grid:{display:false}},y:{...AXS.y,ticks:{...AXS.y.ticks,callback:v=>v+'%'},min:25,max:80}}
+    }
+  });
+
+  // ③ FDI bar
+  new Chart(document.getElementById('ch-fdi-bar'), {
+    type:'bar', indexAxis:'y',
+    data:{labels:['Német','Amerikai','Koreai (becsl.)','Francia','Osztrák','Japán','Kínai (becsl.)','Egyéb'],
+      datasets:[{
+        label:'Foglalkoztatottak (ezer fő)',
+        data:[170,100,50,35,30,28,15,202],
+        backgroundColor:['#1A1A80','#003087','#003478','#0055A4','#EF3340','#BC002D','#DE2910','#7B8BAB'],
+        borderRadius:4, borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TPC,callbacks:{label:c=>{
+        const note = ['','','⚠ becsült','','','','⚠ becslés — nincs KSH!',''];
+        return ` ${c.parsed.x} ezer fő ${note[c.dataIndex]||''}`;
+      }}}},
+      scales:{
+        x:{ticks:{color:'#7B8BAB',font:{size:11},callback:v=>v+' e'},grid:{color:'rgba(0,0,115,.05)'}},
+        y:{ticks:{color:'#000073',font:{size:11,weight:'600',family:'Open Sans'}},grid:{display:false}}
+      }
+    }
+  });
+
+  // ④ Közszféra pie
+  new Chart(document.getElementById('ch-koz-pie'), {
+    type:'doughnut',
+    data:{
+      labels:['Közalkalmazott (okt./egész./kult.)','Rendvédelem + Honvédség','Önkormányzati fgl.','Köztisztviselő / korm.tisztv.','Közmunkás'],
+      datasets:[{data:[64.5,13.0,13.3,9.1,8.4-8],
+        backgroundColor:['#0345EB','#ED1C2E','#00A89E','#000073','#E8A12A'],
+        borderWidth:2,borderColor:'#fff',hoverOffset:8}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#3D3D3D',font:{size:10,family:'Open Sans'},padding:8,boxWidth:10,
+          generateLabels:ch=>ch.data.labels.map((l,i)=>({text:`${l}`,fillStyle:ch.data.datasets[0].backgroundColor[i],index:i}))
+        }},
+        tooltip:{...TPC}
+      }
+    }
+  });
+
+  // ④ Szektorok stacked area
+  const privat = [3321, 3347, 3477, 3575, 3626, 3549, 3660, 3823, 3926, 3980];
+  const koszf  = [ 766,  748,  760,  774,  772,  782,  778,  774,  732,  725];
+  const kozmk  = [ 161,  221,  183,  120,   91,   82,   78,   74,   66,   55];
+  new Chart(document.getElementById('ch-szektor-stack'), {
+    type:'bar',
+    data:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024e'],
+      datasets:[
+        {label:'Privát szektor',data:privat,backgroundColor:'rgba(3,69,235,.65)',borderRadius:0,stack:'s'},
+        {label:'Közszféra',data:koszf,backgroundColor:'rgba(0,0,115,.75)',stack:'s'},
+        {label:'Közfoglalkoztatott',data:kozmk,backgroundColor:'rgba(232,161,42,.85)',stack:'s'}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,position:'bottom',labels:{color:'#3D3D3D',font:{size:11},boxWidth:12,padding:12}},
+        tooltip:{...TPC,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toLocaleString('hu-HU')} ezer fő`}}},
+      scales:{
+        x:{...AXS.x,grid:{display:false}},
+        y:{...AXS.y,ticks:{...AXS.y.ticks,callback:v=>v+' e'},min:3500,max:5200,
+          title:{display:true,text:'ezer fő',color:'#7B8BAB',font:{size:10}}}
+      }
+    }
+  });
+
+  // ⑤ Privát szektor pie
+  new Chart(document.getElementById('ch-priv-pie'), {
+    type:'doughnut',
+    data:{
+      labels:['Feldolgozóipar','Kereskedelem & szállítás','Üzleti szolgáltatás','Építőipar','Pénzügy & ICT','Mezőgazdaság','Közszolg. (privát)','Egyéb'],
+      datasets:[{data:[20.8,22.5,15.2,8.2,9.5,5.8,11.5,6.5],
+        backgroundColor:['#0345EB','#00A89E','#000073','#E8A12A','#754DBA','#1FA87B','#FF5C00','#7B8BAB'],
+        borderWidth:2,borderColor:'#fff',hoverOffset:8}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'52%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#3D3D3D',font:{size:10,family:'Open Sans'},padding:8,boxWidth:10,
+          generateLabels:ch=>ch.data.labels.map((l,i)=>({text:`${l}  ${ch.data.datasets[0].data[i]}%`,fillStyle:ch.data.datasets[0].backgroundColor[i],index:i}))
+        }},
+        tooltip:{...TPC}
+      }
+    }
+  });
+
+  // ⑤ Privát szektor főágazatok trend
+  const PDATA = {
+    ipar:  [780,800,840,875,890,845,875,945,920,910],
+    ker:   [820,840,875,905,925,890,920,975,985,980],
+    uzleti:[510,535,570,610,640,615,640,710,740,760]
+  };
+  new Chart(document.getElementById('ch-priv-trend'), {
+    type:'line',
+    data:{labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024e'],
+      datasets:[
+        {label:'Feldolgozóipar',data:PDATA.ipar,borderColor:'#0345EB',backgroundColor:'transparent',borderWidth:2.5,tension:.35,pointRadius:3,fill:false},
+        {label:'Kereskedelem & szállítás',data:PDATA.ker,borderColor:'#00A89E',backgroundColor:'transparent',borderWidth:2.5,tension:.35,pointRadius:3,fill:false},
+        {label:'Üzleti szolgáltatás',data:PDATA.uzleti,borderColor:'#000073',backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:3,fill:false,borderDash:[5,3]}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,position:'bottom',labels:{color:'#3D3D3D',font:{size:11},boxWidth:12,padding:10}},
+        tooltip:{...TPC,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toLocaleString('hu-HU')} ezer fő`}}},
+      scales:{
+        x:{...AXS.x,grid:{display:false}},
+        y:{...AXS.y,ticks:{...AXS.y.ticks,callback:v=>v+' e'},min:450,
+          title:{display:true,text:'ezer fő',color:'#7B8BAB',font:{size:10}}}
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
