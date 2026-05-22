@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """
-Lekéri az ActiveCampaign API v1-ből a kampánystatisztikákat
-és újragenerálja a stats.html-t.
-
-Az AC API v1 kampányriport végpontjai:
-- campaign_report_open_list     — ki nyitotta meg
-- campaign_report_link_list     — ki kattintott  
-- campaign_report_bounce_list   — ki pattant vissza
-- campaign_report_unsubscribe_list — ki iratkozott le
+ActiveCampaign kampánystatisztika lekérő.
+- v1 API: kampányriport listák (opens, clicks, bounces, unsubs, all recipients)
+- v3 API: kontakt részletek (név, cég) és kampány összesítők
 """
 
 import os
@@ -21,58 +16,47 @@ AC_API_KEY         = os.environ["AC_API_KEY"]
 DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "changeme")
 CAMPAIGN_NAME      = "Oktatás és versenyképesség letöltési link küldés"
 
-def v1(action, params=None):
-    """AC API v1 hívás."""
+HDR_V3 = {"Api-Token": AC_API_KEY}
+
+# ── v1 API ──────────────────────────────────────────────────────────────────
+
+def v1(action, extra=None):
     time.sleep(0.25)
-    p = {
-        "api_key":    AC_API_KEY,
-        "api_action": action,
-        "api_output": "json",
-    }
-    if params:
-        p.update(params)
+    p = {"api_key": AC_API_KEY, "api_action": action, "api_output": "json"}
+    if extra:
+        p.update(extra)
     r = requests.get(f"{AC_API_URL}/admin/api.php", params=p, timeout=30)
     r.raise_for_status()
     return r.json()
 
-def v1_paged(action, list_key, params=None):
-    """AC API v1 lapozós hívás."""
+def v1_all(action, extra=None):
+    """Lapozva gyűjti össze az összes rekordot egy v1 végpontról."""
     results = []
-    offset  = 0
-    limit   = 100
+    page = 0
     while True:
-        p = dict(params or {})
-        p["p"]     = offset // limit
-        p["pp"]    = limit
+        p = dict(extra or {})
+        p["p"]  = page
+        p["pp"] = 100
         data = v1(action, p)
-        # v1 válasz: {result_code, result_message, 0: {...}, 1: {...}, ...}
-        batch = []
-        if isinstance(data, dict):
-            for k, v in data.items():
-                if k.isdigit() and isinstance(v, dict):
-                    batch.append(v)
-            # Ha nincs több adat
-            if not batch:
-                break
+        # v1 válasz: numerikus kulcsok alatt vannak a rekordok
+        batch = [v for k, v in data.items() if k.isdigit() and isinstance(v, dict)]
         results.extend(batch)
-        if len(batch) < limit:
+        if len(batch) < 100:
             break
-        offset += limit
+        page += 1
     return results
 
-def v3_get(path, params=None):
-    """AC API v3 hívás (csak kampány összesítőkhöz)."""
+# ── v3 API ──────────────────────────────────────────────────────────────────
+
+def v3_all(path, params=None):
     params = dict(params or {})
     params.setdefault("limit", 100)
     params["offset"] = 0
     results = []
     while True:
         time.sleep(0.25)
-        r = requests.get(
-            f"{AC_API_URL}/api/3/{path}",
-            headers={"Api-Token": AC_API_KEY},
-            params=params, timeout=30
-        )
+        r = requests.get(f"{AC_API_URL}/api/3/{path}",
+                         headers=HDR_V3, params=params, timeout=30)
         r.raise_for_status()
         data = r.json()
         items = next((v for v in data.values() if isinstance(v, list)), [])
@@ -83,16 +67,38 @@ def v3_get(path, params=None):
             break
     return results
 
-def find_campaign_id():
-    """Megkeresi a kampány ID-ját névből, v3 API-val."""
-    campaigns = v3_get("campaigns", {"limit": 200})
-    for c in campaigns:
+def find_campaign():
+    for c in v3_all("campaigns", {"limit": 200}):
         if c.get("name", "").strip() == CAMPAIGN_NAME:
-            return c["id"], c
+            return c
     raise ValueError(f"Kampány nem található: '{CAMPAIGN_NAME}'")
 
-def get_all_data(campaign_id, campaign):
-    # Összesítők a v3 kampány rekordból
+def get_contact_details(emails):
+    """Visszaad egy email→{name, company} szótárt v3 API-ból."""
+    details = {}
+    for email in emails:
+        try:
+            time.sleep(0.25)
+            r = requests.get(f"{AC_API_URL}/api/3/contacts",
+                             headers=HDR_V3,
+                             params={"email": email, "limit": 1},
+                             timeout=15)
+            if r.status_code == 200:
+                contacts = r.json().get("contacts", [])
+                if contacts:
+                    c = contacts[0]
+                    name = f"{c.get('firstName','')} {c.get('lastName','')}".strip()
+                    details[email.lower()] = {
+                        "name":    name,
+                        "company": c.get("orgname", "") or "",
+                    }
+        except Exception as e:
+            print(f"    Kontakt részlet hiba ({email}): {e}")
+    return details
+
+def get_all_data(campaign):
+    cid = str(campaign["id"])
+
     summary = {
         "sent":    int(campaign.get("send_amt") or 0),
         "opens":   int(campaign.get("uniqueopens") or 0),
@@ -102,80 +108,81 @@ def get_all_data(campaign_id, campaign):
     }
     print(f"  Összesítők: {summary}")
 
-    # --- v1 API: részletes kontakt listák ---
-
-    # 1. Teljes küldési lista (ki kapta)
-    print("  Teljes kontakt lista lekérése (v1)...")
-    all_raw = v1_paged("campaign_report_open_list",
-                       "opens",
-                       {"campaignid": campaign_id, "type": "all"})
-    # Ha az "all" type nem működik, próbáljuk a message_list-et
-    if not all_raw:
-        print("  → Üres, message_report_list próbálkozás...")
-        all_raw = v1_paged("message_report_list",
-                           "messages",
-                           {"campaignid": campaign_id})
-    print(f"  → {len(all_raw)} sor")
-
-    # 2. Megnyitók
-    print("  Megnyitók lekérése (v1)...")
-    opens_raw = v1_paged("campaign_report_open_list",
-                         "opens",
-                         {"campaignid": campaign_id, "type": "opens"})
+    # 1. Megnyitók (v1)
+    print("  Megnyitók (v1)...")
+    opens_raw = v1_all("campaign_report_open_list",
+                       {"campaignid": cid, "type": "open"})
     print(f"  → {len(opens_raw)} megnyitó")
-    opened_emails = {r.get("email", "").lower() for r in opens_raw}
+    opened_emails = {r.get("email", "").lower() for r in opens_raw if r.get("email")}
 
-    # 3. Kattintók
-    print("  Kattintók lekérése (v1)...")
-    clicks_raw = v1_paged("campaign_report_link_list",
-                          "links",
-                          {"campaignid": campaign_id})
+    # 2. Kattintók (v1)
+    print("  Kattintók (v1)...")
+    clicks_raw = v1_all("campaign_report_link_list",
+                        {"campaignid": cid})
     print(f"  → {len(clicks_raw)} kattintási sor")
-    clicked_emails = {r.get("email", "").lower() for r in clicks_raw}
+    clicked_emails = {r.get("email", "").lower() for r in clicks_raw if r.get("email")}
 
-    # 4. Bounce-ok
-    print("  Bounce-ok lekérése (v1)...")
-    bounces_raw = v1_paged("campaign_report_bounce_list",
-                           "bounces",
-                           {"campaignid": campaign_id})
+    # 3. Bounce-ok (v1)
+    print("  Bounce-ok (v1)...")
+    bounces_raw = v1_all("campaign_report_bounce_list",
+                         {"campaignid": cid})
     print(f"  → {len(bounces_raw)} bounce")
-    bounce_map = {}  # email -> type
+    bounce_map = {}
     for b in bounces_raw:
         email = b.get("email", "").lower()
-        btype = b.get("bouncetype", "soft")
-        bounce_map[email] = "Hard Bounce" if btype == "hard" else "Soft Bounce"
+        if email:
+            btype = str(b.get("bouncetype", "")).lower()
+            bounce_map[email] = "Hard Bounce" if "hard" in btype else "Soft Bounce"
 
-    # 5. Leiratkozók
-    print("  Leiratkozók lekérése (v1)...")
-    unsubs_raw = v1_paged("campaign_report_unsubscribe_list",
-                          "unsubs",
-                          {"campaignid": campaign_id})
+    # 4. Leiratkozók (v1)
+    print("  Leiratkozók (v1)...")
+    unsubs_raw = v1_all("campaign_report_unsubscribe_list",
+                        {"campaignid": cid})
     print(f"  → {len(unsubs_raw)} leiratkozó")
-    unsub_emails = {r.get("email", "").lower() for r in unsubs_raw}
+    unsub_emails = {r.get("email", "").lower() for r in unsubs_raw if r.get("email")}
 
-    # Ha a teljes lista üres, az opens_raw-ból + bounces_raw-ból + unsubs_raw-ból rakjuk össze
+    # 5. Összes elküldött (v1) — mindenki aki megkapta
+    print("  Összes recipient (v1)...")
+    # Az AC v1 API-ban a "all" típus adja az összes küldöttet
+    all_raw = v1_all("campaign_report_open_list",
+                     {"campaignid": cid, "type": "all"})
+    print(f"  → {len(all_raw)} összes recipient")
+
+    # Ha "all" type nem ad vissza adatot, rakjuk össze a részlistákból
     if not all_raw:
-        print("  Teljes lista összerakása részlistákból...")
+        print("  'all' üres, összerakás részlistákból...")
         seen = {}
-        for r in opens_raw + bounces_raw + unsubs_raw + clicks_raw:
-            email = r.get("email", "").lower()
-            if email and email not in seen:
-                seen[email] = r
+        for r in opens_raw + bounces_raw + unsubs_raw:
+            e = r.get("email", "").lower()
+            if e and e not in seen:
+                seen[e] = r
+        # A kattintók is bekerülnek ha még nem szerepelnek
+        for r in clicks_raw:
+            e = r.get("email", "").lower()
+            if e and e not in seen:
+                seen[e] = {"email": r.get("email", "")}
         all_raw = list(seen.values())
         print(f"  → {len(all_raw)} egyedi kontakt")
 
-    # Kontaktok összerakása
+    # 6. Kontakt részletek (v3) — nevek és cégek
+    all_emails = {r.get("email", "").lower() for r in all_raw if r.get("email")}
+    print(f"  Kontakt részletek lekérése ({len(all_emails)} email)...")
+    details = get_contact_details(all_emails)
+    print(f"  → {len(details)} részlet megtalálva")
+
+    # 7. Összerakás
     contacts = []
     unsubs   = []
     clickers = []
 
     for r in all_raw:
         email   = r.get("email", "")
-        name    = (r.get("first_name", "") + " " + r.get("last_name", "")).strip()
-        if not name:
-            name = r.get("name", "") or r.get("full_name", "") or ""
-        company = r.get("orgname", "") or r.get("company", "") or ""
         email_l = email.lower()
+        det     = details.get(email_l, {})
+        name    = det.get("name") or (
+                    r.get("first_name", "") + " " + r.get("last_name", "")
+                  ).strip() or r.get("name", "") or ""
+        company = det.get("company") or r.get("orgname", "") or ""
 
         bounced  = email_l in bounce_map
         is_unsub = email_l in unsub_emails
@@ -193,20 +200,18 @@ def get_all_data(campaign_id, campaign):
             "unsub":   is_unsub,
         }
         contacts.append(record)
-
         if is_unsub:
             unsubs.append({"name": name, "email": email, "company": company})
         if clicked:
             clickers.append({"name": name, "email": email, "company": company})
 
-    print(f"  → Végeredmény: {len(contacts)} kontakt, {len(unsubs)} leiratkozó, {len(clickers)} kattintó")
+    print(f"  Végeredmény: {len(contacts)} kontakt, {len(unsubs)} leiratkozó, {len(clickers)} kattintó")
     return contacts, unsubs, clickers, summary
 
 
-def build_html(data: dict, password: str) -> str:
+def build_html(data, password):
     data_json   = json.dumps(data, ensure_ascii=False)
     pwd_escaped = password.replace("\\", "\\\\").replace('"', '\\"')
-
     return f"""<!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -510,12 +515,11 @@ renderAll();
 </html>"""
 
 def main():
-    print("Kampány keresése (v3)...")
-    campaign_id, campaign = find_campaign_id()
-    print(f"  → ID={campaign_id}, név='{campaign.get('name')}'")
+    print("Kampány keresése...")
+    campaign = find_campaign()
+    print(f"  → ID={campaign['id']}, név='{campaign.get('name')}'")
 
-    print("Adatok lekérése (v1)...")
-    contacts, unsubs, clickers, summary = get_all_data(campaign_id, campaign)
+    contacts, unsubs, clickers, summary = get_all_data(campaign)
 
     budapest_tz = timezone(timedelta(hours=2))
     now = datetime.now(budapest_tz).strftime("%Y-%m-%d %H:%M")
