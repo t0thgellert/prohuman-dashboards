@@ -163,6 +163,8 @@ def get_all_data(campaign):
         if not list_ids and camp_obj.get("list"):
             list_ids = [str(camp_obj["list"])]
         print(f"  → Kampány lista ID-k: {list_ids}")
+        print(f"  → Teljes kampány objektum kulcsai: {list(camp_obj.keys())}")
+        print(f"  → camp_obj.list={camp_obj.get('list')}, camp_obj.lists={camp_obj.get('lists')}, camp_obj.segmentid={camp_obj.get('segmentid')}")
         for lid in list_ids:
             unsub_contacts = v3_all("contacts", {"listid": lid, "filters[status]": 2, "limit": 100})
             for c in unsub_contacts:
