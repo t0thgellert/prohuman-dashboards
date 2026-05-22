@@ -73,10 +73,33 @@ def get_all_data(campaign):
     }
     print(f"  Összesítők: {summary}")
 
-    # Lista ID megkeresése
-    print(f"  '{LIST_NAME}' lista keresése...")
-    list_id = find_list_id(LIST_NAME)
-    print(f"  → Lista ID: {list_id}")
+    # Lista ID megkeresése — több stratégiával
+    print(f"  Lista keresése...")
+    lists = ac_get("lists", {"limit": 100})
+    print(f"  → Elérhető listák: {[l.get('name') for l in lists]}")
+
+    # 1. Próba: pontos névegyezés
+    list_id = next((l["id"] for l in lists if l.get("name","").strip() == LIST_NAME), None)
+
+    # 2. Próba: részleges névegyezés (kis-nagybetű független)
+    if not list_id:
+        list_id = next((l["id"] for l in lists
+                        if LIST_NAME.lower() in l.get("name","").lower()), None)
+
+    # 3. Próba: kampány rekordból
+    if not list_id:
+        camp_detail = req(f"campaigns/{cid}")
+        camp_obj = camp_detail.get("campaign", {})
+        list_id = camp_obj.get("list") or (camp_obj.get("lists") or [None])[0]
+        if list_id:
+            print(f"  → Kampány rekordból: list_id={list_id}")
+
+    # 4. Fallback: az első elérhető lista
+    if not list_id and lists:
+        list_id = lists[0]["id"]
+        print(f"  → Fallback: első lista id={list_id}, név='{lists[0].get('name')}'")
+
+    print(f"  → Használt lista ID: {list_id}")
 
     # Kontaktok lekérése a listából
     all_contacts = []
@@ -321,7 +344,7 @@ tr:hover td{{background:#faf9f6}}
 <div class="panel" id="p-bounced">
   <div class="tbl-wrap">
     <div class="tbl-search">
-      <input type="text" id="s-bnc" placeholder="Keresés…" oninput="renderBounced()">
+      <input type="text" id="s-bnc" placeholder="Keresés: név, e-mail, cég…" oninput="renderBounced()">
       <span class="tbl-count" id="cnt-bnc">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
