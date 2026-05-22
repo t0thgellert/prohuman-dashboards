@@ -151,43 +151,59 @@ def get_all_data(campaign):
             bounce_map[email] = "Hard Bounce" if btype == "hard" else "Soft Bounce"
     summary["bounces"] = len(bounce_map)
 
-    # 4. Leiratkozók — kampány listájából, status=2 szűréssel
-    print("  Leiratkozók (v3 — kampány listájából)...")
+    # 4. Leiratkozók — subscriberid alapján ellenőrizzük a megnyitók kontaktListáit
+    # A kampány rekordban nincs list/lists mező, ezért per-kontakt ellenőrzés
+    print("  Leiratkozók keresése (v3 contactLists alapján)...")
     unsub_emails = set()
     list_ids = []
-    try:
-        camp_detail = requests.get(f"{AC_API_URL}/api/3/campaigns/{cid}",
-                                   headers=HDR_V3, timeout=15).json()
-        camp_obj = camp_detail.get("campaign", {})
-        list_ids = [str(x) for x in (camp_obj.get("lists") or [])]
-        if not list_ids and camp_obj.get("list"):
-            list_ids = [str(camp_obj["list"])]
-        print(f"  → Kampány lista ID-k: {list_ids}")
-        print(f"  → Teljes kampány objektum kulcsai: {list(camp_obj.keys())}")
-        print(f"  → camp_obj.list={camp_obj.get('list')}, camp_obj.lists={camp_obj.get('lists')}, camp_obj.segmentid={camp_obj.get('segmentid')}")
-        for lid in list_ids:
-            unsub_contacts = v3_all("contacts", {"listid": lid, "filters[status]": 2, "limit": 100})
-            for c in unsub_contacts:
-                email = c.get("email", "").lower()
-                if email:
-                    unsub_emails.add(email)
-        print(f"  → {len(unsub_emails)} leiratkozott a kampány listájában")
-    except Exception as e:
-        print(f"  Leiratkozók hiba: {e}")
+    # Megnyitók subscriberid-jein ellenőrizzük ki iratkozott le
+    for subid in list(opened.keys()):
+        try:
+            time.sleep(0.25)
+            r = requests.get(f"{AC_API_URL}/api/3/contacts/{subid}/contactLists",
+                             headers=HDR_V3, timeout=15)
+            if r.status_code == 200:
+                cls = r.json().get("contactLists", [])
+                for cl in cls:
+                    if str(cl.get("status")) == "2":  # 2 = unsubscribed
+                        # Ez a kontakt leiratkozott — megkeressük az emailt
+                        email = opened.get(subid, "")
+                        if email:
+                            unsub_emails.add(email)
+                        if cl.get("list") and cl["list"] not in list_ids:
+                            list_ids.append(str(cl["list"]))
+        except Exception:
+            pass
+    print(f"  → {len(unsub_emails)} leiratkozott, lista ID-k: {list_ids}")
 
-    # 5. Összes küldött — kampány listájából (teljes lista)
-    print("  Összes küldött kontakt (v3 — kampány listájából)...")
-    all_list_contacts = {}  # subid -> contact
-    try:
-        for lid in list_ids:
+    # Ha még mindig nincs list_id, próbáljuk a v1 campaign_report_list végponttal
+    if not list_ids:
+        try:
+            data = v1("campaign_report_list", {"campaignid": cid})
+            print(f"  → campaign_report_list válasz kulcsai: {list(data.keys())[:10]}")
+            for k, v in data.items():
+                if k.isdigit() and isinstance(v, dict):
+                    lid = str(v.get("listid", "") or v.get("list", ""))
+                    if lid and lid not in list_ids:
+                        list_ids.append(lid)
+        except Exception as e:
+            print(f"  campaign_report_list hiba: {e}")
+    print(f"  → Végső lista ID-k: {list_ids}")
+
+    # 5. Összes küldött — lista alapján
+    print("  Összes küldött kontakt (v3 listából)...")
+    all_list_contacts = {}
+    for lid in list_ids:
+        try:
             batch = v3_all("contacts", {"listid": lid, "limit": 100})
             for c in batch:
                 subid = str(c.get("id", ""))
                 if subid:
                     all_list_contacts[subid] = c
-        print(f"  → {len(all_list_contacts)} kontakt a listában")
-    except Exception as e:
-        print(f"  Lista kontaktok hiba: {e}")
+            print(f"  → Lista {lid}: {len(batch)} kontakt")
+        except Exception as e:
+            print(f"  Lista {lid} hiba: {e}")
+    print(f"  → Összesen: {len(all_list_contacts)} kontakt")
 
     print("  Kontakt részletek lekérése (v3)...")
     all_subids = set(opened.keys())
