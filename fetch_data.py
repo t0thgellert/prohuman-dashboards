@@ -190,31 +190,55 @@ def get_all_data(campaign):
             print(f"  campaign_report_list hiba: {e}")
     print(f"  → Végső lista ID-k: {list_ids}")
 
-    # 5. Összes küldött — v1 subscriber_list alapján (listid=3)
-    print("  Összes küldött kontakt (v1 subscriber_list)...")
+    # 5. Összes küldött — több végpont próbálkozás
+    print("  Összes küldött kontakt — több API próbálkozás...")
     all_list_contacts = {}
+
     for lid in list_ids:
-        try:
-            # v1 API: subscriber_list — az összes kontakt egy listában
-            subs = v1_all("subscriber_list", {"listid": lid, "sort": "id", "sort_direction": "ASC"})
-            print(f"  → Lista {lid} (v1): {len(subs)} kontakt")
-            for s in subs:
-                subid = str(s.get("id", "") or s.get("subscriber_id", ""))
-                if subid:
-                    all_list_contacts[subid] = s
-        except Exception as e:
-            print(f"  Lista {lid} v1 hiba: {e}")
-            # Fallback: v3 status=-1 (all)
+        # Próba 1: v1 subscriber_list status=any
+        for status in ["", "1", "2", "0", "any"]:
             try:
-                batch = v3_all("contacts", {"listid": lid, "status": -1, "limit": 100})
-                for c in batch:
-                    subid = str(c.get("id", ""))
-                    if subid:
-                        all_list_contacts[subid] = c
-                print(f"  → Lista {lid} (v3 fallback): {len(batch)} kontakt")
-            except Exception as e2:
-                print(f"  Lista {lid} v3 fallback hiba: {e2}")
-    print(f"  → Összesen: {len(all_list_contacts)} kontakt a listában")
+                params = {"listid": lid}
+                if status:
+                    params["status"] = status
+                subs = v1_all("subscriber_list", params)
+                print(f"  → v1 subscriber_list lid={lid} status={status!r}: {len(subs)} kontakt")
+                if subs:
+                    first = subs[0]
+                    print(f"    Első rekord kulcsai: {list(first.keys())}")
+                    for s in subs:
+                        subid = str(s.get("id", "") or s.get("subscriber_id", ""))
+                        if subid:
+                            all_list_contacts[subid] = s
+                    break
+            except Exception as e:
+                print(f"  → v1 subscriber_list lid={lid} status={status!r} HIBA: {e}")
+
+        # Próba 2: v1 contact_list
+        try:
+            data = v1("contact_list", {"listid": lid, "p": 0, "pp": 5})
+            print(f"  → v1 contact_list lid={lid}: result_code={data.get('result_code')}, msg={data.get('result_message')}")
+            recs = [v for k,v in data.items() if k.isdigit() and isinstance(v, dict)]
+            if recs:
+                print(f"    Kulcsok: {list(recs[0].keys())}")
+        except Exception as e:
+            print(f"  → v1 contact_list HIBA: {e}")
+
+        # Próba 3: v3 contacts listid különböző status értékekkel
+        for status in [None, 1, 2, -1, 0]:
+            try:
+                params = {"listid": lid, "limit": 5}
+                if status is not None:
+                    params["status"] = status
+                time.sleep(0.25)
+                r = requests.get(f"{AC_API_URL}/api/3/contacts", headers=HDR_V3, params=params, timeout=15)
+                data = r.json()
+                total = data.get("meta", {}).get("total", "?")
+                print(f"  → v3 contacts listid={lid} status={status}: total={total}")
+            except Exception as e:
+                print(f"  → v3 contacts listid={lid} status={status} HIBA: {e}")
+
+    print(f"  → Összesen eddig: {len(all_list_contacts)} kontakt")
 
     print("  Kontakt részletek lekérése (v3)...")
     all_subids = set(opened.keys())
@@ -465,6 +489,7 @@ tr:hover td{{background:#faf9f6}}
     <div class="pbar" style="opacity:0"></div>
   </div>
 </div>
+<div class="info-bar">ℹ️ Az <strong>E-mailt kapott</strong> tab azokat tartalmazza akiknek az e-mail megnyílt vagy visszapattant. A nem megnyitók listája az ActiveCampaign API-n keresztül nem érhető el.</div>
 <div class="tabs">
   <button class="tab active" onclick="switchTab('invited')">E-mailt kapott <span class="tab-count" id="tc-inv">—</span></button>
   <button class="tab" onclick="switchTab('bounced')">Visszapattant <span class="tab-count" id="tc-bnc">—</span></button>
