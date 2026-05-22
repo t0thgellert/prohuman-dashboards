@@ -132,7 +132,7 @@ tr:hover td{background:#faf9f6}
       <span class="tbl-count" id="cnt-inv">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th><th>Megnyitás</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th></tr></thead>
       <tbody id="tb-inv"></tbody></table>
     </div>
   </div>
@@ -207,7 +207,7 @@ function doLogin(){
     document.getElementById('main-page').style.display='block';
   }
 })();
-const DATA={"invited": [], "reg_clickers": [], "unsubs": [], "summary": {"sent": 54, "opens": 37, "clicks": 31, "bounces": 0, "unsubs": 1}, "updated": "2026-05-22 13:48"};
+const DATA={"invited": [], "reg_clickers": [], "unsubs": [], "summary": {"sent": 54, "opens": 37, "clicks": 31, "bounces": 0, "unsubs": 1}, "updated": "2026-05-22 13:56"};
 let state=JSON.parse(JSON.stringify(DATA));
 function renderMetrics(){
   const s=state.summary||{};
@@ -242,11 +242,10 @@ function renderInvited(){
   const rows=state.invited.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-inv').textContent=rows.length+' / '+state.invited.length+' rekord';
   const tb=document.getElementById('tb-inv');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nincs találat.</td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nincs találat.</td></tr>';return;}
   tb.innerHTML=rows.map((r,i)=>{
     const sc=r.status==='Delivered'?'b-ok':r.status==='Hard Bounce'?'b-hard':'b-soft';
-    const op=r.opened?'<span class="badge b-ok">✓ igen</span>':'<span style="color:var(--text3);font-size:11px">—</span>';
-    return`<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td><td><span class="badge ${sc}">${esc(r.status)}</span></td><td>${op}</td></tr>`;
+    return`<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td><td><span class="badge ${sc}">${esc(r.status)}</span></td></tr>`;
   }).join('');
 }
 function renderBounced(){
