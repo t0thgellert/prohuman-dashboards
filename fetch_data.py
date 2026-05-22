@@ -21,7 +21,16 @@ HEADERS = {
     "Content-Type": "application/json",
 }
 
+def ac_get_single(path, params=None):
+    """Egyetlen oldal lekérése (nem lapoz)."""
+    url = f"{AC_API_URL}/api/3/{path}"
+    time.sleep(0.25)
+    r = requests.get(url, headers=HEADERS, params=params or {}, timeout=30)
+    r.raise_for_status()
+    return r.json()
+
 def ac_get(path, params=None):
+    """GET az AC API-ra, automatikus lapozással."""
     url = f"{AC_API_URL}/api/3/{path}"
     results = []
     params = dict(params or {})
@@ -47,73 +56,96 @@ def find_campaign():
             return c
     raise ValueError(f"Nem található kampány: '{CAMPAIGN_NAME}'")
 
-def get_contact_detail(cid):
-    time.sleep(0.25)
-    r = requests.get(f"{AC_API_URL}/api/3/contacts/{cid}", headers=HEADERS, timeout=15)
-    if r.status_code != 200:
-        return None
-    return r.json().get("contact", {})
-
 def get_all_data(campaign):
     campaign_id = campaign["id"]
 
     # Összesítők közvetlenül a kampány rekordból
-    sent         = int(campaign.get("send_amt") or 0)
-    unique_opens = int(campaign.get("uniqueopens") or 0)
-    unique_clicks= int(campaign.get("uniquelinkclicks") or 0)
-    bounces      = int(campaign.get("bouncedamt") or 0)
-    unsub_amt    = int(campaign.get("unsubscribes") or 0)
+    summary = {
+        "sent":    int(campaign.get("send_amt") or 0),
+        "opens":   int(campaign.get("uniqueopens") or 0),
+        "clicks":  int(campaign.get("uniquelinkclicks") or 0),
+        "bounces": int(campaign.get("bouncedamt") or 0),
+        "unsubs":  int(campaign.get("unsubscribes") or 0),
+    }
+    print(f"  Összesítők: {summary}")
 
-    print(f"  Kampány összesítők: sent={sent}, opens={unique_opens}, clicks={unique_clicks}, bounces={bounces}, unsubs={unsub_amt}")
+    # Kontaktok lekérése: mindenki aki megnyitotta (opened=1)
+    # és aki nem nyitotta meg (opened=0) — a listid-t a kampányból vesszük
+    list_id = campaign.get("sendamt") # fallback
+    # A kampányhoz tartozó lista ID
+    try:
+        camp_data = ac_get_single(f"campaigns/{campaign_id}")
+        lists = camp_data.get("campaign", {}).get("lists", [])
+        list_id = lists[0] if lists else None
+        print(f"  Lista ID: {list_id}")
+    except Exception as e:
+        print(f"  Lista ID lekérés hiba: {e}")
+        list_id = None
 
-    # Kontakt lista: campaignMessages alapján
-    print("  Kontaktok lekérése (campaignMessages)...")
-    messages = ac_get("campaignMessages", {"campaign": campaign_id})
-    contact_ids = list({str(m["contact"]) for m in messages if m.get("contact")})
-    print(f"  → {len(contact_ids)} egyedi kontakt ID")
+    # Összes kontakt lekérése akinek kiküldték: listid alapján
+    all_contacts = []
+    if list_id:
+        print(f"  Kontaktok lekérése listából (id={list_id})...")
+        all_contacts = ac_get("contacts", {
+            "listid": list_id,
+            "limit": 100
+        })
+        print(f"  → {len(all_contacts)} kontakt a listában")
 
-    # Megnyitók
+    # Ha a lista alapú lekérés nem működik, próbáljuk status=1 (subscribed) alapján
+    if not all_contacts:
+        print("  Lista alapú lekérés üres, alternativ próbálkozás...")
+        # Próbáljuk a contact activities alapján
+        try:
+            # Megnyitók: status szerint szűrve
+            all_contacts = ac_get("contacts", {
+                "filters[campaign]": campaign_id,
+                "limit": 100
+            })
+            print(f"  → {len(all_contacts)} kontakt (campaign filter)")
+        except Exception as e:
+            print(f"  Campaign filter hiba: {e}")
+            all_contacts = []
+
+    # Megnyitók lekérése külön: contacts?filters[campaign]=X&filters[opened]=1
     print("  Megnyitók lekérése...")
-    opens_raw = ac_get("campaignOpens", {"campaign": campaign_id})
-    opened_ids = {str(o["contact"]) for o in opens_raw}
-    print(f"  → {len(opened_ids)} megnyitó")
+    opened_ids = set()
+    try:
+        openers = ac_get("contacts", {
+            "filters[campaign]": campaign_id,
+            "filters[opened]": 1,
+            "limit": 100
+        })
+        opened_ids = {str(c["id"]) for c in openers}
+        print(f"  → {len(opened_ids)} megnyitó")
+    except Exception as e:
+        print(f"  Megnyitók lekérés hiba: {e}")
 
-    # Leiratkozók — a campaignMessages-ből a status mező alapján
-    # Az AC campaignMessages status: 1=sent, 2=unsubscribed, 6=bounced
-    bounced_ids = set()
-    unsub_ids   = set()
-    for m in messages:
-        cid = str(m.get("contact", ""))
-        s   = str(m.get("status", ""))
-        if s == "6":
-            bounced_ids.add(cid)
-        if s == "2":
-            unsub_ids.add(cid)
+    # Leiratkozók
+    print("  Leiratkozók lekérése...")
+    unsub_ids = set()
+    try:
+        unsubs_raw = ac_get("contacts", {
+            "filters[campaign]": campaign_id,
+            "filters[unsubscribed]": 1,
+            "limit": 100
+        })
+        unsub_ids = {str(c["id"]) for c in unsubs_raw}
+        print(f"  → {len(unsub_ids)} leiratkozó")
+    except Exception as e:
+        print(f"  Leiratkozók lekérés hiba: {e}")
 
-    print(f"  → {len(bounced_ids)} bounced, {len(unsub_ids)} unsub (messages alapján)")
-
-    # Kattintók: azok akik megnyitották ÉS a unique_clicks száma alapján
-    # Az AC API-ban nincs közvetlen "ki kattintott" lista endpoint,
-    # ezért a kattintókat a megnyitók közül vesszük,
-    # és a kampány unique_clicks számát mutatjuk a kártya metrikán
-    # (a táblában a "clicked" oszlop egyelőre nem töltjük)
-    clicked_ids = set()  # egyelőre üres, lásd lent
-
-    print(f"  Kontakt részletek lekérése ({len(contact_ids)} db)...")
+    # Kontaktok feldolgozása
     contacts = []
-    unsubs   = []
+    unsubs = []
 
-    for i, cid in enumerate(contact_ids):
-        if i % 25 == 0:
-            print(f"    {i}/{len(contact_ids)}...")
-        cd = get_contact_detail(cid)
-        if not cd:
-            continue
-
-        is_bounced  = cid in bounced_ids or bool(cd.get("bouncedAt"))
-        hard_bounce = str(cd.get("bouncedHard", "0")) == "1"
-        is_unsub    = cid in unsub_ids
-        is_opened   = cid in opened_ids
+    print(f"  Kontaktok feldolgozása ({len(all_contacts)} db)...")
+    for cd in all_contacts:
+        cid        = str(cd.get("id", ""))
+        bounced    = bool(cd.get("bouncedAt"))
+        hard_bounce= str(cd.get("bouncedHard", "0")) == "1"
+        is_unsub   = cid in unsub_ids
+        is_opened  = cid in opened_ids
 
         name    = f"{cd.get('firstName', '')} {cd.get('lastName', '')}".strip()
         email   = cd.get("email", "")
@@ -123,31 +155,22 @@ def get_all_data(campaign):
             "name":    name,
             "email":   email,
             "company": company,
-            "status":  ("Hard Bounce" if hard_bounce else "Soft Bounce") if is_bounced else "Delivered",
+            "status":  ("Hard Bounce" if hard_bounce else "Soft Bounce") if bounced else "Delivered",
             "detail":  "",
             "opened":  is_opened,
-            "clicked": False,  # kattintás kontakt szinten egyelőre nem elérhető
             "unsub":   is_unsub,
         }
         contacts.append(record)
-
         if is_unsub:
             unsubs.append({"name": name, "email": email, "company": company})
 
-    # A "letöltők" kártyához a kampány unique_clicks számát használjuk
-    # A táblában azokat mutatjuk akik megnyitottak (legjobb közelítés)
+    # Letöltők = megnyitók (legjobb közelítés mivel kattintás lista nem elérhető)
     clickers = [
         {"name": c["name"], "email": c["email"], "company": c["company"]}
         for c in contacts if c["opened"]
     ]
 
-    return contacts, unsubs, clickers, {
-        "sent":   sent,
-        "opens":  unique_opens,
-        "clicks": unique_clicks,
-        "bounces": bounces,
-        "unsubs": unsub_amt,
-    }
+    return contacts, unsubs, clickers, summary
 
 
 def build_html(data: dict, password: str) -> str:
