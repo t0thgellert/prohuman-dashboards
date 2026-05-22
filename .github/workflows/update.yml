@@ -27,6 +27,7 @@ jobs:
         env:
           AC_API_URL: ${{ secrets.AC_API_URL }}
           AC_API_KEY: ${{ secrets.AC_API_KEY }}
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python fetch_data.py
 
       - name: Változások commitálása
@@ -34,6 +35,5 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add stats.html
-          # Csak akkor commitál, ha tényleg változott valami
           git diff --staged --quiet || git commit -m "Automatikus frissítés: $(date +'%Y-%m-%d %H:%M') UTC"
           git push
