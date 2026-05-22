@@ -132,7 +132,7 @@ tr:hover td{background:#faf9f6}
       <span class="tbl-count" id="cnt-inv">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th><th>Megnyitás</th><th>Kattintás</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th><th>Megnyitás</th></tr></thead>
       <tbody id="tb-inv"></tbody></table>
     </div>
   </div>
@@ -144,7 +144,7 @@ tr:hover td{background:#faf9f6}
       <span class="tbl-count" id="cnt-bnc">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Típus</th><th>Ok</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Típus</th></tr></thead>
       <tbody id="tb-bnc"></tbody></table>
     </div>
   </div>
@@ -156,7 +156,7 @@ tr:hover td{background:#faf9f6}
       <span class="tbl-count" id="cnt-opn">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Kattintás</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead>
       <tbody id="tb-opn"></tbody></table>
     </div>
   </div>
@@ -207,27 +207,25 @@ function doLogin(){
     document.getElementById('main-page').style.display='block';
   }
 })();
-const DATA={"invited": [], "reg_clickers": [], "unsubs": [], "updated": "2026-05-22 13:34"};
+const DATA={"invited": [], "reg_clickers": [], "unsubs": [], "summary": {"sent": 54, "opens": 37, "clicks": 31, "bounces": 0, "unsubs": 1}, "updated": "2026-05-22 13:48"};
 let state=JSON.parse(JSON.stringify(DATA));
 function renderMetrics(){
-  const bounced=state.invited.filter(x=>x.status&&x.status.includes('Bounce'));
-  const opened=state.invited.filter(x=>x.opened);
-  const sent=state.invited.length;
-  document.getElementById('m-sent').textContent=sent||'—';
-  document.getElementById('m-bounce').textContent=bounced.length||'—';
-  document.getElementById('m-opens').textContent=opened.length||'—';
-  document.getElementById('m-unsubs').textContent=state.unsubs.length||'—';
-  document.getElementById('m-visits').textContent=(state.reg_clickers||[]).length||'—';
+  const s=state.summary||{};
+  document.getElementById('m-sent').textContent=s.sent||'—';
+  document.getElementById('m-bounce').textContent=s.bounces||'—';
+  document.getElementById('m-opens').textContent=s.opens||'—';
+  document.getElementById('m-unsubs').textContent=s.unsubs||'—';
+  document.getElementById('m-visits').textContent=s.clicks||'—';
   document.getElementById('upd').textContent='Frissítve: '+(state.updated||'—');
-  const bp=sent?((bounced.length/sent)*100).toFixed(1):0;
+  const bp=s.sent?((s.bounces/s.sent)*100).toFixed(1):0;
   document.getElementById('m-bpct').textContent=bp+'% visszapattanás';
   document.getElementById('pb-b').style.width=Math.min(bp*4,100)+'%';
-  const op=sent?((opened.length/sent)*100).toFixed(1):0;
+  const op=s.sent?((s.opens/s.sent)*100).toFixed(1):0;
   document.getElementById('m-opct').textContent=op+'% open rate';
   document.getElementById('pb-o').style.width=Math.min(op,100)+'%';
-  document.getElementById('tc-inv').textContent=sent;
-  document.getElementById('tc-bnc').textContent=bounced.length;
-  document.getElementById('tc-opn').textContent=opened.length;
+  document.getElementById('tc-inv').textContent=state.invited.length;
+  document.getElementById('tc-bnc').textContent=state.invited.filter(x=>x.status&&x.status.includes('Bounce')).length;
+  document.getElementById('tc-opn').textContent=state.invited.filter(x=>x.opened).length;
   document.getElementById('tc-uns').textContent=state.unsubs.length;
   document.getElementById('tc-vis').textContent=(state.reg_clickers||[]).length;
 }
@@ -244,12 +242,11 @@ function renderInvited(){
   const rows=state.invited.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-inv').textContent=rows.length+' / '+state.invited.length+' rekord';
   const tb=document.getElementById('tb-inv');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="7" class="empty">Nincs találat.</td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nincs találat.</td></tr>';return;}
   tb.innerHTML=rows.map((r,i)=>{
     const sc=r.status==='Delivered'?'b-ok':r.status==='Hard Bounce'?'b-hard':'b-soft';
     const op=r.opened?'<span class="badge b-ok">✓ igen</span>':'<span style="color:var(--text3);font-size:11px">—</span>';
-    const cl=r.clicked?'<span class="badge b-ok">✓ igen</span>':'<span style="color:var(--text3);font-size:11px">—</span>';
-    return`<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td><td><span class="badge ${sc}">${esc(r.status)}</span></td><td>${op}</td><td>${cl}</td></tr>`;
+    return`<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td><td><span class="badge ${sc}">${esc(r.status)}</span></td><td>${op}</td></tr>`;
   }).join('');
 }
 function renderBounced(){
@@ -258,10 +255,10 @@ function renderBounced(){
   const rows=all.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-bnc').textContent=rows.length+' / '+all.length+' rekord';
   const tb=document.getElementById('tb-bnc');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nincs visszapattant.</td></tr>';return;}
+  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nincs visszapattant.</td></tr>';return;}
   tb.innerHTML=rows.map((r,i)=>{
     const sc=r.status==='Hard Bounce'?'b-hard':'b-soft';
-    return`<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td><td><span class="badge ${sc}">${esc(r.status)}</span></td><td class="dim" style="font-size:11px">${esc(r.detail)}</td></tr>`;
+    return`<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td><td><span class="badge ${sc}">${esc(r.status)}</span></td></tr>`;
   }).join('');
 }
 function renderOpens(){
@@ -270,11 +267,10 @@ function renderOpens(){
   const rows=all.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-opn').textContent=rows.length+' / '+all.length+' rekord';
   const tb=document.getElementById('tb-opn');
-  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nincs megnyitó.</td></tr>';return;}
-  tb.innerHTML=rows.map((r,i)=>{
-    const cl=r.clicked?'<span class="badge b-ok">✓ igen</span>':'<span style="color:var(--text3);font-size:11px">—</span>';
-    return`<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td><td>${cl}</td></tr>`;
-  }).join('');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty">Nincs megnyitó.</td></tr>';return;}
+  tb.innerHTML=rows.map((r,i)=>
+    `<tr><td class="mono">${i+1}</td><td>${esc(r.name)}</td><td class="mono">${esc(r.email)}</td><td class="dim">${esc(r.company)}</td></tr>`
+  ).join('');
 }
 function renderUnsubs(){
   const sq=q('s-uns');
