@@ -140,7 +140,7 @@ tr:hover td{background:#faf9f6}
 <div class="panel" id="p-bounced">
   <div class="tbl-wrap">
     <div class="tbl-search">
-      <input type="text" id="s-bnc" placeholder="Keresés…" oninput="renderBounced()">
+      <input type="text" id="s-bnc" placeholder="Keresés: név, e-mail, cég…" oninput="renderBounced()">
       <span class="tbl-count" id="cnt-bnc">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
@@ -207,7 +207,7 @@ function doLogin(){
     document.getElementById('main-page').style.display='block';
   }
 })();
-const DATA={"invited": [], "reg_clickers": [], "unsubs": [], "summary": {"sent": 54, "opens": 37, "clicks": 31, "bounces": 0, "unsubs": 1}, "updated": "2026-05-22 14:04"};
+const DATA={"invited": [], "reg_clickers": [], "unsubs": [], "summary": {"sent": 54, "opens": 37, "clicks": 31, "bounces": 0, "unsubs": 1}, "updated": "2026-05-22 14:08"};
 let state=JSON.parse(JSON.stringify(DATA));
 function renderMetrics(){
   const s=state.summary||{};
