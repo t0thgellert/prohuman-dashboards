@@ -53,13 +53,19 @@ def v3_all(path, params=None):
     params.setdefault("limit", 100)
     params["offset"] = 0
     results = []
+    # Derive expected key from path (e.g. "contacts" -> "contacts")
+    expected_key = path.split("/")[0]
     while True:
         time.sleep(0.25)
         r = requests.get(f"{AC_API_URL}/api/3/{path}",
                          headers=HDR_V3, params=params, timeout=30)
         r.raise_for_status()
         data = r.json()
-        items = next((v for v in data.values() if isinstance(v, list)), [])
+        # Try expected key first, then any list value
+        if expected_key in data and isinstance(data[expected_key], list):
+            items = data[expected_key]
+        else:
+            items = next((v for v in data.values() if isinstance(v, list)), [])
         results.extend(items)
         total = int(data.get("meta", {}).get("total", len(items)))
         params["offset"] += len(items)
@@ -190,55 +196,20 @@ def get_all_data(campaign):
             print(f"  campaign_report_list hiba: {e}")
     print(f"  → Végső lista ID-k: {list_ids}")
 
-    # 5. Összes küldött — több végpont próbálkozás
-    print("  Összes küldött kontakt — több API próbálkozás...")
+    # 5. Összes küldött — v3 contacts listid alapján (status paraméter nélkül = összes)
+    print("  Összes küldött kontakt (v3, listid, status nélkül)...")
     all_list_contacts = {}
-
     for lid in list_ids:
-        # Próba 1: v1 subscriber_list status=any
-        for status in ["", "1", "2", "0", "any"]:
-            try:
-                params = {"listid": lid}
-                if status:
-                    params["status"] = status
-                subs = v1_all("subscriber_list", params)
-                print(f"  → v1 subscriber_list lid={lid} status={status!r}: {len(subs)} kontakt")
-                if subs:
-                    first = subs[0]
-                    print(f"    Első rekord kulcsai: {list(first.keys())}")
-                    for s in subs:
-                        subid = str(s.get("id", "") or s.get("subscriber_id", ""))
-                        if subid:
-                            all_list_contacts[subid] = s
-                    break
-            except Exception as e:
-                print(f"  → v1 subscriber_list lid={lid} status={status!r} HIBA: {e}")
-
-        # Próba 2: v1 contact_list
         try:
-            data = v1("contact_list", {"listid": lid, "p": 0, "pp": 5})
-            print(f"  → v1 contact_list lid={lid}: result_code={data.get('result_code')}, msg={data.get('result_message')}")
-            recs = [v for k,v in data.items() if k.isdigit() and isinstance(v, dict)]
-            if recs:
-                print(f"    Kulcsok: {list(recs[0].keys())}")
+            batch = v3_all("contacts", {"listid": lid, "limit": 100})
+            for c in batch:
+                subid = str(c.get("id", ""))
+                if subid:
+                    all_list_contacts[subid] = c
+            print(f"  → Lista {lid}: {len(batch)} kontakt")
         except Exception as e:
-            print(f"  → v1 contact_list HIBA: {e}")
-
-        # Próba 3: v3 contacts listid különböző status értékekkel
-        for status in [None, 1, 2, -1, 0]:
-            try:
-                params = {"listid": lid, "limit": 5}
-                if status is not None:
-                    params["status"] = status
-                time.sleep(0.25)
-                r = requests.get(f"{AC_API_URL}/api/3/contacts", headers=HDR_V3, params=params, timeout=15)
-                data = r.json()
-                total = data.get("meta", {}).get("total", "?")
-                print(f"  → v3 contacts listid={lid} status={status}: total={total}")
-            except Exception as e:
-                print(f"  → v3 contacts listid={lid} status={status} HIBA: {e}")
-
-    print(f"  → Összesen eddig: {len(all_list_contacts)} kontakt")
+            print(f"  → Lista {lid} hiba: {e}")
+    print(f"  → Összesen: {len(all_list_contacts)} kontakt")
 
     print("  Kontakt részletek lekérése (v3)...")
     all_subids = set(opened.keys())
@@ -489,7 +460,6 @@ tr:hover td{{background:#faf9f6}}
     <div class="pbar" style="opacity:0"></div>
   </div>
 </div>
-<div class="info-bar">ℹ️ Az <strong>E-mailt kapott</strong> tab azokat tartalmazza akiknek az e-mail megnyílt vagy visszapattant. A nem megnyitók listája az ActiveCampaign API-n keresztül nem érhető el.</div>
 <div class="tabs">
   <button class="tab active" onclick="switchTab('invited')">E-mailt kapott <span class="tab-count" id="tc-inv">—</span></button>
   <button class="tab" onclick="switchTab('bounced')">Visszapattant <span class="tab-count" id="tc-bnc">—</span></button>
