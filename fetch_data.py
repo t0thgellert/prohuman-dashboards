@@ -190,20 +190,31 @@ def get_all_data(campaign):
             print(f"  campaign_report_list hiba: {e}")
     print(f"  → Végső lista ID-k: {list_ids}")
 
-    # 5. Összes küldött — lista alapján
-    print("  Összes küldött kontakt (v3 listából)...")
+    # 5. Összes küldött — v1 subscriber_list alapján (listid=3)
+    print("  Összes küldött kontakt (v1 subscriber_list)...")
     all_list_contacts = {}
     for lid in list_ids:
         try:
-            batch = v3_all("contacts", {"listid": lid, "limit": 100})
-            for c in batch:
-                subid = str(c.get("id", ""))
+            # v1 API: subscriber_list — az összes kontakt egy listában
+            subs = v1_all("subscriber_list", {"listid": lid, "sort": "id", "sort_direction": "ASC"})
+            print(f"  → Lista {lid} (v1): {len(subs)} kontakt")
+            for s in subs:
+                subid = str(s.get("id", "") or s.get("subscriber_id", ""))
                 if subid:
-                    all_list_contacts[subid] = c
-            print(f"  → Lista {lid}: {len(batch)} kontakt")
+                    all_list_contacts[subid] = s
         except Exception as e:
-            print(f"  Lista {lid} hiba: {e}")
-    print(f"  → Összesen: {len(all_list_contacts)} kontakt")
+            print(f"  Lista {lid} v1 hiba: {e}")
+            # Fallback: v3 status=-1 (all)
+            try:
+                batch = v3_all("contacts", {"listid": lid, "status": -1, "limit": 100})
+                for c in batch:
+                    subid = str(c.get("id", ""))
+                    if subid:
+                        all_list_contacts[subid] = c
+                print(f"  → Lista {lid} (v3 fallback): {len(batch)} kontakt")
+            except Exception as e2:
+                print(f"  Lista {lid} v3 fallback hiba: {e2}")
+    print(f"  → Összesen: {len(all_list_contacts)} kontakt a listában")
 
     print("  Kontakt részletek lekérése (v3)...")
     all_subids = set(opened.keys())
