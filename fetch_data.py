@@ -64,11 +64,11 @@ def get_contacts_for_campaign(campaign_id):
     opened_ids = {str(o["contact"]) for o in opens_raw}
 
     # Kattintók
-    links_raw = ac_get("campaignLinks", {"campaign": campaign_id})
+    links_raw = ac_get("links", {"campaign": campaign_id})
     link_ids = [l["id"] for l in links_raw]
     clicked_ids = set()
     for lid in link_ids:
-        clicks = ac_get("campaignLinkClicks", {"link": lid})
+        clicks = ac_get("linkClicks", {"link": lid})
         for cl in clicks:
             if cl.get("contact"):
                 clicked_ids.add(str(cl["contact"]))
@@ -125,10 +125,10 @@ def get_contacts_for_campaign(campaign_id):
 
 def get_unique_clicks(campaign_id):
     """Unique click-elő kontaktok listája (letöltők)."""
-    links_raw = ac_get("campaignLinks", {"campaign": campaign_id})
+    links_raw = ac_get("links", {"campaign": campaign_id})
     seen = {}
     for link in links_raw:
-        clicks = ac_get("campaignLinkClicks", {"link": link["id"]})
+        clicks = ac_get("linkClicks", {"link": link["id"]})
         for cl in clicks:
             cid = str(cl.get("contact", ""))
             if cid and cid not in seen:
