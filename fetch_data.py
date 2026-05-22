@@ -97,7 +97,7 @@ def get_all_data(campaign):
 
     # Összesítők — bouncedamt None, ezért azt a bounce listából számoljuk
     summary = {
-        "sent":    int(campaign.get("send_amt") or 0),
+        "sent":    0,  # alább töltjük ki a unique kontaktok számával
         "opens":   int(campaign.get("uniqueopens") or 0),
         "clicks":  int(campaign.get("uniquelinkclicks") or 0),
         "bounces": 0,  # alább töltjük ki
@@ -156,6 +156,7 @@ def get_all_data(campaign):
             btype = str(b.get("type", "")).lower()
             bounce_map[email] = "Hard Bounce" if btype == "hard" else "Soft Bounce"
     summary["bounces"] = len(bounce_map)
+    # sent = unique kontaktok száma (a listából töltjük fel alább)
 
     # 4. Leiratkozók — subscriberid alapján ellenőrizzük a megnyitók kontaktListáit
     # A kampány rekordban nincs list/lists mező, ezért per-kontakt ellenőrzés
@@ -210,6 +211,11 @@ def get_all_data(campaign):
         except Exception as e:
             print(f"  → Lista {lid} hiba: {e}")
     print(f"  → Összesen: {len(all_list_contacts)} kontakt")
+    # Unique kontaktok száma = lista mérete (ha van), különben megnyitók+bounce
+    if all_list_contacts:
+        summary["sent"] = len(all_list_contacts)
+    else:
+        summary["sent"] = len(set(opened.keys()) | set(bounce_map.keys()))
 
     print("  Kontakt részletek lekérése (v3)...")
     all_subids = set(opened.keys())
