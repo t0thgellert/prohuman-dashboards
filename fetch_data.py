@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """
 Lekéri az ActiveCampaign API-ból a kampánystatisztikákat
-és újragenerálja az index.html-t.
+és újragenerálja a stats.html-t.
 """
 
 import os
 import json
+import time
 import requests
 from datetime import datetime, timezone, timedelta
 
 # --- Konfiguráció ---
-AC_API_URL  = os.environ["AC_API_URL"]   # pl. https://fiokod.api-us1.com
-AC_API_KEY  = os.environ["AC_API_KEY"]
+AC_API_URL    = os.environ["AC_API_URL"].rstrip("/")  # pl. https://fiokod.api-us1.com
+AC_API_KEY    = os.environ["AC_API_KEY"]
+DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "changeme")
 CAMPAIGN_NAME = "Oktatás és versenyképesség letöltési link küldés"
 
 HEADERS = {
@@ -20,18 +22,17 @@ HEADERS = {
 }
 
 def ac_get(path, params=None):
-    """Egyszerű GET hívás az AC API-ra, automatikus lapozással."""
+    """GET az AC API-ra, automatikus lapozással. Max 5 req/s."""
     url = f"{AC_API_URL}/api/3/{path}"
     results = []
-    params = params or {}
+    params = dict(params or {})
     params.setdefault("limit", 100)
     params["offset"] = 0
     while True:
+        time.sleep(0.2)  # rate limit: 5 req/s
         r = requests.get(url, headers=HEADERS, params=params, timeout=30)
         r.raise_for_status()
         data = r.json()
-        # Az AC API mindig a lekért erőforrás nevével adja vissza a listát
-        # Megkeressük az első lista típusú értéket
         items = next((v for v in data.values() if isinstance(v, list)), [])
         results.extend(items)
         total = int(data.get("meta", {}).get("total", len(items)))
@@ -41,51 +42,67 @@ def ac_get(path, params=None):
     return results
 
 def find_campaign():
-    campaigns = ac_get("campaigns", {"filters[name]": CAMPAIGN_NAME})
+    campaigns = ac_get("campaigns")
     for c in campaigns:
         if c.get("name", "").strip() == CAMPAIGN_NAME:
+            return c
+    # Ha nem találja névvel, próbáljuk filter-rel
+    campaigns = ac_get("campaigns", {"filters[name]": CAMPAIGN_NAME})
+    for c in campaigns:
+        if CAMPAIGN_NAME in c.get("name", ""):
             return c
     raise ValueError(f"Nem található kampány: '{CAMPAIGN_NAME}'")
 
 def get_contacts_for_campaign(campaign_id):
     """
-    Lekéri az összes kontaktot akinek a kampányt kiküldték,
-    és minden kontakthoz jelzi a megnyitást, kattintást, bounce-t, leiratkozást.
+    Kontaktok lekérése a campaignMessages végponton keresztül.
+    Megnyitás és kattintás az campaignOpens végpontról.
     """
-    # Kampányhoz küldött üzenetek
+    print("  Kampány üzenetek lekérése...")
     messages = ac_get("campaignMessages", {"campaign": campaign_id})
-    contact_ids = [m["contact"] for m in messages if m.get("contact")]
+    contact_ids = list({str(m["contact"]) for m in messages if m.get("contact")})
+    print(f"  → {len(contact_ids)} egyedi kontakt")
 
     if not contact_ids:
         return [], []
 
-    # Megnyitók
+    print("  Megnyitók lekérése...")
     opens_raw = ac_get("campaignOpens", {"campaign": campaign_id})
     opened_ids = {str(o["contact"]) for o in opens_raw}
+    print(f"  → {len(opened_ids)} megnyitó")
 
-    # Kattintók
-    links_raw = ac_get("links", {"campaign": campaign_id})
-    link_ids = [l["id"] for l in links_raw]
+    print("  Kattintók lekérése (contactActivities)...")
     clicked_ids = set()
-    for lid in link_ids:
-        clicks = ac_get("linkClicks", {"link": lid})
-        for cl in clicks:
-            if cl.get("contact"):
-                clicked_ids.add(str(cl["contact"]))
+    # Az AC API-ban a kattintások a contact activities-ben érhetők el
+    activities = ac_get("contactActivities", {
+        "filters[campaign]": campaign_id,
+        "filters[action]": "clicked"
+    })
+    for a in activities:
+        if a.get("contact"):
+            clicked_ids.add(str(a["contact"]))
+    print(f"  → {len(clicked_ids)} kattintó")
 
-    # Bounce-ok: az AC a contact rekordban tárolja (bouncedAt mező)
-    # Leiratkozók
+    print("  Leiratkozók lekérése...")
     unsub_ids = set()
-    unsubs_raw = ac_get("contactLists", {"filters[status]": 2})  # status=2: unsubscribed
+    unsubs_raw = ac_get("contactLists", {
+        "filters[campaign]": campaign_id,
+        "filters[status]": 2
+    })
     for u in unsubs_raw:
         if u.get("contact"):
             unsub_ids.add(str(u["contact"]))
+    print(f"  → {len(unsub_ids)} leiratkozó")
 
     contacts = []
     unsubs = []
 
-    for cid in set(contact_ids):
+    print(f"  Kontakt részletek lekérése ({len(contact_ids)} db)...")
+    for i, cid in enumerate(contact_ids):
+        if i % 20 == 0:
+            print(f"    {i}/{len(contact_ids)}...")
         try:
+            time.sleep(0.2)
             r = requests.get(
                 f"{AC_API_URL}/api/3/contacts/{cid}",
                 headers=HEADERS, timeout=15
@@ -93,17 +110,16 @@ def get_contacts_for_campaign(campaign_id):
             if r.status_code != 200:
                 continue
             cd = r.json().get("contact", {})
-        except Exception:
+        except Exception as e:
+            print(f"    Hiba kontakt {cid}: {e}")
             continue
 
-        bounced    = bool(cd.get("bouncedAt"))
+        bounced     = bool(cd.get("bouncedAt"))
         hard_bounce = cd.get("bouncedHard") == "1"
-        is_unsub   = str(cid) in unsub_ids
+        is_unsub    = cid in unsub_ids
 
-        # Cég lekérése a mezőkből (firstName + lastName = teljes név az AC-ben)
         name    = f"{cd.get('firstName', '')} {cd.get('lastName', '')}".strip()
         email   = cd.get("email", "")
-        # Céget custom field-ből próbáljuk, különben üresen hagyjuk
         company = cd.get("orgname", "") or ""
 
         record = {
@@ -112,8 +128,8 @@ def get_contacts_for_campaign(campaign_id):
             "company": company,
             "status":  ("Hard Bounce" if hard_bounce else "Soft Bounce") if bounced else "Delivered",
             "detail":  "",
-            "opened":  str(cid) in opened_ids,
-            "clicked": str(cid) in clicked_ids,
+            "opened":  cid in opened_ids,
+            "clicked": cid in clicked_ids,
             "unsub":   is_unsub,
         }
         contacts.append(record)
@@ -123,32 +139,16 @@ def get_contacts_for_campaign(campaign_id):
 
     return contacts, unsubs
 
-def get_unique_clicks(campaign_id):
-    """Unique click-elő kontaktok listája (letöltők)."""
-    links_raw = ac_get("links", {"campaign": campaign_id})
-    seen = {}
-    for link in links_raw:
-        clicks = ac_get("linkClicks", {"link": link["id"]})
-        for cl in clicks:
-            cid = str(cl.get("contact", ""))
-            if cid and cid not in seen:
-                try:
-                    r = requests.get(
-                        f"{AC_API_URL}/api/3/contacts/{cid}",
-                        headers=HEADERS, timeout=15
-                    )
-                    cd = r.json().get("contact", {})
-                    seen[cid] = {
-                        "name":    f"{cd.get('firstName','')} {cd.get('lastName','')}".strip(),
-                        "email":   cd.get("email", ""),
-                        "company": cd.get("orgname", "") or "",
-                    }
-                except Exception:
-                    pass
-    return list(seen.values())
+def get_clickers(campaign_id, contacts):
+    """Azok a kontaktok akik kattintottak (letöltők)."""
+    return [
+        {"name": c["name"], "email": c["email"], "company": c["company"]}
+        for c in contacts if c["clicked"]
+    ]
 
-def build_html(data: dict) -> str:
+def build_html(data: dict, password: str) -> str:
     data_json = json.dumps(data, ensure_ascii=False)
+    pwd_escaped = password.replace("\\", "\\\\").replace('"', '\\"')
 
     return f"""<!DOCTYPE html>
 <html lang="hu">
@@ -169,6 +169,16 @@ def build_html(data: dict) -> str:
 }}
 body{{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}}
 .page{{max-width:980px;margin:0 auto;padding:36px 24px 80px}}
+#login-screen{{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}}
+.login-box{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:100%;max-width:360px}}
+.login-eyebrow{{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}}
+.login-title{{font-size:18px;font-weight:500;margin-bottom:24px;letter-spacing:-.2px}}
+.login-label{{font-size:11px;font-weight:500;color:var(--text2);display:block;margin-bottom:6px}}
+.login-input{{width:100%;font-family:'DM Mono',monospace;font-size:13px;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;background:var(--bg);color:var(--text);outline:none;letter-spacing:.05em}}
+.login-input:focus{{border-color:var(--text);background:var(--surface)}}
+.login-btn{{margin-top:14px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 0;border:1px solid var(--text);border-radius:var(--rs);background:var(--text);color:#fff;cursor:pointer;transition:opacity .1s}}
+.login-btn:hover{{opacity:.85}}
+.login-err{{margin-top:10px;font-size:11px;color:var(--red);min-height:16px;text-align:center}}
 .ph{{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}}
 .ph-eyebrow{{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}}
 .ph-title{{font-size:21px;font-weight:500;letter-spacing:-.2px}}
@@ -181,7 +191,6 @@ body{{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fo
 .mv{{font-size:34px;font-weight:300;line-height:1;font-family:'DM Mono',monospace;margin-bottom:3px}}
 .ms{{font-size:11px;color:var(--text3);min-height:16px}}
 .metric.red .mv{{color:var(--red)}}
-.metric.green .mv{{color:var(--green)}}
 .pbar{{height:2px;background:var(--surface2);border-radius:99px;margin-top:10px;overflow:hidden}}
 .pf{{height:100%;border-radius:99px;background:var(--green);transition:width .5s ease}}
 .pf.red{{background:var(--red)}}
@@ -208,18 +217,6 @@ tr:hover td{{background:#faf9f6}}
 .b-soft{{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber)}}
 .b-ok{{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}}
 .empty{{padding:28px 14px;text-align:center;color:var(--text3);font-size:13px}}
-.toast{{position:fixed;bottom:24px;right:24px;background:#18170f;color:#fff;font-size:12px;font-weight:500;padding:10px 18px;border-radius:var(--rs);opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .2s,transform .2s;z-index:9999}}
-.toast.show{{opacity:1;transform:none}}
-#login-screen{{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}}
-.login-box{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:100%;max-width:360px}}
-.login-eyebrow{{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}}
-.login-title{{font-size:18px;font-weight:500;margin-bottom:24px;letter-spacing:-.2px}}
-.login-label{{font-size:11px;font-weight:500;color:var(--text2);display:block;margin-bottom:6px}}
-.login-input{{width:100%;font-family:'DM Mono',monospace;font-size:13px;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;background:var(--bg);color:var(--text);outline:none;letter-spacing:.05em}}
-.login-input:focus{{border-color:var(--text);background:var(--surface)}}
-.login-btn{{margin-top:14px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 0;border:1px solid var(--text);border-radius:var(--rs);background:var(--text);color:#fff;cursor:pointer;transition:opacity .1s}}
-.login-btn:hover{{opacity:.85}}
-.login-err{{margin-top:10px;font-size:11px;color:var(--red);min-height:16px;text-align:center}}
 </style>
 </head>
 <body>
@@ -341,18 +338,16 @@ tr:hover td{{background:#faf9f6}}
   </div>
 </div>
 </div>
-<div class="toast" id="toast"></div>
 <script>
-const PASSWORD = "titkos123"; // ← ide írd a kívánt jelszót
-const SESSION_KEY = "stats_auth";
+const PASSWORD="{pwd_escaped}";
+const SESSION_KEY="stats_auth";
 function doLogin(){{
-  const val = document.getElementById('pw-input').value;
-  if(val === PASSWORD){{
+  const val=document.getElementById('pw-input').value;
+  if(val===PASSWORD){{
     sessionStorage.setItem(SESSION_KEY,"1");
     document.getElementById('login-screen').style.display='none';
     document.getElementById('main-page').style.display='block';
-    document.getElementById('pw-err').textContent='';
-  }} else {{
+  }}else{{
     document.getElementById('pw-err').textContent='Helytelen jelszó.';
     document.getElementById('pw-input').value='';
     document.getElementById('pw-input').focus();
@@ -364,8 +359,8 @@ function doLogin(){{
     document.getElementById('main-page').style.display='block';
   }}
 }})();
-const DATA = {data_json};
-let state = JSON.parse(JSON.stringify(DATA));
+const DATA={data_json};
+let state=JSON.parse(JSON.stringify(DATA));
 function renderMetrics(){{
   const bounced=state.invited.filter(x=>x.status&&x.status.includes('Bounce'));
   const opened=state.invited.filter(x=>x.opened);
@@ -374,7 +369,7 @@ function renderMetrics(){{
   document.getElementById('m-bounce').textContent=bounced.length||'—';
   document.getElementById('m-opens').textContent=opened.length||'—';
   document.getElementById('m-unsubs').textContent=state.unsubs.length||'—';
-  document.getElementById('m-visits').textContent=state.visits||'—';
+  document.getElementById('m-visits').textContent=(state.reg_clickers||[]).length||'—';
   document.getElementById('upd').textContent='Frissítve: '+(state.updated||'—');
   const bp=sent?((bounced.length/sent)*100).toFixed(1):0;
   document.getElementById('m-bpct').textContent=bp+'% visszapattanás';
@@ -412,7 +407,7 @@ function renderInvited(){{
 function renderBounced(){{
   const sq=q('s-bnc');
   const all=state.invited.filter(x=>x.status&&x.status.includes('Bounce'));
-  const rows=all.filter(x=>!sq||(x.name+x.email+x.company+x.detail).toLowerCase().includes(sq));
+  const rows=all.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-bnc').textContent=rows.length+' / '+all.length+' rekord';
   const tb=document.getElementById('tb-bnc');
   if(!rows.length){{tb.innerHTML='<tr><td colspan="6" class="empty">Nincs visszapattant.</td></tr>';return;}}
@@ -464,22 +459,14 @@ def main():
     print("Kampány keresése...")
     campaign = find_campaign()
     campaign_id = campaign["id"]
-    print(f"  → Megtalálva: ID={campaign_id}")
-
-    # Összesített számok közvetlenül a kampány rekordból
-    sent      = int(campaign.get("send_amt", 0))
-    bounces   = int(campaign.get("bouncedamt", 0))
-    uniq_opens = int(campaign.get("uniqueopens", 0))
-    unsub_amt = int(campaign.get("unsubscribes", 0))
-    uniq_clicks = int(campaign.get("uniquelinkclicks", 0))
+    print(f"  → Megtalálva: ID={campaign_id}, név='{campaign.get('name')}'")
 
     print("Kontaktok lekérése...")
     contacts, unsubs = get_contacts_for_campaign(campaign_id)
-    print(f"  → {len(contacts)} kontakt, {len(unsubs)} leiratkozó")
+    print(f"  → Összesen: {len(contacts)} kontakt, {len(unsubs)} leiratkozó")
 
-    print("Letöltők lekérése...")
-    clickers = get_unique_clicks(campaign_id)
-    print(f"  → {len(clickers)} egyedi kattintó")
+    clickers = get_clickers(campaign_id, contacts)
+    print(f"  → Letöltők (kattintók): {len(clickers)}")
 
     budapest_tz = timezone(timedelta(hours=2))
     now = datetime.now(budapest_tz).strftime("%Y-%m-%d %H:%M")
@@ -488,19 +475,10 @@ def main():
         "invited":      contacts,
         "reg_clickers": clickers,
         "unsubs":       unsubs,
-        "visits":       uniq_clicks,
         "updated":      now,
-        # Összesítők a kampány rekordból (gyorsabb, mint megszámlálni)
-        "_summary": {
-            "sent":        sent,
-            "bounces":     bounces,
-            "uniq_opens":  uniq_opens,
-            "unsub_amt":   unsub_amt,
-            "uniq_clicks": uniq_clicks,
-        }
     }
 
-    html = build_html(data)
+    html = build_html(data, DASHBOARD_PASSWORD)
     with open("stats.html", "w", encoding="utf-8") as f:
         f.write(html)
     print(f"stats.html generálva ({len(html):,} karakter)")
