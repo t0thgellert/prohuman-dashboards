@@ -11,10 +11,10 @@ import requests
 from datetime import datetime, timezone, timedelta
 
 # --- Konfiguráció ---
-AC_API_URL    = os.environ["AC_API_URL"].rstrip("/")  # pl. https://fiokod.api-us1.com
-AC_API_KEY    = os.environ["AC_API_KEY"]
+AC_API_URL         = os.environ["AC_API_URL"].rstrip("/")
+AC_API_KEY         = os.environ["AC_API_KEY"]
 DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "changeme")
-CAMPAIGN_NAME = "Oktatás és versenyképesség letöltési link küldés"
+CAMPAIGN_NAME      = "Oktatás és versenyképesség letöltési link küldés"
 
 HEADERS = {
     "Api-Token": AC_API_KEY,
@@ -22,14 +22,13 @@ HEADERS = {
 }
 
 def ac_get(path, params=None):
-    """GET az AC API-ra, automatikus lapozással. Max 5 req/s."""
     url = f"{AC_API_URL}/api/3/{path}"
     results = []
     params = dict(params or {})
     params.setdefault("limit", 100)
     params["offset"] = 0
     while True:
-        time.sleep(0.2)  # rate limit: 5 req/s
+        time.sleep(0.25)
         r = requests.get(url, headers=HEADERS, params=params, timeout=30)
         r.raise_for_status()
         data = r.json()
@@ -42,81 +41,79 @@ def ac_get(path, params=None):
     return results
 
 def find_campaign():
-    campaigns = ac_get("campaigns")
+    campaigns = ac_get("campaigns", {"limit": 200})
     for c in campaigns:
         if c.get("name", "").strip() == CAMPAIGN_NAME:
             return c
-    # Ha nem találja névvel, próbáljuk filter-rel
-    campaigns = ac_get("campaigns", {"filters[name]": CAMPAIGN_NAME})
-    for c in campaigns:
-        if CAMPAIGN_NAME in c.get("name", ""):
-            return c
     raise ValueError(f"Nem található kampány: '{CAMPAIGN_NAME}'")
 
-def get_contacts_for_campaign(campaign_id):
-    """
-    Kontaktok lekérése a campaignMessages végponton keresztül.
-    Megnyitás és kattintás az campaignOpens végpontról.
-    """
-    print("  Kampány üzenetek lekérése...")
+def get_contact_detail(cid):
+    time.sleep(0.25)
+    r = requests.get(f"{AC_API_URL}/api/3/contacts/{cid}", headers=HEADERS, timeout=15)
+    if r.status_code != 200:
+        return None
+    return r.json().get("contact", {})
+
+def get_all_data(campaign):
+    campaign_id = campaign["id"]
+
+    # Összesítők közvetlenül a kampány rekordból
+    sent         = int(campaign.get("send_amt") or 0)
+    unique_opens = int(campaign.get("uniqueopens") or 0)
+    unique_clicks= int(campaign.get("uniquelinkclicks") or 0)
+    bounces      = int(campaign.get("bouncedamt") or 0)
+    unsub_amt    = int(campaign.get("unsubscribes") or 0)
+
+    print(f"  Kampány összesítők: sent={sent}, opens={unique_opens}, clicks={unique_clicks}, bounces={bounces}, unsubs={unsub_amt}")
+
+    # Kontakt lista: campaignMessages alapján
+    print("  Kontaktok lekérése (campaignMessages)...")
     messages = ac_get("campaignMessages", {"campaign": campaign_id})
     contact_ids = list({str(m["contact"]) for m in messages if m.get("contact")})
-    print(f"  → {len(contact_ids)} egyedi kontakt")
+    print(f"  → {len(contact_ids)} egyedi kontakt ID")
 
-    if not contact_ids:
-        return [], []
-
+    # Megnyitók
     print("  Megnyitók lekérése...")
     opens_raw = ac_get("campaignOpens", {"campaign": campaign_id})
     opened_ids = {str(o["contact"]) for o in opens_raw}
     print(f"  → {len(opened_ids)} megnyitó")
 
-    print("  Kattintók lekérése (contactActivities)...")
-    clicked_ids = set()
-    # Az AC API-ban a kattintások a contact activities-ben érhetők el
-    activities = ac_get("contactActivities", {
-        "filters[campaign]": campaign_id,
-        "filters[action]": "clicked"
-    })
-    for a in activities:
-        if a.get("contact"):
-            clicked_ids.add(str(a["contact"]))
-    print(f"  → {len(clicked_ids)} kattintó")
+    # Leiratkozók — a campaignMessages-ből a status mező alapján
+    # Az AC campaignMessages status: 1=sent, 2=unsubscribed, 6=bounced
+    bounced_ids = set()
+    unsub_ids   = set()
+    for m in messages:
+        cid = str(m.get("contact", ""))
+        s   = str(m.get("status", ""))
+        if s == "6":
+            bounced_ids.add(cid)
+        if s == "2":
+            unsub_ids.add(cid)
 
-    print("  Leiratkozók lekérése...")
-    unsub_ids = set()
-    unsubs_raw = ac_get("contactLists", {
-        "filters[campaign]": campaign_id,
-        "filters[status]": 2
-    })
-    for u in unsubs_raw:
-        if u.get("contact"):
-            unsub_ids.add(str(u["contact"]))
-    print(f"  → {len(unsub_ids)} leiratkozó")
+    print(f"  → {len(bounced_ids)} bounced, {len(unsub_ids)} unsub (messages alapján)")
 
-    contacts = []
-    unsubs = []
+    # Kattintók: azok akik megnyitották ÉS a unique_clicks száma alapján
+    # Az AC API-ban nincs közvetlen "ki kattintott" lista endpoint,
+    # ezért a kattintókat a megnyitók közül vesszük,
+    # és a kampány unique_clicks számát mutatjuk a kártya metrikán
+    # (a táblában a "clicked" oszlop egyelőre nem töltjük)
+    clicked_ids = set()  # egyelőre üres, lásd lent
 
     print(f"  Kontakt részletek lekérése ({len(contact_ids)} db)...")
+    contacts = []
+    unsubs   = []
+
     for i, cid in enumerate(contact_ids):
-        if i % 20 == 0:
+        if i % 25 == 0:
             print(f"    {i}/{len(contact_ids)}...")
-        try:
-            time.sleep(0.2)
-            r = requests.get(
-                f"{AC_API_URL}/api/3/contacts/{cid}",
-                headers=HEADERS, timeout=15
-            )
-            if r.status_code != 200:
-                continue
-            cd = r.json().get("contact", {})
-        except Exception as e:
-            print(f"    Hiba kontakt {cid}: {e}")
+        cd = get_contact_detail(cid)
+        if not cd:
             continue
 
-        bounced     = bool(cd.get("bouncedAt"))
-        hard_bounce = cd.get("bouncedHard") == "1"
+        is_bounced  = cid in bounced_ids or bool(cd.get("bouncedAt"))
+        hard_bounce = str(cd.get("bouncedHard", "0")) == "1"
         is_unsub    = cid in unsub_ids
+        is_opened   = cid in opened_ids
 
         name    = f"{cd.get('firstName', '')} {cd.get('lastName', '')}".strip()
         email   = cd.get("email", "")
@@ -126,10 +123,10 @@ def get_contacts_for_campaign(campaign_id):
             "name":    name,
             "email":   email,
             "company": company,
-            "status":  ("Hard Bounce" if hard_bounce else "Soft Bounce") if bounced else "Delivered",
+            "status":  ("Hard Bounce" if hard_bounce else "Soft Bounce") if is_bounced else "Delivered",
             "detail":  "",
-            "opened":  cid in opened_ids,
-            "clicked": cid in clicked_ids,
+            "opened":  is_opened,
+            "clicked": False,  # kattintás kontakt szinten egyelőre nem elérhető
             "unsub":   is_unsub,
         }
         contacts.append(record)
@@ -137,17 +134,24 @@ def get_contacts_for_campaign(campaign_id):
         if is_unsub:
             unsubs.append({"name": name, "email": email, "company": company})
 
-    return contacts, unsubs
-
-def get_clickers(campaign_id, contacts):
-    """Azok a kontaktok akik kattintottak (letöltők)."""
-    return [
+    # A "letöltők" kártyához a kampány unique_clicks számát használjuk
+    # A táblában azokat mutatjuk akik megnyitottak (legjobb közelítés)
+    clickers = [
         {"name": c["name"], "email": c["email"], "company": c["company"]}
-        for c in contacts if c["clicked"]
+        for c in contacts if c["opened"]
     ]
 
+    return contacts, unsubs, clickers, {
+        "sent":   sent,
+        "opens":  unique_opens,
+        "clicks": unique_clicks,
+        "bounces": bounces,
+        "unsubs": unsub_amt,
+    }
+
+
 def build_html(data: dict, password: str) -> str:
-    data_json = json.dumps(data, ensure_ascii=False)
+    data_json   = json.dumps(data, ensure_ascii=False)
     pwd_escaped = password.replace("\\", "\\\\").replace('"', '\\"')
 
     return f"""<!DOCTYPE html>
@@ -284,7 +288,7 @@ tr:hover td{{background:#faf9f6}}
       <span class="tbl-count" id="cnt-inv">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th><th>Megnyitás</th><th>Kattintás</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th><th>Megnyitás</th></tr></thead>
       <tbody id="tb-inv"></tbody></table>
     </div>
   </div>
@@ -296,7 +300,7 @@ tr:hover td{{background:#faf9f6}}
       <span class="tbl-count" id="cnt-bnc">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Típus</th><th>Ok</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Típus</th></tr></thead>
       <tbody id="tb-bnc"></tbody></table>
     </div>
   </div>
@@ -308,7 +312,7 @@ tr:hover td{{background:#faf9f6}}
       <span class="tbl-count" id="cnt-opn">—</span>
     </div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Kattintás</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead>
       <tbody id="tb-opn"></tbody></table>
     </div>
   </div>
@@ -362,24 +366,22 @@ function doLogin(){{
 const DATA={data_json};
 let state=JSON.parse(JSON.stringify(DATA));
 function renderMetrics(){{
-  const bounced=state.invited.filter(x=>x.status&&x.status.includes('Bounce'));
-  const opened=state.invited.filter(x=>x.opened);
-  const sent=state.invited.length;
-  document.getElementById('m-sent').textContent=sent||'—';
-  document.getElementById('m-bounce').textContent=bounced.length||'—';
-  document.getElementById('m-opens').textContent=opened.length||'—';
-  document.getElementById('m-unsubs').textContent=state.unsubs.length||'—';
-  document.getElementById('m-visits').textContent=(state.reg_clickers||[]).length||'—';
+  const s=state.summary||{{}};
+  document.getElementById('m-sent').textContent=s.sent||'—';
+  document.getElementById('m-bounce').textContent=s.bounces||'—';
+  document.getElementById('m-opens').textContent=s.opens||'—';
+  document.getElementById('m-unsubs').textContent=s.unsubs||'—';
+  document.getElementById('m-visits').textContent=s.clicks||'—';
   document.getElementById('upd').textContent='Frissítve: '+(state.updated||'—');
-  const bp=sent?((bounced.length/sent)*100).toFixed(1):0;
+  const bp=s.sent?((s.bounces/s.sent)*100).toFixed(1):0;
   document.getElementById('m-bpct').textContent=bp+'% visszapattanás';
   document.getElementById('pb-b').style.width=Math.min(bp*4,100)+'%';
-  const op=sent?((opened.length/sent)*100).toFixed(1):0;
+  const op=s.sent?((s.opens/s.sent)*100).toFixed(1):0;
   document.getElementById('m-opct').textContent=op+'% open rate';
   document.getElementById('pb-o').style.width=Math.min(op,100)+'%';
-  document.getElementById('tc-inv').textContent=sent;
-  document.getElementById('tc-bnc').textContent=bounced.length;
-  document.getElementById('tc-opn').textContent=opened.length;
+  document.getElementById('tc-inv').textContent=state.invited.length;
+  document.getElementById('tc-bnc').textContent=state.invited.filter(x=>x.status&&x.status.includes('Bounce')).length;
+  document.getElementById('tc-opn').textContent=state.invited.filter(x=>x.opened).length;
   document.getElementById('tc-uns').textContent=state.unsubs.length;
   document.getElementById('tc-vis').textContent=(state.reg_clickers||[]).length;
 }}
@@ -396,12 +398,11 @@ function renderInvited(){{
   const rows=state.invited.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-inv').textContent=rows.length+' / '+state.invited.length+' rekord';
   const tb=document.getElementById('tb-inv');
-  if(!rows.length){{tb.innerHTML='<tr><td colspan="7" class="empty">Nincs találat.</td></tr>';return;}}
+  if(!rows.length){{tb.innerHTML='<tr><td colspan="6" class="empty">Nincs találat.</td></tr>';return;}}
   tb.innerHTML=rows.map((r,i)=>{{
     const sc=r.status==='Delivered'?'b-ok':r.status==='Hard Bounce'?'b-hard':'b-soft';
     const op=r.opened?'<span class="badge b-ok">✓ igen</span>':'<span style="color:var(--text3);font-size:11px">—</span>';
-    const cl=r.clicked?'<span class="badge b-ok">✓ igen</span>':'<span style="color:var(--text3);font-size:11px">—</span>';
-    return`<tr><td class="mono">${{i+1}}</td><td>${{esc(r.name)}}</td><td class="mono">${{esc(r.email)}}</td><td class="dim">${{esc(r.company)}}</td><td><span class="badge ${{sc}}">${{esc(r.status)}}</span></td><td>${{op}}</td><td>${{cl}}</td></tr>`;
+    return`<tr><td class="mono">${{i+1}}</td><td>${{esc(r.name)}}</td><td class="mono">${{esc(r.email)}}</td><td class="dim">${{esc(r.company)}}</td><td><span class="badge ${{sc}}">${{esc(r.status)}}</span></td><td>${{op}}</td></tr>`;
   }}).join('');
 }}
 function renderBounced(){{
@@ -410,10 +411,10 @@ function renderBounced(){{
   const rows=all.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-bnc').textContent=rows.length+' / '+all.length+' rekord';
   const tb=document.getElementById('tb-bnc');
-  if(!rows.length){{tb.innerHTML='<tr><td colspan="6" class="empty">Nincs visszapattant.</td></tr>';return;}}
+  if(!rows.length){{tb.innerHTML='<tr><td colspan="5" class="empty">Nincs visszapattant.</td></tr>';return;}}
   tb.innerHTML=rows.map((r,i)=>{{
     const sc=r.status==='Hard Bounce'?'b-hard':'b-soft';
-    return`<tr><td class="mono">${{i+1}}</td><td>${{esc(r.name)}}</td><td class="mono">${{esc(r.email)}}</td><td class="dim">${{esc(r.company)}}</td><td><span class="badge ${{sc}}">${{esc(r.status)}}</span></td><td class="dim" style="font-size:11px">${{esc(r.detail)}}</td></tr>`;
+    return`<tr><td class="mono">${{i+1}}</td><td>${{esc(r.name)}}</td><td class="mono">${{esc(r.email)}}</td><td class="dim">${{esc(r.company)}}</td><td><span class="badge ${{sc}}">${{esc(r.status)}}</span></td></tr>`;
   }}).join('');
 }}
 function renderOpens(){{
@@ -422,11 +423,10 @@ function renderOpens(){{
   const rows=all.filter(x=>!sq||(x.name+x.email+x.company).toLowerCase().includes(sq));
   document.getElementById('cnt-opn').textContent=rows.length+' / '+all.length+' rekord';
   const tb=document.getElementById('tb-opn');
-  if(!rows.length){{tb.innerHTML='<tr><td colspan="5" class="empty">Nincs megnyitó.</td></tr>';return;}}
-  tb.innerHTML=rows.map((r,i)=>{{
-    const cl=r.clicked?'<span class="badge b-ok">✓ igen</span>':'<span style="color:var(--text3);font-size:11px">—</span>';
-    return`<tr><td class="mono">${{i+1}}</td><td>${{esc(r.name)}}</td><td class="mono">${{esc(r.email)}}</td><td class="dim">${{esc(r.company)}}</td><td>${{cl}}</td></tr>`;
-  }}).join('');
+  if(!rows.length){{tb.innerHTML='<tr><td colspan="4" class="empty">Nincs megnyitó.</td></tr>';return;}}
+  tb.innerHTML=rows.map((r,i)=>
+    `<tr><td class="mono">${{i+1}}</td><td>${{esc(r.name)}}</td><td class="mono">${{esc(r.email)}}</td><td class="dim">${{esc(r.company)}}</td></tr>`
+  ).join('');
 }}
 function renderUnsubs(){{
   const sq=q('s-uns');
@@ -458,15 +458,10 @@ renderAll();
 def main():
     print("Kampány keresése...")
     campaign = find_campaign()
-    campaign_id = campaign["id"]
-    print(f"  → Megtalálva: ID={campaign_id}, név='{campaign.get('name')}'")
+    print(f"  → ID={campaign['id']}, név='{campaign.get('name')}'")
 
-    print("Kontaktok lekérése...")
-    contacts, unsubs = get_contacts_for_campaign(campaign_id)
-    print(f"  → Összesen: {len(contacts)} kontakt, {len(unsubs)} leiratkozó")
-
-    clickers = get_clickers(campaign_id, contacts)
-    print(f"  → Letöltők (kattintók): {len(clickers)}")
+    contacts, unsubs, clickers, summary = get_all_data(campaign)
+    print(f"  → Végeredmény: {len(contacts)} kontakt, {len(unsubs)} leiratkozó, {len(clickers)} megnyitó")
 
     budapest_tz = timezone(timedelta(hours=2))
     now = datetime.now(budapest_tz).strftime("%Y-%m-%d %H:%M")
@@ -475,6 +470,7 @@ def main():
         "invited":      contacts,
         "reg_clickers": clickers,
         "unsubs":       unsubs,
+        "summary":      summary,
         "updated":      now,
     }
 
