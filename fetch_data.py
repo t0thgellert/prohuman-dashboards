@@ -151,29 +151,48 @@ def get_all_data(campaign):
             bounce_map[email] = "Hard Bounce" if btype == "hard" else "Soft Bounce"
     summary["bounces"] = len(bounce_map)
 
-    # 4. Leiratkozók — v3-ból, unsubscribed status
-    print("  Leiratkozók (v3)...")
+    # 4. Leiratkozók — kampány listájából, status=2 szűréssel
+    print("  Leiratkozók (v3 — kampány listájából)...")
     unsub_emails = set()
+    list_ids = []
     try:
-        # Unsubscribed kontaktok: status=2 a contactLists-ben
-        # Próbáljuk a campaign unsubscribes-t a v3 contacts végponton
-        unsub_contacts = v3_all("contacts", {
-            "filters[status]": 2,
-            "limit": 100
-        })
-        unsub_emails = {c.get("email", "").lower() for c in unsub_contacts if c.get("email")}
-        print(f"  → {len(unsub_emails)} leiratkozott kontakt (összes)")
+        camp_detail = requests.get(f"{AC_API_URL}/api/3/campaigns/{cid}",
+                                   headers=HDR_V3, timeout=15).json()
+        camp_obj = camp_detail.get("campaign", {})
+        list_ids = [str(x) for x in (camp_obj.get("lists") or [])]
+        if not list_ids and camp_obj.get("list"):
+            list_ids = [str(camp_obj["list"])]
+        print(f"  → Kampány lista ID-k: {list_ids}")
+        for lid in list_ids:
+            unsub_contacts = v3_all("contacts", {"listid": lid, "filters[status]": 2, "limit": 100})
+            for c in unsub_contacts:
+                email = c.get("email", "").lower()
+                if email:
+                    unsub_emails.add(email)
+        print(f"  → {len(unsub_emails)} leiratkozott a kampány listájában")
     except Exception as e:
         print(f"  Leiratkozók hiba: {e}")
 
-    # 5. Összes küldött kontakt — megnyitók + bounce-ok + kattintók összesítése
-    # Az AC v1 type=all nem működik, ezért összerakjuk a részlistákból
-    # Alap: megnyitók subscriberid alapján
+    # 5. Összes küldött — kampány listájából (teljes lista)
+    print("  Összes küldött kontakt (v3 — kampány listájából)...")
+    all_list_contacts = {}  # subid -> contact
+    try:
+        for lid in list_ids:
+            batch = v3_all("contacts", {"listid": lid, "limit": 100})
+            for c in batch:
+                subid = str(c.get("id", ""))
+                if subid:
+                    all_list_contacts[subid] = c
+        print(f"  → {len(all_list_contacts)} kontakt a listában")
+    except Exception as e:
+        print(f"  Lista kontaktok hiba: {e}")
+
     print("  Kontakt részletek lekérése (v3)...")
     all_subids = set(opened.keys())
-    # Bounce-okhoz is kell subscriberid — a bounce rekordból
     bounce_subids = {b.get("subscriberid", ""): b for b in bounces_raw if b.get("subscriberid")}
     all_subids.update(bounce_subids.keys())
+    # Lista kontaktok hozzáadása (akik nem nyitottak meg és nem pattantak vissza)
+    all_subids.update(all_list_contacts.keys())
 
     # Kontakt adatok lekérése subscriberid alapján
     contact_details = {}  # subid -> {name, company, email}
@@ -237,6 +256,30 @@ def get_all_data(campaign):
             "unsub":   False,
         }
         contacts.append(record)
+
+    # Lista kontaktok akik nem megnyitók, nem bounce-ok, nem kattintók
+    for subid, c in all_list_contacts.items():
+        email_l = c.get("email", "").lower()
+        if email_l in seen_emails:
+            continue
+        seen_emails.add(email_l)
+        det = contact_details.get(subid, {})
+        is_unsub = email_l in unsub_emails
+        name = det.get("name") or f"{c.get('firstName','')} {c.get('lastName','')}".strip()
+        company = det.get("company") or c.get("orgname", "") or ""
+        record = {
+            "name":    name,
+            "email":   email_l,
+            "company": company,
+            "status":  "Delivered",
+            "detail":  "",
+            "opened":  False,
+            "clicked": email_l in clicked,
+            "unsub":   is_unsub,
+        }
+        contacts.append(record)
+        if is_unsub:
+            unsub_emails.add(email_l)  # biztos benne legyen
 
     # Kattintók akik nem szerepelnek még (nem nyitók sem bounce)
     for email_l, info in clicked.items():
