@@ -98,7 +98,7 @@ def get_all_data(campaign):
     # Összesítők — bouncedamt None, ezért azt a bounce listából számoljuk
     summary = {
         "sent":    0,  # alább töltjük ki a unique kontaktok számával
-        "opens":   int(campaign.get("uniqueopens") or 0),
+        "opens":   0,  # alább töltjük ki a megnyitók listájából
         "clicks":  int(campaign.get("uniquelinkclicks") or 0),
         "bounces": 0,  # alább töltjük ki
         "unsubs":  int(campaign.get("unsubscribes") or 0),
@@ -112,6 +112,7 @@ def get_all_data(campaign):
     # {subscriberid: email}
     opened = {r["subscriberid"]: r["email"].lower()
               for r in opens_raw if r.get("subscriberid")}
+    summary["opens"] = len(opened)
 
     # 2. Kattintók (v1) — 1 link rekord, info[] tömbben az emailek és cégek
     print("  Kattintók (v1)...")
@@ -144,6 +145,7 @@ def get_all_data(campaign):
                             "subid":   info.get("subscriberid", ""),
                         }
     print(f"  → {len(clicked)} egyedi kattintó")
+    summary["clicks"] = len(clicked)
 
     # 3. Bounce-ok (v1)
     print("  Bounce-ok (v1)...")
@@ -156,6 +158,7 @@ def get_all_data(campaign):
             btype = str(b.get("type", "")).lower()
             bounce_map[email] = "Hard Bounce" if btype == "hard" else "Soft Bounce"
     summary["bounces"] = len(bounce_map)
+    summary["unsubs"] = int(campaign.get("unsubscribes") or 0)  # kampány rekordból, v1 tiltva
     # sent = unique kontaktok száma (a listából töltjük fel alább)
 
     # 4. Leiratkozók — subscriberid alapján ellenőrizzük a megnyitók kontaktListáit
@@ -365,16 +368,7 @@ def build_html(data, password):
 }}
 body{{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}}
 .page{{max-width:980px;margin:0 auto;padding:36px 24px 80px}}
-#login-screen{{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg)}}
-.login-box{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:100%;max-width:360px}}
-.login-eyebrow{{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}}
-.login-title{{font-size:18px;font-weight:500;margin-bottom:24px;letter-spacing:-.2px}}
-.login-label{{font-size:11px;font-weight:500;color:var(--text2);display:block;margin-bottom:6px}}
-.login-input{{width:100%;font-family:'DM Mono',monospace;font-size:13px;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;background:var(--bg);color:var(--text);outline:none;letter-spacing:.05em}}
-.login-input:focus{{border-color:var(--text);background:var(--surface)}}
-.login-btn{{margin-top:14px;width:100%;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 0;border:1px solid var(--text);border-radius:var(--rs);background:var(--text);color:#fff;cursor:pointer;transition:opacity .1s}}
-.login-btn:hover{{opacity:.85}}
-.login-err{{margin-top:10px;font-size:11px;color:var(--red);min-height:16px;text-align:center}}
+
 .ph{{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}}
 .ph-eyebrow{{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}}
 .ph-title{{font-size:21px;font-weight:500;letter-spacing:-.2px}}
@@ -416,17 +410,7 @@ tr:hover td{{background:#faf9f6}}
 </style>
 </head>
 <body>
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-eyebrow">statisztika</div>
-    <div class="login-title">Oktatás 2035 vitairat</div>
-    <label class="login-label" for="pw-input">Jelszó</label>
-    <input class="login-input" type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Belépés</button>
-    <div class="login-err" id="pw-err"></div>
-  </div>
-</div>
-<div class="page" id="main-page" style="display:none">
+<div class="page" id="main-page">
 <div class="ph">
   <div>
     <div class="ph-eyebrow">statisztika</div>
@@ -535,26 +519,7 @@ tr:hover td{{background:#faf9f6}}
 </div>
 </div>
 <script>
-const PASSWORD="{pwd_escaped}";
-const SESSION_KEY="stats_auth";
-function doLogin(){{
-  const val=document.getElementById('pw-input').value;
-  if(val===PASSWORD){{
-    sessionStorage.setItem(SESSION_KEY,"1");
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('main-page').style.display='block';
-  }}else{{
-    document.getElementById('pw-err').textContent='Helytelen jelszó.';
-    document.getElementById('pw-input').value='';
-    document.getElementById('pw-input').focus();
-  }}
-}}
-(function(){{
-  if(sessionStorage.getItem(SESSION_KEY)==="1"){{
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('main-page').style.display='block';
-  }}
-}})();
+
 const DATA={data_json};
 let state=JSON.parse(JSON.stringify(DATA));
 function renderMetrics(){{
