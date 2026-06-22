@@ -24,12 +24,23 @@ CAMPAIGN_NAME      = "Oktatás és versenyképesség letöltési link küldés"
 
 HDR_V3 = {"Api-Token": AC_API_KEY}
 
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+session = requests.Session()
+retry = Retry(
+    total=5,
+    backoff_factor=2,
+    status_forcelist=[429, 500, 502, 503, 504],
+)
+session.mount("https://", HTTPAdapter(max_retries=retry))
+
 def v1(action, extra=None):
     time.sleep(0.25)
     p = {"api_key": AC_API_KEY, "api_action": action, "api_output": "json"}
     if extra:
         p.update(extra)
-    r = requests.get(f"{AC_API_URL}/admin/api.php", params=p, timeout=30)
+    r = session.get(f"{AC_API_URL}/admin/api.php", params=p, timeout=(10, 120))
     r.raise_for_status()
     return r.json()
 
@@ -37,6 +48,7 @@ def v1_all(action, extra=None):
     results = []
     page = 0
     while True:
+        print(f"{action}: page {page}")
         p = dict(extra or {})
         p["p"] = page
         p["pp"] = 100
@@ -57,8 +69,8 @@ def v3_all(path, params=None):
     expected_key = path.split("/")[0]
     while True:
         time.sleep(0.25)
-        r = requests.get(f"{AC_API_URL}/api/3/{path}",
-                         headers=HDR_V3, params=params, timeout=30)
+        r = session.get(f"{AC_API_URL}/api/3/{path}",
+                         headers=HDR_V3, params=params, timeout=(10, 120))
         r.raise_for_status()
         data = r.json()
         # Try expected key first, then any list value
@@ -82,8 +94,8 @@ def find_campaign():
 def get_contact_by_id(subscriber_id):
     """V3 API: kontakt részletek subscriberid alapján."""
     time.sleep(0.25)
-    r = requests.get(f"{AC_API_URL}/api/3/contacts/{subscriber_id}",
-                     headers=HDR_V3, timeout=15)
+    r = session.get(f"{AC_API_URL}/api/3/contacts/{subscriber_id}",
+                     headers=HDR_V3, timeout=(10, 60))
     if r.status_code == 200:
         c = r.json().get("contact", {})
         return {
@@ -170,8 +182,8 @@ def get_all_data(campaign):
     for subid in list(opened.keys()):
         try:
             time.sleep(0.25)
-            r = requests.get(f"{AC_API_URL}/api/3/contacts/{subid}/contactLists",
-                             headers=HDR_V3, timeout=15)
+            r = session.get(f"{AC_API_URL}/api/3/contacts/{subid}/contactLists",
+                             headers=HDR_V3, timeout=(10, 60))
             if r.status_code == 200:
                 cls = r.json().get("contactLists", [])
                 for cl in cls:
