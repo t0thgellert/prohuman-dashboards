@@ -93,9 +93,16 @@ def get_all_data(campaign):
     opens_raw = v1_all("campaign_report_open_list",
                        {"campaignid": cid, "type": "open"})
     print(f"  → {len(opens_raw)} megnyitó")
-    opened = {r["subscriberid"]: r["email"].lower()
-              for r in opens_raw if r.get("subscriberid") and r.get("email")}
-    summary["opens"] = len(opened)
+    # Deduplikálás subscriberid alapján (minden megnyitás külön rekord!)
+    opened = {}
+    for r in opens_raw:
+        subid = r.get("subscriberid", "")
+        email = r.get("email", "").lower()
+        if subid and email and subid not in opened:
+            opened[subid] = email
+    # A valódi unique opens a kampány rekordból jön (a v1 lista nem unique!)
+    summary["opens"] = int(campaign.get("uniqueopens") or 0) or len(opened)
+    print(f"  → {len(opens_raw)} nyitás → {len(opened)} unique megnyitó (kampány: {summary['opens']})")
 
     # 2. Kattintók (v1)
     print("  Kattintók (v1)...")
@@ -151,25 +158,29 @@ def get_all_data(campaign):
             pass
     print(f"  → {len(unsub_emails)} leiratkozott, lista ID-k: {list_ids}")
 
-    # 5. Összes küldött — v3 listából
+    # 5. Összes küldött — csak a legkisebb lista ID (kampány listája)
+    # A leiratkozók ellenőrzéséből két lista jött: 3 (Download) és 4 (összes AC kontakt)
+    # Csak a legkisebb ID-jú listát használjuk
     print("  Összes küldött (v3 listából)...")
     all_list_contacts = {}
-    for lid in list_ids:
+    per_list = {}  # lid -> {subid: contact}
+    for lid in sorted(list_ids, key=lambda x: int(x)):
         try:
             batch = v3_all("contacts", {"listid": lid, "limit": 100})
-            for c in batch:
-                subid = str(c.get("id", ""))
-                if subid:
-                    all_list_contacts[subid] = c
+            per_list[lid] = {str(c.get("id","")): c for c in batch if c.get("id")}
             print(f"  → Lista {lid}: {len(batch)} kontakt")
         except Exception as e:
             print(f"  → Lista {lid} hiba: {e}")
-    if all_list_contacts:
+
+    # Legkisebb lista = kampány saját listája
+    if per_list:
+        smallest_lid = sorted(per_list.keys(), key=lambda x: int(x))[0]
+        all_list_contacts = per_list[smallest_lid]
+        print(f"  → Kampány lista (id={smallest_lid}): {len(all_list_contacts)} kontakt")
         summary["sent"] = len(all_list_contacts)
     else:
-        summary["sent"] = len(set(list(opened.keys()) +
-                                  list({b.get("subscriberid","") for b in bounces_raw})))
-    print(f"  → Összesen: {len(all_list_contacts)} kontakt, sent={summary['sent']}")
+        summary["sent"] = int(campaign.get("send_amt") or len(opened))
+    print(f"  → sent={summary['sent']}")
 
     # 6. Kontakt részletek — CSAK akiknek nincs még adatuk (max 100 API hívás)
     print("  Kontakt részletek (v3)...")
