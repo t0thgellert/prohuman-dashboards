@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
 """
-ActiveCampaign kampánystatisztika — végleges verzió a debug log alapján.
-
-Amit tudunk az API-ból:
-- campaign_report_open_list (type=open): csak megnyitók, email+subscriberid
-- campaign_report_link_list: 1 link rekord, info[] tömbben a kattintók email+cég
-- campaign_report_bounce_list: bounce-ok, type=soft/hard
-- campaign_report_unsubscribe_list: TILTVA — v3-ból kell
-- bouncedamt: None a kampány rekordban — v1 bounce listából számoljuk
-- Összes küldött: v3 contacts + subscriberid alapján keressük
+ActiveCampaign kampánystatisztika — gyors verzió.
+A v1 végtelen lapozás hiba javítva.
 """
 
 import os
@@ -19,61 +12,53 @@ from datetime import datetime, timezone, timedelta
 
 AC_API_URL         = os.environ["AC_API_URL"].rstrip("/")
 AC_API_KEY         = os.environ["AC_API_KEY"]
-DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "changeme")
 CAMPAIGN_NAME      = "Oktatás és versenyképesség letöltési link küldés"
-
-HDR_V3 = {"Api-Token": AC_API_KEY}
-
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-
-session = requests.Session()
-retry = Retry(
-    total=5,
-    backoff_factor=2,
-    status_forcelist=[429, 500, 502, 503, 504],
-)
-session.mount("https://", HTTPAdapter(max_retries=retry))
+HDR_V3             = {"Api-Token": AC_API_KEY}
 
 def v1(action, extra=None):
-    time.sleep(0.25)
+    time.sleep(0.2)
     p = {"api_key": AC_API_KEY, "api_action": action, "api_output": "json"}
     if extra:
         p.update(extra)
-    r = session.get(f"{AC_API_URL}/admin/api.php", params=p, timeout=(10, 120))
+    r = requests.get(f"{AC_API_URL}/admin/api.php", params=p, timeout=30)
     r.raise_for_status()
     return r.json()
 
 def v1_all(action, extra=None):
+    """Lapozós lekérés — JAVÍTOTT végtelen ciklus ellen."""
     results = []
     page = 0
-    while True:
-        print(f"{action}: page {page}")
+    MAX_PAGES = 50  # biztonsági korlát
+    while page < MAX_PAGES:
         p = dict(extra or {})
-        p["p"] = page
+        p["p"]  = page
         p["pp"] = 100
         data = v1(action, p)
-        batch = [v for k, v in data.items() if k.isdigit() and isinstance(v, dict)]
+        batch = [v for k, v in data.items()
+                 if k.isdigit() and isinstance(v, dict)]
         results.extend(batch)
+        print(f"  {action}: lap {page}, {len(batch)} rekord")
+        # Ha kevesebb jött mint 100, vége
         if len(batch) < 100:
             break
         page += 1
     return results
 
 def v3_all(path, params=None):
+    """V3 lapozós lekérés."""
     params = dict(params or {})
     params.setdefault("limit", 100)
     params["offset"] = 0
     results = []
-    # Derive expected key from path (e.g. "contacts" -> "contacts")
     expected_key = path.split("/")[0]
-    while True:
-        time.sleep(0.25)
-        r = session.get(f"{AC_API_URL}/api/3/{path}",
-                         headers=HDR_V3, params=params, timeout=(10, 120))
+    MAX_PAGES = 50
+    page = 0
+    while page < MAX_PAGES:
+        time.sleep(0.2)
+        r = requests.get(f"{AC_API_URL}/api/3/{path}",
+                         headers=HDR_V3, params=params, timeout=30)
         r.raise_for_status()
         data = r.json()
-        # Try expected key first, then any list value
         if expected_key in data and isinstance(data[expected_key], list):
             items = data[expected_key]
         else:
@@ -83,6 +68,7 @@ def v3_all(path, params=None):
         params["offset"] += len(items)
         if params["offset"] >= total or not items:
             break
+        page += 1
     return results
 
 def find_campaign():
@@ -91,47 +77,31 @@ def find_campaign():
             return c
     raise ValueError(f"Kampány nem található: '{CAMPAIGN_NAME}'")
 
-def get_contact_by_id(subscriber_id):
-    """V3 API: kontakt részletek subscriberid alapján."""
-    time.sleep(0.25)
-    r = session.get(f"{AC_API_URL}/api/3/contacts/{subscriber_id}",
-                     headers=HDR_V3, timeout=(10, 60))
-    if r.status_code == 200:
-        c = r.json().get("contact", {})
-        return {
-            "name":    f"{c.get('firstName','')} {c.get('lastName','')}".strip(),
-            "company": c.get("orgname", "") or "",
-        }
-    return {"name": "", "company": ""}
-
 def get_all_data(campaign):
     cid = str(campaign["id"])
 
-    # Összesítők — bouncedamt None, ezért azt a bounce listából számoljuk
     summary = {
-        "sent":    0,  # alább töltjük ki a unique kontaktok számával
-        "opens":   0,  # alább töltjük ki a megnyitók listájából
-        "clicks":  int(campaign.get("uniquelinkclicks") or 0),
-        "bounces": 0,  # alább töltjük ki
+        "sent":    0,
+        "opens":   0,
+        "clicks":  0,
+        "bounces": 0,
         "unsubs":  int(campaign.get("unsubscribes") or 0),
     }
 
-    # 1. Megnyitók (v1) — email + subscriberid
+    # 1. Megnyitók (v1)
     print("  Megnyitók (v1)...")
     opens_raw = v1_all("campaign_report_open_list",
                        {"campaignid": cid, "type": "open"})
     print(f"  → {len(opens_raw)} megnyitó")
-    # {subscriberid: email}
     opened = {r["subscriberid"]: r["email"].lower()
-              for r in opens_raw if r.get("subscriberid")}
+              for r in opens_raw if r.get("subscriberid") and r.get("email")}
     summary["opens"] = len(opened)
 
-    # 2. Kattintók (v1) — 1 link rekord, info[] tömbben az emailek és cégek
+    # 2. Kattintók (v1)
     print("  Kattintók (v1)...")
     links_raw = v1_all("campaign_report_link_list", {"campaignid": cid})
     print(f"  → {len(links_raw)} link")
-    # A kattintókat az info[] tömbből szedjük ki
-    clicked = {}  # email_lower -> {email, name, company}
+    clicked = {}
     for link in links_raw:
         info_list = link.get("info", [])
         if isinstance(info_list, list):
@@ -140,23 +110,11 @@ def get_all_data(campaign):
                 if email:
                     clicked[email.lower()] = {
                         "email":   email,
-                        "name":    "",  # alább töltjük v3-ból
+                        "name":    "",
                         "company": info.get("customer_acct_name", "") or "",
-                        "subid":   info.get("subscriberid", ""),
+                        "subid":   str(info.get("subscriberid", "")),
                     }
-        elif isinstance(info_list, dict):
-            # Ha dict formátumban jön
-            for _, info in info_list.items():
-                if isinstance(info, dict):
-                    email = info.get("email", "")
-                    if email:
-                        clicked[email.lower()] = {
-                            "email":   email,
-                            "name":    "",
-                            "company": info.get("customer_acct_name", "") or "",
-                            "subid":   info.get("subscriberid", ""),
-                        }
-    print(f"  → {len(clicked)} egyedi kattintó")
+    print(f"  → {len(clicked)} kattintó")
     summary["clicks"] = len(clicked)
 
     # 3. Bounce-ok (v1)
@@ -170,50 +128,31 @@ def get_all_data(campaign):
             btype = str(b.get("type", "")).lower()
             bounce_map[email] = "Hard Bounce" if btype == "hard" else "Soft Bounce"
     summary["bounces"] = len(bounce_map)
-    summary["unsubs"] = int(campaign.get("unsubscribes") or 0)  # kampány rekordból, v1 tiltva
-    # sent = unique kontaktok száma (a listából töltjük fel alább)
 
-    # 4. Leiratkozók — subscriberid alapján ellenőrizzük a megnyitók kontaktListáit
-    # A kampány rekordban nincs list/lists mező, ezért per-kontakt ellenőrzés
-    print("  Leiratkozók keresése (v3 contactLists alapján)...")
+    # 4. Leiratkozók — subscriberid alapján contactLists ellenőrzés
+    print("  Leiratkozók (v3 contactLists)...")
     unsub_emails = set()
     list_ids = []
-    # Megnyitók subscriberid-jein ellenőrizzük ki iratkozott le
-    for subid in list(opened.keys()):
+    for subid in list(opened.keys())[:50]:  # max 50 ellenőrzés
         try:
-            time.sleep(0.25)
-            r = session.get(f"{AC_API_URL}/api/3/contacts/{subid}/contactLists",
-                             headers=HDR_V3, timeout=(10, 60))
+            time.sleep(0.2)
+            r = requests.get(f"{AC_API_URL}/api/3/contacts/{subid}/contactLists",
+                             headers=HDR_V3, timeout=15)
             if r.status_code == 200:
-                cls = r.json().get("contactLists", [])
-                for cl in cls:
-                    if str(cl.get("status")) == "2":  # 2 = unsubscribed
-                        # Ez a kontakt leiratkozott — megkeressük az emailt
+                for cl in r.json().get("contactLists", []):
+                    if str(cl.get("status")) == "2":
                         email = opened.get(subid, "")
                         if email:
                             unsub_emails.add(email)
-                        if cl.get("list") and cl["list"] not in list_ids:
-                            list_ids.append(str(cl["list"]))
+                    lid = str(cl.get("list", ""))
+                    if lid and lid not in list_ids:
+                        list_ids.append(lid)
         except Exception:
             pass
     print(f"  → {len(unsub_emails)} leiratkozott, lista ID-k: {list_ids}")
 
-    # Ha még mindig nincs list_id, próbáljuk a v1 campaign_report_list végponttal
-    if not list_ids:
-        try:
-            data = v1("campaign_report_list", {"campaignid": cid})
-            print(f"  → campaign_report_list válasz kulcsai: {list(data.keys())[:10]}")
-            for k, v in data.items():
-                if k.isdigit() and isinstance(v, dict):
-                    lid = str(v.get("listid", "") or v.get("list", ""))
-                    if lid and lid not in list_ids:
-                        list_ids.append(lid)
-        except Exception as e:
-            print(f"  campaign_report_list hiba: {e}")
-    print(f"  → Végső lista ID-k: {list_ids}")
-
-    # 5. Összes küldött — v3 contacts listid alapján (status paraméter nélkül = összes)
-    print("  Összes küldött kontakt (v3, listid, status nélkül)...")
+    # 5. Összes küldött — v3 listából
+    print("  Összes küldött (v3 listából)...")
     all_list_contacts = {}
     for lid in list_ids:
         try:
@@ -225,142 +164,115 @@ def get_all_data(campaign):
             print(f"  → Lista {lid}: {len(batch)} kontakt")
         except Exception as e:
             print(f"  → Lista {lid} hiba: {e}")
-    print(f"  → Összesen: {len(all_list_contacts)} kontakt")
-    # Unique kontaktok száma = lista mérete (ha van), különben megnyitók+bounce
     if all_list_contacts:
         summary["sent"] = len(all_list_contacts)
     else:
-        summary["sent"] = len(set(opened.keys()) | set(bounce_map.keys()))
+        summary["sent"] = len(set(list(opened.keys()) +
+                                  list({b.get("subscriberid","") for b in bounces_raw})))
+    print(f"  → Összesen: {len(all_list_contacts)} kontakt, sent={summary['sent']}")
 
-    print("  Kontakt részletek lekérése (v3)...")
-    all_subids = set(opened.keys())
-    bounce_subids = {b.get("subscriberid", ""): b for b in bounces_raw if b.get("subscriberid")}
-    all_subids.update(bounce_subids.keys())
-    # Lista kontaktok hozzáadása (akik nem nyitottak meg és nem pattantak vissza)
-    all_subids.update(all_list_contacts.keys())
+    # 6. Kontakt részletek — CSAK akiknek nincs még adatuk (max 100 API hívás)
+    print("  Kontakt részletek (v3)...")
+    all_subids = set(opened.keys()) | {b.get("subscriberid","") for b in bounces_raw if b.get("subscriberid")} | set(all_list_contacts.keys())
+    all_subids.discard("")
 
-    # Kontakt adatok lekérése subscriberid alapján
-    contact_details = {}  # subid -> {name, company, email}
-    total = len(all_subids)
-    for i, subid in enumerate(all_subids):
+    contact_details = {}
+    # Először a lista kontaktokból nyerjük ki az adatokat (nincs extra API hívás)
+    for subid, c in all_list_contacts.items():
+        name = f"{c.get('firstName','')} {c.get('lastName','')}".strip()
+        contact_details[subid] = {
+            "name":    name,
+            "company": c.get("orgname", "") or "",
+        }
+
+    # Csak azokhoz hívunk API-t akik nem szerepelnek a listában (max 50)
+    missing = [s for s in all_subids if s not in contact_details][:50]
+    for i, subid in enumerate(missing):
         if i % 10 == 0:
-            print(f"    {i}/{total}...")
-        det = get_contact_by_id(subid)
-        contact_details[subid] = det
+            print(f"    {i}/{len(missing)} részlet...")
+        try:
+            time.sleep(0.2)
+            r = requests.get(f"{AC_API_URL}/api/3/contacts/{subid}",
+                             headers=HDR_V3, timeout=15)
+            if r.status_code == 200:
+                c = r.json().get("contact", {})
+                contact_details[subid] = {
+                    "name":    f"{c.get('firstName','')} {c.get('lastName','')}".strip(),
+                    "company": c.get("orgname", "") or "",
+                }
+        except Exception:
+            pass
+    print(f"  → {len(contact_details)} kontakt részlet")
 
-    # Kattintók nevei — subid alapján
+    # Kattintók neveinek kiegészítése
     for email_l, info in clicked.items():
         subid = info.get("subid", "")
         if subid and subid in contact_details:
-            clicked[email_l]["name"] = contact_details[subid]["name"]
+            clicked[email_l]["name"] = contact_details[subid].get("name", "")
             if not clicked[email_l]["company"]:
-                clicked[email_l]["company"] = contact_details[subid]["company"]
+                clicked[email_l]["company"] = contact_details[subid].get("company", "")
 
-    # 6. Összerakás
+    # 7. Összerakás
     contacts = []
-    unsubs   = []
-    seen_emails = set()
+    seen = set()
 
-    # Megnyitók
-    for subid, email_l in opened.items():
-        if email_l in seen_emails:
-            continue
-        seen_emails.add(email_l)
+    def make_record(subid, email_l, opened_flag, clicked_flag, bounced, unsub):
         det = contact_details.get(subid, {})
-        is_unsub = email_l in unsub_emails
-        record = {
-            "name":    det.get("name", ""),
-            "email":   email_l,
-            "company": det.get("company", ""),
-            "status":  bounce_map.get(email_l, "Delivered"),
-            "detail":  "",
-            "opened":  True,
-            "clicked": email_l in clicked,
-            "unsub":   is_unsub,
-        }
-        contacts.append(record)
-        if is_unsub:
-            unsubs.append({"name": det.get("name",""), "email": email_l, "company": det.get("company","")})
-
-    # Bounce-ok akik nem megnyitók
-    for subid, b in bounce_subids.items():
-        email_l = b.get("email", "").lower()
-        if email_l in seen_emails:
-            continue
-        seen_emails.add(email_l)
-        det = contact_details.get(subid, {})
-        btype = str(b.get("type", "")).lower()
-        record = {
-            "name":    det.get("name", ""),
-            "email":   email_l,
-            "company": det.get("company", ""),
-            "status":  "Hard Bounce" if btype == "hard" else "Soft Bounce",
-            "detail":  b.get("reason", "")[:80] if b.get("reason") else "",
-            "opened":  False,
-            "clicked": False,
-            "unsub":   False,
-        }
-        contacts.append(record)
-
-    # Lista kontaktok akik nem megnyitók, nem bounce-ok, nem kattintók
-    for subid, c in all_list_contacts.items():
-        email_l = c.get("email", "").lower()
-        if email_l in seen_emails:
-            continue
-        seen_emails.add(email_l)
-        det = contact_details.get(subid, {})
-        is_unsub = email_l in unsub_emails
-        name = det.get("name") or f"{c.get('firstName','')} {c.get('lastName','')}".strip()
-        company = det.get("company") or c.get("orgname", "") or ""
-        record = {
+        lc  = all_list_contacts.get(subid, {})
+        name    = det.get("name") or f"{lc.get('firstName','')} {lc.get('lastName','')}".strip()
+        company = det.get("company") or lc.get("orgname", "") or ""
+        return {
             "name":    name,
             "email":   email_l,
             "company": company,
-            "status":  "Delivered",
+            "status":  bounce_map.get(email_l, "Delivered") if bounced else "Delivered",
             "detail":  "",
-            "opened":  False,
-            "clicked": email_l in clicked,
-            "unsub":   is_unsub,
+            "opened":  opened_flag,
+            "clicked": clicked_flag,
+            "unsub":   unsub,
         }
-        contacts.append(record)
-        if is_unsub:
-            unsub_emails.add(email_l)  # biztos benne legyen
 
-    # Kattintók akik nem szerepelnek még (nem nyitók sem bounce)
-    for email_l, info in clicked.items():
-        if email_l in seen_emails:
+    # Megnyitók
+    for subid, email_l in opened.items():
+        if email_l in seen:
             continue
-        seen_emails.add(email_l)
-        is_unsub = email_l in unsub_emails
-        record = {
-            "name":    info.get("name", ""),
-            "email":   info.get("email", email_l),
-            "company": info.get("company", ""),
-            "status":  "Delivered",
-            "detail":  "",
-            "opened":  False,
-            "clicked": True,
-            "unsub":   is_unsub,
-        }
-        contacts.append(record)
+        seen.add(email_l)
+        contacts.append(make_record(subid, email_l, True,
+                                    email_l in clicked,
+                                    email_l in bounce_map,
+                                    email_l in unsub_emails))
 
-    clickers = [
-        {"name": c["name"], "email": c["email"], "company": c["company"]}
-        for c in contacts if c["clicked"]
-    ]
-    unsubs = [
-        {"name": c["name"], "email": c["email"], "company": c["company"]}
-        for c in contacts if c["unsub"]
-    ]
+    # Bounce-ok (akik nem megnyitók)
+    for b in bounces_raw:
+        email_l = b.get("email", "").lower()
+        subid   = str(b.get("subscriberid", ""))
+        if not email_l or email_l in seen:
+            continue
+        seen.add(email_l)
+        contacts.append(make_record(subid, email_l, False, False, True, False))
+
+    # Lista kontaktok (akik sem megnyitók sem bounce-ok)
+    for subid, c in all_list_contacts.items():
+        email_l = c.get("email", "").lower()
+        if not email_l or email_l in seen:
+            continue
+        seen.add(email_l)
+        contacts.append(make_record(subid, email_l, False,
+                                    email_l in clicked, False,
+                                    email_l in unsub_emails))
+
+    unsubs   = [{"name": c["name"], "email": c["email"], "company": c["company"]}
+                for c in contacts if c["unsub"]]
+    clickers = [{"name": c["name"], "email": c["email"], "company": c["company"]}
+                for c in contacts if c["clicked"]]
 
     print(f"  Végeredmény: {len(contacts)} kontakt, {len(unsubs)} leiratkozó, {len(clickers)} kattintó")
     print(f"  Összesítők: {summary}")
     return contacts, unsubs, clickers, summary
 
 
-def build_html(data, password):
-    data_json   = json.dumps(data, ensure_ascii=False)
-    pwd_escaped = password.replace("\\", "\\\\").replace('"', '\\"')
+def build_html(data):
+    data_json = json.dumps(data, ensure_ascii=False)
     return f"""<!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -380,7 +292,6 @@ def build_html(data, password):
 }}
 body{{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}}
 .page{{max-width:980px;margin:0 auto;padding:36px 24px 80px}}
-
 .ph{{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}}
 .ph-eyebrow{{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}}
 .ph-title{{font-size:21px;font-weight:500;letter-spacing:-.2px}}
@@ -400,8 +311,7 @@ body{{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fo
 .tab{{flex:1;text-align:center;padding:8px 12px;font-size:12px;font-weight:500;color:var(--text2);border-radius:8px;cursor:pointer;transition:background .12s,color .12s;border:none;background:none}}
 .tab.active{{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.08)}}
 .tab-count{{font-family:'DM Mono',monospace;font-size:10px;margin-left:5px;opacity:.7}}
-.panel{{display:none}}
-.panel.active{{display:block}}
+.panel{{display:none}}.panel.active{{display:block}}
 .tbl-wrap{{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}}
 .tbl-search{{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center}}
 .tbl-search input[type=text]{{flex:1;font-family:'DM Sans',sans-serif;font-size:12px;border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;background:var(--bg);color:var(--text);outline:none}}
@@ -471,67 +381,46 @@ tr:hover td{{background:#faf9f6}}
 </div>
 <div class="panel active" id="p-invited">
   <div class="tbl-wrap">
-    <div class="tbl-search">
-      <input type="text" id="s-inv" placeholder="Keresés: név, e-mail, cég…" oninput="renderInvited()">
-      <span class="tbl-count" id="cnt-inv">—</span>
-    </div>
+    <div class="tbl-search"><input type="text" id="s-inv" placeholder="Keresés: név, e-mail, cég…" oninput="renderInvited()"><span class="tbl-count" id="cnt-inv">—</span></div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th><th>Megnyitás</th><th>Kattintás</th></tr></thead>
-      <tbody id="tb-inv"></tbody></table>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Státusz</th><th>Megnyitás</th><th>Kattintás</th></tr></thead><tbody id="tb-inv"></tbody></table>
     </div>
   </div>
 </div>
 <div class="panel" id="p-bounced">
   <div class="tbl-wrap">
-    <div class="tbl-search">
-      <input type="text" id="s-bnc" placeholder="Keresés: név, e-mail, cég…" oninput="renderBounced()">
-      <span class="tbl-count" id="cnt-bnc">—</span>
-    </div>
+    <div class="tbl-search"><input type="text" id="s-bnc" placeholder="Keresés: név, e-mail, cég…" oninput="renderBounced()"><span class="tbl-count" id="cnt-bnc">—</span></div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Típus</th></tr></thead>
-      <tbody id="tb-bnc"></tbody></table>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th><th>Típus</th></tr></thead><tbody id="tb-bnc"></tbody></table>
     </div>
   </div>
 </div>
 <div class="panel" id="p-opens">
   <div class="tbl-wrap">
-    <div class="tbl-search">
-      <input type="text" id="s-opn" placeholder="Keresés: név, e-mail, cég…" oninput="renderOpens()">
-      <span class="tbl-count" id="cnt-opn">—</span>
-    </div>
+    <div class="tbl-search"><input type="text" id="s-opn" placeholder="Keresés: név, e-mail, cég…" oninput="renderOpens()"><span class="tbl-count" id="cnt-opn">—</span></div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead>
-      <tbody id="tb-opn"></tbody></table>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead><tbody id="tb-opn"></tbody></table>
     </div>
   </div>
 </div>
 <div class="panel" id="p-unsubs">
   <div class="tbl-wrap">
-    <div class="tbl-search">
-      <input type="text" id="s-uns" placeholder="Keresés: név, e-mail, cég…" oninput="renderUnsubs()">
-      <span class="tbl-count" id="cnt-uns">—</span>
-    </div>
+    <div class="tbl-search"><input type="text" id="s-uns" placeholder="Keresés: név, e-mail, cég…" oninput="renderUnsubs()"><span class="tbl-count" id="cnt-uns">—</span></div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead>
-      <tbody id="tb-uns"></tbody></table>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead><tbody id="tb-uns"></tbody></table>
     </div>
   </div>
 </div>
 <div class="panel" id="p-visitors">
   <div class="tbl-wrap">
-    <div class="tbl-search">
-      <input type="text" id="s-vis" placeholder="Keresés: név, e-mail, cég…" oninput="renderVisitors()">
-      <span class="tbl-count" id="cnt-vis">—</span>
-    </div>
+    <div class="tbl-search"><input type="text" id="s-vis" placeholder="Keresés: név, e-mail, cég…" oninput="renderVisitors()"><span class="tbl-count" id="cnt-vis">—</span></div>
     <div style="max-height:480px;overflow-y:auto">
-      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead>
-      <tbody id="tb-vis"></tbody></table>
+      <table><thead><tr><th>#</th><th>Név</th><th>E-mail</th><th>Cég</th></tr></thead><tbody id="tb-vis"></tbody></table>
     </div>
   </div>
 </div>
 </div>
 <script>
-
 const DATA={data_json};
 let state=JSON.parse(JSON.stringify(DATA));
 function renderMetrics(){{
@@ -625,6 +514,7 @@ renderAll();
 </body>
 </html>"""
 
+
 def main():
     print("Kampány keresése...")
     campaign = find_campaign()
@@ -643,7 +533,7 @@ def main():
         "updated":      now,
     }
 
-    html = build_html(data, DASHBOARD_PASSWORD)
+    html = build_html(data)
     with open("stats.html", "w", encoding="utf-8") as f:
         f.write(html)
     print(f"stats.html generálva ({len(html):,} karakter)")
